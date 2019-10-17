@@ -1,0 +1,467 @@
+Name,Intervals,Culture,Continent,Tuning,Reference,Theory
+Major,2212221,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2013",Y
+Natural minor,2122122,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2014",Y
+Harmonic minor,2122131,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2015",Y
+Melodic minor,2122221,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2016",Y
+Chromatic,111111111111,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2017",Y
+Lydian,2221221,Diatonic modes,Western,12-tet;Just;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2018",Y
+Ionian,2212221,Diatonic modes,Western,12-tet;Just;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2019",Y
+Mixolydian,2212212,Diatonic modes,Western,12-tet;Just;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2020",Y
+Dorian,2122212,Diatonic modes,Western,12-tet;Just;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2021",Y
+Aeolian,2122122,Diatonic modes,Western,12-tet;Just;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2022",Y
+Phrygian,1222122,Diatonic modes,Western,12-tet;Just;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2023",Y
+Locrian,1221222,Diatonic modes,Western,12-tet;Just;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2024",Y
+Acoustic,2221212,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2025",Y
+Hungarian Major 1,3121212,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2026",Y
+Hungarian Major 2,3121221,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2027",Y
+Lydian Major,2221122,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2028",Y
+Prometheus,222312,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2029",Y
+Neapolitan Prometheus,132312,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2030",Y
+Leading whole-tone,2222211,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2031",Y
+Lydian Diminished,2131221,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2032",Y
+Harmonic major,2212131,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2033",Y
+Major-minor,2212122,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2034",Y
+Neapolitan Major,1312221,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2035",Y
+Neapolitan Mixolydian,1312212,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2036",Y
+Mixolydian flat sixth,2212122,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2037",Y
+Mixolydian sharp second,3112212,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2038",Y
+Ukrainian Dorian,2131212,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2039",Y
+Neapolitan Dorian,1222212,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2040",Y
+Hungarian Minor 1,2131122,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2041",Y
+Hungarian Minor 2,2131131,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2042",Y
+Spanish Phrygian 7 tone,1312122,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2043",Y
+Spanish Phrygian 8 tone,12112122,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2044",Y
+Espla's Scale,12111222,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2045",Y
+Double Harmonic,1312131,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2046",Y
+Harmonic Phrygian,1222131,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2047",Y
+Phrygian Major,1222221,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2048",Y
+Major Locrian,2211222,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2049",Y
+Minor Locrian,2121222,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2050",Y
+Locrian Minor,2121231,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2051",Y
+Super Locrian,1212222,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2052",Y
+Ultra Locrian,1212213,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2053",Y
+Oriental,1221312,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2054",Y
+Doric Locrian,2121312,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2055",Y
+Persian,1311312,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2056",Y
+Tcherepnin Enneatonic,121121121,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2057",Y
+Tcherepnin Hexatonic,131313,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2058",Y
+Shostakovich,1213122,Western Classical,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2059",Y
+Hijaz,1312122,Greek Folk,Western,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2060",Y
+Souzinak,2131212,Greek Folk,Western,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2061",Y
+Hijazkiar,1312131,Greek Folk,Western,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2062",Y
+Rast,2212221,Greek Folk,Western,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2063",Y
+Houzam,3112131,Greek Folk,Western,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2064",Y
+Ousak,1222122,Greek Folk,Western,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2065",Y
+Niaventi,2131131,Greek Folk,Western,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2066",Y
+Kiordi,2122122,Greek Folk,Western,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2067",Y
+Tsinganikos,1311312,Greek Folk,Western,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2068",Y
+Periaiotikos,3121221,Greek Folk,Western,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2069",Y
+Sabach,2113122,Greek Folk,Western,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2070",Y
+Segiah,3112122,Greek Folk,Western,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2071",Y
+Pentatonic 1,22323,Western Classical,Western,12-tet;Just;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2072",Y
+Pentatonic 2,23223,Western Classical,Western,12-tet;Just;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2073",Y
+Pentatonic 3,23232,Western Classical,Western,12-tet;Just;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2074",Y
+Pentatonic 4,32232,Western Classical,Western,12-tet;Just;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2075",Y
+Pentatonic 5,32322,Western Classical,Western,12-tet;Just;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2076",Y
+Minor Blues,321132,Jazz,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2077",Y
+Major Blues,211323,Jazz,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2078",Y
+Bebop Dominant,22122111,Jazz,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2079",Y
+Bebop Major,22121121,Jazz,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2080",Y
+Bebop Minor,21221211,Jazz,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2081",Y
+Bebop Melodic Minor,21221121,Jazz,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2082",Y
+Bebop Dorian,21112212,Jazz,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2083",Y
+Jazz Minor,2122221,Jazz,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2084",Y
+Jazz Harmonic Minor,2122131,Jazz,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2085",Y
+Augmented,222222,Jazz,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2086",Y
+Diminished,12121212,Jazz,Western,12-tet,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2087",Y
+Ryo,22323,Japanese,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2088",Y
+Ritsu,23223,Japanese,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2089",Y
+Minyo,32232,Japanese,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2090",Y
+Hirajoshi,21414,Japanese,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2091",Y
+Kumoi Joshi,14214,Japanese,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2092",Y
+Iwato,14142,Japanese,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2093",Y
+Kokin Joshi,23214,Japanese,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2094",Y
+Akebono,21423,Japanese,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2095",Y
+Han Iwato,14232,Japanese,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2096",Y
+Ryukan,41241,Okinawan,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2097",Y
+Yosenpo Rising,23232,Japanese,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2098",Y
+Yosenpo Descending,23223,Japanese,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2099",Y
+Isenpo Rising,14232,Japanese,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2100",Y
+Isenpo Descending,14214,Japanese,East Asia,12-tet;Pythagorean,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2101",Y
+Silaba,2212221,Kora,Africa,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2102",Y
+Tomora Mesengo,2122212,Kora,Africa,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2103",Y
+Sauta,2221221,Kora,Africa,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2104",Y
+Hardino,2212221,Kora,Africa,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2105",Y
+Bilawal,2212221,Northern India,South Asia,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2106",Y
+Kalyan,2221221,Northern India,South Asia,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2107",Y
+Khamaj,2212212,Northern India,South Asia,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2108",Y
+Khafi,2122212,Northern India,South Asia,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2109",Y
+Asavari,2122122,Northern India,South Asia,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2110",Y
+Bhairavi,1222122,Northern India,South Asia,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2111",Y
+Purvi,1321131,Northern India,South Asia,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2112",Y
+Todi,1231131,Northern India,South Asia,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2113",Y
+Bhairav,1312131,Northern India,South Asia,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2114",Y
+Marwa,1321221,Northern India,South Asia,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2115",Y
+Mela Kanakangi,1132113,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2116",Y
+Mela Ratnangi,1132122,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2117",Y
+Mela Ganamurti,1132131,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2118",Y
+Mela Vanaspati,1132212,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2119",Y
+Mela Manavati,1132221,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2120",Y
+Mela Tanarupi,1132311,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2121",Y
+Mela Senavati,1222113,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2122",Y
+Mela Hanumatodi,1222122,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2123",Y
+Mela Dhenuka,1222131,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2124",Y
+Mela Natakapriya,1222212,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2125",Y
+Mela Kokilapriya,1222221,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2126",Y
+Mela Rupavati,1222131,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2127",Y
+Mela Gayakapriya,1312113,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2128",Y
+Mela Vakulabharanam,1312122,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2129",Y
+Mela Mayamalavagowla,1312131,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2130",Y
+Mela Chakravakam,1312212,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2131",Y
+Mela Suryakantam,1312221,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2132",Y
+Mela Hatakambari,1312311,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2133",Y
+Mela Jhankaradhwani,2122113,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2134",Y
+Mela Natabhairavi,2122122,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2135",Y
+Mela Keeravani,2122131,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2136",Y
+Mela Kharaharapriya,2122212,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2137",Y
+Mela Gourimanohari,2122221,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2138",Y
+Mela Varunapriya,2122311,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2139",Y
+Mela Mararanjani,2212113,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2140",Y
+Mela Charukesi,2212122,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2141",Y
+Mela Sarasangi,2212131,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2142",Y
+Mela Harikambhoji,2212212,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2143",Y
+Mela Dheerasankarabharanam,2212221,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2144",Y
+Mela Naganandini,2212311,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2145",Y
+Mela Yagapriya,3112113,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2146",Y
+Mela Ragavardhini,3112122,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2147",Y
+Mela Gangeyabhushani,3112131,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2148",Y
+Mela Vagadheeswari,3112212,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2149",Y
+Mela Shulini,3112221,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2150",Y
+Mela Chalanata,3112311,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2151",Y
+Mela Salagam,1141113,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2152",Y
+Mela Jalarnavam,1141122,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2153",Y
+Mela Jhalavarali,1141131,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2154",Y
+Mela Navaneetam,1141212,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2155",Y
+Mela Pavani,1141221,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2156",Y
+Mela Raghupriya,1141311,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2157",Y
+Mela Gavambhodi,1231113,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2158",Y
+Mela Bhavapriya,1231122,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2159",Y
+Mela Shubhapantuvarali,1231131,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2160",Y
+Mela Shadvidamargini,1231212,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2161",Y
+Mela Suvarnangi,1231221,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2162",Y
+Mela Divyamani,1231311,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2163",Y
+Mela Dhavalambari,1321113,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2164",Y
+Mela Namanarayani,1321122,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2165",Y
+Mela Kamavardani,1321131,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2166",Y
+Mela Ramapriya,1321212,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2167",Y
+Mela Gamanashrama,1321221,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2168",Y
+Mela Vishwambari,1321311,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2169",Y
+Mela Shamalangi,2131113,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2170",Y
+Mela Shanmukhapriya,2131122,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2171",Y
+Mela Simhendramadhyamam,2131131,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2172",Y
+Mela Hemavati,2131212,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2173",Y
+Mela Dharmavati,2131221,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2174",Y
+Mela Neetimati,2131311,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2175",Y
+Mela Kantamani,2221113,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2176",Y
+Mela Rishabhapriya,2221122,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2177",Y
+Mela Latangi,2221131,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2178",Y
+Mela Vachaspati,2221212,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2179",Y
+Mela Mechakalyani,2221221,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2180",Y
+Mela Chitrambari,2221311,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2181",Y
+Mela Sucharitra,3121113,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2182",Y
+Mela Jyoti Swarupini,3121122,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2183",Y
+Mela Dhatuvardani,3121131,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2184",Y
+Mela Nasikabhushani,3121212,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2185",Y
+Mela Kosalam,3121221,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2186",Y
+Mela Rasikapriya,3121311,Carnatic,South Asia,Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2187",Y
+Adonai Malakh,11122212,Jewish,Middle East,12-tet;Just,"Hewitt, Michael John. Musical Scales of the World. Note Tree, 2188",Y
+Magen Abot 1,12122211,Jewish,Middle East,12-tet;Just,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2008",Y
+Magen Abot 2,12122121,Jewish,Middle East,12-tet;Just,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2009",Y
+Ahava Rabba,12111222,Jewish,Middle East,12-tet;Just,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2010",Y
+Nine-note blues,211111212,Jazz,Western,12-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2011",Y
+Symmetrical Decatonic,1121111211,Western Classical,Western,12-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2012",Y
+Mawam Yakah Bayati A,4334433,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2013",Y
+Mawam Yakah Bayati D,4334234,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2014",Y
+Maqam Yakah Nahawand A,4334433,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2015",Y
+Maqam Yakah Nahawand D,4334424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2016",Y
+Maqam Sultani Yakah,4244262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2017",Y
+Maqam Farahfaza A,4244244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2018",Y
+Maqam Farahfaza D,4244262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2019",Y
+Maqam Shat Arban 1 A,2624262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2020",Y
+Maqam Shat Arban 1 D,2624244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2021",Y
+Maqam Shat Arban 2 A,3524262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2022",Y
+Maqam Shat Arban 2 D,3524244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2023",Y
+Maqam Husayni Ushayran A,3343344,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2024",Y
+Maqam Husayni Ushayran D,3342624,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2025",Y
+Maqam Bayati Ushayran A,3343344,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2026",Y
+Maqam Bayati Ushayran D,3344244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2027",Y
+Maqam Shawq Tarab A,2443326,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2028",Y
+Maqam Shawq Tarab D,2442444,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2029",Y
+Maqam Nahaft A,3344424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2030",Y
+Maqam Nahaft D,3343344,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2031",Y
+Maqam Suzdal,2624262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2032",Y
+Maqam Ajam Ushayran,4424442,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2033",Y
+Maqam Shawq Afza,4424262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2034",Y
+Maqam Shawq Awr A,4442442,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2035",Y
+Maqam Shawq Awr D,4424424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2036",Y
+Maqam Iraq A,3433443,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2037",Y
+Maqam Iraq D,34334421,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2038",Y
+Maqam Awj Ara,3615261,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2039",Y
+Maqam Rahat Al-arwah A,3426243,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2040",Y
+Maqam Rahat Al-arwah D,34262421,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2041",Y
+Maqam Farahnak A,3443343,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2042",Y
+Maqam Farahnak D,34433421,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2043",Y
+Maqam Rast A,4334433,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2044",Y
+Maqam Rast D,4334424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2045",Y
+Maqam Suznak A,4334352,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2046",Y
+Maqam Suznak D,4334424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2047",Y
+Maqam Nayruz,4334334,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2048",Y
+Maqam Nahawand A,4244262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2049",Y
+Maqam Nahawand D,4244244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2050",Y
+Maqam Nahawand Murassa A,4242624,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2051",Y
+Maqam Nahawand Murassa D,4242462,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2052",Y
+Maqam Nahawand Kabir A,4244262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2053",Y
+Maqam Nahawand Kabir D,4244424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2054",Y
+Maqam Nawa'athar A,4262262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2055",Y
+Maqam Nawa'athar D,4244424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2056",Y
+Maqam Nakriz A,4262424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2057",Y
+Maqam Nakriz D,4262433,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2058",Y
+Maqam Zankulah,2624424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2059",Y
+Maqam Hijaz Kar Kurd A,2624262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2060",Y
+Maqam Hijaz Kar Kurd D,2444244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2061",Y
+Maqam Athar Kurd,2462262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2062",Y
+Maqam Hijaz Kar A,2624262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2063",Y
+Maqam Hijaz Kar D,2624244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2064",Y
+Maqam Suzdilara 1 A,4424424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2065",Y
+Maqam Suzdilara 1 D,4334424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2066",Y
+Maqam Suzdilara 2 A,4424433,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2067",Y
+Maqam Suzdilara 2 D,4334424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2068",Y
+Maqam Basandida A,4262424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2069",Y
+Maqam Basandida D,4334433,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2070",Y
+Maqam Tarz Nawayn,2442624,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2071",Y
+Maqam Mahur A,4334442,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2072",Y
+Maqam Mahur D,4334424,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2073",Y
+Maqam Bayati A,3344334,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2074",Y
+Maqam Bayati D,3344244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2075",Y
+Maqam Bayati Shuri A,3342624,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2076",Y
+Maqam Bayati Shuri D,3344244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2077",Y
+Maqam Bayatayn,3343524,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2078",Y
+Maqam Husayni A,3344334,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2079",Y
+Maqam Husayni D,3344244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2080",Y
+Maqam Hijaz A,2624334,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2081",Y
+Maqam Hijaz D,2624244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2082",Y
+Maqam Hijaz Gharib,3434334,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2083",Y
+Maqam Saba A,3326244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2084",Y
+Maqam Saba D,33262422,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2085",Y
+Maqam Saba Zamzama,2426244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2086",Y
+Maqam Saba Busalik A,42262431,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2087",Y
+Maqam Saba Busalik D,4226244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2088",Y
+Maqam Sabr Jadid,3326262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2089",Y
+Maqam Kurd,2444244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2090",Y
+Maqam Ushaq Masri A,4244334,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2091",Y
+Maqam Ushaq Masri D,4244244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2092",Y
+Maqam Hisar 1,4262262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2093",Y
+Maqam Hisar 2,3362262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2094",Y
+Maqam Shahnaz,2624262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2095",Y
+Maqam Nishaburk A,4334334,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2096",Y
+Maqam Nishaburk D,4334244,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2097",Y
+Maqam Lami,2442444,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2098",Y
+Maqam Sikah A,3443343,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2099",Y
+Maqam Sikah D,3442443,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2100",Y
+Maqam Huzam,3426243,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2101",Y
+Maqam Musta'ar A,5242443,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2102",Y
+Maqam Musta'ar D,3442443,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2103",Y
+Maqam Mayyah,3442443,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2104",Y
+Maqam Jaharkah,4424433,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2105",Y
+Maqam Sikah Baladi A,2624262,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2106",Y
+Maqam Sikah Baladi D,3434343,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2107",Y
+Maqam Awj A,3433443,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2108",Y
+Maqam Awj D,3424443,Arabian,Middle East,Arabian,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2109",Y
+Dastgah-e Shur,2233133,Persian,Middle East,Dastgah-ha,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2110",Y
+Naghmeh Abu Ata,2331332,Persian,Middle East,Dastgah-ha,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2111",Y
+Naghmeh Bayat-e Tork,3313322,Persian,Middle East,Dastgah-ha,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2112",Y
+Dastgah-e Mahur,3313331,Persian,Middle East,Dastgah-ha,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2113",Y
+Dastgah-e Mahur Delkash,3313232,Persian,Middle East,Dastgah-ha,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2114",Y
+Dastgah-e Homayun,2413133,Persian,Middle East,Dastgah-ha,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2115",Y
+Bayat-e Esfahan,3133241,Persian,Middle East,Dastgah-ha,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2116",Y
+Nagmeh Esfahan,32232221,Persian,Middle East,Dastgah-ha,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2117",Y
+Dastgah-e Sehgah 1,2322332,Persian,Middle East,Dastgah-ha,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2118",Y
+Dastgah-e Sehgah 2,3223223,Persian,Middle East,Dastgah-ha,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2119",Y
+Dastgah-e Chahargah,2413241,Persian,Middle East,Dastgah-ha,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2120",Y
+Dastgah-e Nava,3133223,Persian,Middle East,Dastgah-ha,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2121",Y
+Cargah Makam,TTBTTTB,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2122",Y
+Buselik Makam 1,TBTTBAS,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2123",Y
+Buselik Makam 2,TBTTBTT,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2124",Y
+Buselik Makam 3,TBTSAST,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2125",Y
+Rast Makam A,TKSTTKS,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2126",Y
+Rast Makam D,TKSTTBT,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2127",Y
+Ussak Makam,KSTTBTT,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2128",Y
+Hicaz Makam 1,SASTKST,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2129",Y
+Hicaz Makam 2,SASTBTT,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2130",Y
+Humayun Makam 1,SASTBTT,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2131",Y
+Humayun Makam 2,SASTKST,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2132",Y
+Uzzal Makam 1,SASTKST,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2133",Y
+Uzzal Makam 2,SASTSAS,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2134",Y
+Zirguleli Makam,SASTSAS,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2135",Y
+Neva Makam,KSTTKST,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2136",Y
+Huseyni Makam,KSTTKST,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2137",Y
+Karcigar Makam,KSTSAST,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2138",Y
+Basit Suz-nak Makam,TKSTSAS,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2139",Y
+Kurdi Makam,BTTTBTT,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2140",Y
+Bayati Makam,KSTTBTT,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2141",Y
+Muhayyer Makam,KSTTKST,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2142",Y
+Tahir Makam,KSTTKST,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2143",Y
+Sehnaz Buselik Makam,TBTTBAS,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2144",Y
+Irak Makam,STKSTTK,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2145",Y
+Nikriz Makam,TSASTKS,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2146",Y
+Nev'eser Makam,TSASSAS,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2147",Y
+Huzzam Makam,STSASAB,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2149",Y
+Segah Makam,STKTSAB,Turkish,Middle East,Turkish,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2150",Y
+Bac,24223,Vietnam,South East Asia,Vietnamese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2153",N
+Ho Mai Nhi,16114,Vietnam,South East Asia,Vietnamese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2154",N
+Xuan Ho,21523,Vietnam,South East Asia,Vietnamese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2155",N
+Thien,33232,Vietnam,South East Asia,Vietnamese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2156",N
+Ai,34123,Vietnam,South East Asia,Vietnamese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2157",N
+Sa Mac,4441,Vietnam,South East Asia,Vietnamese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2158",N
+Ai-oan A,16123,Vietnam,South East Asia,Vietnamese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2159",N
+Ai-oan D,43141,Vietnam,South East Asia,Vietnamese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2160",N
+Vong co A,16123,Vietnam,South East Asia,Vietnamese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2161",N
+Vong co D,52141,Vietnam,South East Asia,Vietnamese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2162",N
+Youlan,112111212,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2163",Y
+In,3112311,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2164",Y
+Honchoshi,142122,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2165",Y
+Plagal Honchoshi,1221312,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2166",Y
+Gagaku Ritsu,23223,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2167",Y
+Hexatonic Ritsu,122322,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2168",Y
+Banshikicho,2122212,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2169",Y
+Ichikotsucho 1,22111221,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2170",Y
+Ichikotsucho 2,221112111,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2171",Y
+Hira-choshi,21414,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2172",Y
+Yona-nukji Major,22323,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2173",Y
+Iwato-choshi,122142,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2174",Y
+Akikaze-choshi,21423,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2175",Y
+Kokin-joshi,14232,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2176",Y
+Miyako-bushi Onkai,1132113,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2177",Y
+Han Kumoi-joshi,23214,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2178",Y
+Akebono 1,21423,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2179",Y
+Akebono 2,14214,Japanese,East Asia,12-tet;Pythagorean,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2180",Y
+Biyu,3432,China,East Asia,Chinese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2181",Y
+Jiao,23322,China,East Asia,Chinese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2182",Y
+Jin,33222,China,East Asia,Chinese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2183",Y
+Huowu,232221,China,East Asia,Chinese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2184",Y
+Pyeongjo,23232,Korea,East Asia,Chinese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2185",Y
+Kyemyeonjo,32322,Korea,East Asia,Chinese,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2186",Y
+Gong,22323,China,East Asia,12-tet;Chinese,10.2307/834047,Y
+Shang,23232,China,East Asia,12-tet;Chinese,10.2307/834047,Y
+Jue,32322,China,East Asia,12-tet;Chinese,10.2307/834047,Y
+Zhi,23223,China,East Asia,12-tet;Chinese,10.2307/834047,Y
+Yu,32232,China,East Asia,12-tet;Chinese,10.2307/834047,Y
+Yayue,2221221,China,East Asia,12-tet;Chinese,10.2307/834047,Y
+Qingyue,2212221,China,East Asia,12-tet;Chinese,10.2307/834047,Y
+Yanyue,2212212,China,East Asia,12-tet;Chinese,10.2307/834047,Y
+Shanxi,221232,China,East Asia,Chinese,10.2307/834047,Y
+Shanxi bangzi,2212212,China,East Asia,Chinese,10.2307/834047,Y
+Xinhua,4323,China,East Asia,Chinese,10.2307/834047,Y
+Guizhou,232212,China,East Asia,Chinese,10.2307/834047,Y
+Bai,221241,China,East Asia,Chinese,10.2307/834047,Y
+Yunnan,32412,China,East Asia,Chinese,10.2307/834047,Y
+Mawam Yakah Bayati A,9;7;6;9;6;7;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2013",Y
+Maqam Yakah Nahawand A,9;4;9;9;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2015",Y
+Maqam Farahfaza A,9;4;9;9;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2018",Y
+Maqam Shat Arban 1 A,5;13;4;9;7;6;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2020",Y
+Maqam Shat Arban 1 D,5;13;4;9;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2021",Y
+Maqam Husayni Ushayran A,6;7;9;6;7;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2024",Y
+Maqam Husayni Ushayran D,6;7;9;4;14;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2025",Y
+Maqam Bayati Ushayran A,6;7;9;6;7;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2026",Y
+Maqam Bayati Ushayran D,6;7;9;9;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2027",Y
+Maqam Shawq Tarab A,4;9;9;6;7;4;14,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2028",Y
+Maqam Shawq Tarab D,9;9;9;4;9;9;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2029",Y
+Maqam Suzdal,4;14;4;9;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2032",Y
+Maqam Ajam Ushayran,9;9;4;9;9;9;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2033",Y
+Maqam Shawq Afza,9;9;6;7;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2034",Y
+Maqam Iraq A,6;9;6;7;9;9;7,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2037",Y
+Maqam Awj Ara,6;14;2;11;4;14;2,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2039",Y
+Maqam Rahat Al-arwah A,7;9;7;7;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2040",Y
+Maqam Rahat Al-arwah D,7;9;7;7;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2041",Y
+Maqam Farahnak A,6;9;9;7;6;9;7,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2042",Y
+Maqam Rast A,9;7;6;9;9;7;6,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2044",Y
+Maqam Rast D,9;7;6;9;9;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2045",Y
+Maqam Suznak A,9;7;6;9;5;13;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2046",Y
+Maqam Suznak D,9;4;9;9;6;7;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2047",Y
+Maqam Nahawand A,9;4;9;9;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2049",Y
+Maqam Nahawand D,9;4;9;9;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2050",Y
+Maqam Nahawand Murassa A,9;4;9;4;14;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2051",Y
+Maqam Nahawand Murassa D,9;4;9;9;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2052",Y
+Maqam Nahawand Kabir D,9;4;9;9;9;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2054",Y
+Maqam Nawa'athar A,9;4;14;4;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2055",Y
+Maqam Nawa'athar D,9;4;14;4;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2056",Y
+Maqam Nakriz A,9;4;14;4;9;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2057",Y
+Maqam Nakriz D,9;4;14;4;9;7;6,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2058",Y
+Maqam Zankulah,4;14;4;9;9;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2059",Y
+Maqam Hijaz Kar Kurd A,4;14;4;9;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2060",Y
+Maqam Hijaz Kar Kurd D,4;9;9;9;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2061",Y
+Maqam Hijaz Kar A,4;14;4;9;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2063",Y
+Maqam Hijaz Kar D,4;14;4;9;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2064",Y
+Maqam Suzdilara 1 A,9;9;4;9;9;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2065",Y
+Maqam Suzdilara 1 D,9;7;6;9;9;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2066",Y
+Maqam Basandida A,9;4;14;4;9;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2069",Y
+Maqam Basandida D,9;7;6;9;9;7;6,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2070",Y
+Maqam Tarz Nawayn,4;9;9;4;14;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2071",Y
+Maqam Mahur A,9;9;4;9;9;9;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2072",Y
+Maqam Mahur D,9;7;6;9;9;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2073",Y
+Maqam Dalanshin A,9;7;6;9;9;7;6,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2074",Y
+Maqam Dalanshin D,9;7;6;9;9;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2075",Y
+Maqam Bayati A,6;7;9;9;6;7;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2074",Y
+Maqam Bayati D,6;7;9;9;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2075",Y
+Maqam Bayati Shuri A,6;7;9;4;14;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2076",Y
+Maqam Bayati Shuri D,6;7;9;9;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2077",Y
+Maqam Husayni A,6;7;8;8;6;7;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2079",Y
+Maqam Husayni D,6;7;9;9;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2080",Y
+Maqam Hijaz A,5;13;4;9;7;6;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2081",Y
+Maqam Hijaz D,4;13;4;9;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2082",Y
+Maqam Saba D,6;7;4;14;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2085",Y
+Maqam Saba Zamzama,4;9;4;14;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2086",Y
+Maqam Kurd,4;9;9;9;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2090",Y
+Maqam Hisar 1,6;7;14;4;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2093",Y
+Maqam Hisar 2,6;7;14;4;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2094",Y
+Maqam Shahnaz,4;14;4;9;4;14;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2095",Y
+Maqam Nishaburk A,9;7;6;9;6;7;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2096",Y
+Maqam Nishaburk D,9;7;6;9;4;9;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2097",Y
+Maqam Sikah A,6;9;9;7;6;9;7,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2099",Y
+Maqam Sikah D,6;9;9;4;9;9;7,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2100",Y
+Maqam Huzam,6;9;4;14;4;9;7,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2101",Y
+Maqam Musta'ar A,11;4;9;4;9;9;7,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2102",Y
+Maqam Musta'ar D,11;4;9;4;9;9;7,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2103",Y
+Maqam Mayyah,6;9;9;4;9;9;7,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2104",Y
+Maqam Jaharkah,9;9;4;9;9;7;6,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2105",Y
+Maqam Awj A,9;9;9;4;9;9;4,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2108",Y
+Maqam Awj D,9;9;4;9;9;4;9,Arabian,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2109",Y
+Cargah Makam,9;9;4;9;9;9;4,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2122",Y
+Buselik Makam 1,9;4;9;9;4;13;5,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2123",Y
+Buselik Makam 2,9;4;9;9;4;9;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2124",Y
+Buselik Makam 3,9;4;9;5;12;5;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2125",Y
+Rast Makam A,9;8;5;9;9;8;5,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2126",Y
+Rast Makam D,9;8;5;9;9;4;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2127",Y
+Ussak Makam,8;5;9;9;4;9;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2128",Y
+Hicaz Makam 1,5;12;5;9;8;5;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2129",Y
+Hicaz Makam 2,5;12;5;9;4;9;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2130",Y
+Humayun Makam 1,5;12;5;9;4;9;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2131",Y
+Humayun Makam 2,5;12;5;9;8;5;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2132",Y
+Uzzal Makam 1,5;12;5;9;8;5;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2133",Y
+Uzzal Makam 2,5;12;5;9;4;9;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2134",Y
+Uzzal Makam 3,5;12;5;9;5;12;5,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2134",Y
+Zirguleli Makam,5;12;5;9;5;12;5,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2135",Y
+Neva Makam,8;5;9;9;8;5;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2136",Y
+Huseyni Makam,8;5;9;9;8;5;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2137",Y
+Karcigar Makam,8;5;9;5;12;5;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2138",Y
+Basit Suz-nak Makam,9;8;5;9;5;12;5,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2139",Y
+Kurdi Makam,4;9;9;9;4;9;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2140",Y
+Bayati Makam,8;5;9;9;4;9;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2141",Y
+Muhayyer Makam,8;5;9;9;8;5;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2142",Y
+Tahir Makam,8;5;9;9;8;5;9,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2143",Y
+Sehnaz Buselik Makam,9;4;9;9;4;13;5,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2144",Y
+Irak Makam,5;9;8;5;9;9;8,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2145",Y
+Nikriz Makam,9;5;12;5;9;8;5,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2146",Y
+Nev'eser Makam,9;5;12;5;5;12;5,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2147",Y
+Huzzam Makam,5;9;5;13;5;12;4,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2149",Y
+Segah Makam,5;9;8;9;5;13;4,Turkish,Middle East,53-tet,"Rechberger, Herman. Scales and Modes around the World. Fennica-Gehrman, 2150",Y
