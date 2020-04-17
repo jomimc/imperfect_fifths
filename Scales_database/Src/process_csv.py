@@ -5,8 +5,7 @@ import pandas as pd
 
 import utils
 
-DATA_DIR = '/home/johnmcbride/projects/Scales/temp/Scales_database/Data/'
-#DATA_DIR = 'Data/'
+DATA_DIR = '/home/johnmcbride/projects/Scales/imperfect_fifths/Scales_database/Data/'
 
 ### Load the data from csv files
 def load_data():
@@ -77,4 +76,5 @@ def process_data():
 if __name__ == '__main__':
 
     df = process_data()
+    df.to_feather("../Data_processed/real_scales.feather")
 

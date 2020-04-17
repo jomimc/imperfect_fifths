@@ -1,0 +1,15 @@
+matplotlib
+multiprocessing
+numpy
+pandas
+seaborn
+statsmodels
+swifter
+sklearn
+geopandas
+palettable
+scipy
+shapely
+pyarrow
+feather
+rpy2

@@ -1,0 +1,36 @@
+
+
+I do not foresee anyone actually using this code, so I have not spent much time tidying it.
+Apologies if my foresight is lacking.
+
+
+An overview of the contents:
+./Analysis
+    >>> These three files contain most of the code for figures in the paper
+    main_figs.py
+    si_figs.py
+    eq_vs_ji.py
+
+    >>> The rest of the files are those used to analyse the data
+
+./Distinguishability
+    >>> This folder includes the model and code for Fig 3 in the SI
+
+./MonteCarlo
+    >>> Two files contain the main Monte Carlo model.
+    >>> The differences between them are the functional forms of the biases
+    model_ver_4.py
+    model_ver_5.py
+
+    >>> After running the model, a post-processing step was used to 
+    >>> get all the appropriate data together
+    post_processing.py
+
+    >>> The others either contain functions, or were used to test something
+
+
+If you have any questions, you can contact me through my github account,
+or via email: jmmcbride@protonmail.com
+
+
+

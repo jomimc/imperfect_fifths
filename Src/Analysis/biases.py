@@ -16,11 +16,21 @@ import statsmodels.nonparametric.api as smnp
 
 import utils
 
+
+###################################################################
+### Parameters
+
 TEMP_MIN = 50.
 TEMP_MAX = 300.
 TEMP_LOW_MARGIN = 0.50
 TEMP_HI_MARGIN = 1.50
 N_TRIALS = 50
+
+
+
+###################################################################
+### Parameters
+
 
 def calculate_energy(ints, base, m, n):
     return np.mean([abs(round(i/base) - i/base)**m * float(round(i/base))**n for i in ints])
@@ -31,7 +41,6 @@ def calculate_energy_2(ints, base, m, n):
 
 
 def template_function(inp, new=False):
-#   ints, m, n, TEMP_LOW_MARGIN = inp
     ints, m, n = inp
     temp_min = max(TEMP_MIN, min(ints)*TEMP_LOW_MARGIN)
     temp_max = min(TEMP_MAX, min(ints)*TEMP_HI_MARGIN)

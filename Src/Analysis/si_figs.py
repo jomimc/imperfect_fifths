@@ -122,7 +122,7 @@ def attenuation_correlation():
 
 
 ###########################
-###     FIG 2   ###########
+###     FIG 3   ###########
 ###########################
 
 ### See Distinguishability folder for code
