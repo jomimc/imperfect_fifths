@@ -12,3 +12,6 @@ A list of necessary python packages are given in "requirements.txt".
 
 The Monte Carlo simulation code is available in "Src/MonteCarlo".
 
+
+A tidied version of the scales database is available in "database_format4sharing.csv".
+
