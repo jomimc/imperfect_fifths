@@ -24,6 +24,8 @@ PRO_DIR  = '/home/johnmcbride/projects/Scales/Toy_model/Data/Processed4/'
 DIST_DIR  = '/home/johnmcbride/projects/Scales/Toy_model/Data/None_dist/'
 REAL_DIR = os.path.join(BASE_DIR, 'Real')
 
+PRO_DIR = "/media/johnmcbride/961391f1-186f-4345-881e-92d8bb3931c8/Projects/Scales/Results/Toy_model_scales/Processed4/"
+
 #BASE_DIR = '/home/johnmcbride/projects/Scales/Data_compare/TMP/'
 #RAW_DIR  = '/home/johnmcbride/projects/Scales/Data_compare/TMP/Raw/'
 #PRO_DIR  = '/home/johnmcbride/projects/Scales/Data_compare/TMP/Processed/'
@@ -131,7 +133,7 @@ def calc_relative_entropy(pk, qk):
         if pk[i] <= 0 or qk[i] <= 0:
             pass
         else:
-            RE += pk[i] * np.log2(pk[i] / qk[i])
+            RE += pk[i] * np.log(pk[i] / qk[i])
     return RE
 
 def calc_jensen_shannon_distance(pk, qk):
@@ -160,12 +162,11 @@ def smooth_dist_kde(df, cat='pair_ints', hist=False):
     X = [float(x) for y in df.loc[:,cat] for x in y.split(';')]
     kde = smnp.KDEUnivariate(np.array(X))
     kde.fit(kernel='gau', bw='scott', fft=1, gridsize=10000, cut=20)
-    grid, y = kde.support, kde.density
-#   grid = np.linspace(0, 1200, num=1201)
-#   y = np.array([kde.evaluate(x) for x in grid]).reshape(1201)
+    grid = np.linspace(0, 1200, num=1201)
+    y = np.array([kde.evaluate(x) for x in grid]).reshape(1201)
     if hist:    
         grid = np.linspace(0, 1200, num=1201)
-        hist, edges = np.histogram(X, bins=grid, normed=True)
+        hist, edges = np.histogram(X, bins=grid, density=True)
         xxx = grid[:-1] + (grid[1] - grid[0]) * 0.5    
         return grid, y, xxx, hist
     else:
@@ -173,7 +174,6 @@ def smooth_dist_kde(df, cat='pair_ints', hist=False):
 
 def get_KDE(df, cat):
     xKDE, yKDE = smooth_dist_kde(df, cat=cat)
-    xKDE, yKDE = convert_grid(xKDE, yKDE)
     return yKDE / np.trapz(yKDE)
 
 def get_real_scales_dists(n, df_real):

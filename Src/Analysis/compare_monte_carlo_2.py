@@ -24,9 +24,7 @@ PRO_DIR  = '/home/johnmcbride/projects/Scales/Toy_model/Data/Processed3/'
 DIST_DIR  = '/home/johnmcbride/projects/Scales/Toy_model/Data/None_dist/'
 REAL_DIR = os.path.join(BASE_DIR, 'Real')
 
-#BASE_DIR = '/home/johnmcbride/projects/Scales/Data_compare/TMP/'
-#RAW_DIR  = '/home/johnmcbride/projects/Scales/Data_compare/TMP/Raw/'
-#PRO_DIR  = '/home/johnmcbride/projects/Scales/Data_compare/TMP/Processed/'
+PRO_DIR = "/media/johnmcbride/961391f1-186f-4345-881e-92d8bb3931c8/Projects/Scales/Results/Toy_model_scales/Processed3/"
 
 def calculate_most_harmonic_neighbour(int_cents, sim_only=False, CENT_DIFF_MAX=22):
     best_ratio = [1,1]
@@ -131,7 +129,7 @@ def calc_relative_entropy(pk, qk):
         if pk[i] <= 0 or qk[i] <= 0:
             pass
         else:
-            RE += pk[i] * np.log2(pk[i] / qk[i])
+            RE += pk[i] * np.log(pk[i] / qk[i])
     return RE
 
 def calc_jensen_shannon_distance(pk, qk):
@@ -160,12 +158,12 @@ def smooth_dist_kde(df, cat='pair_ints', hist=False):
     X = [float(x) for y in df.loc[:,cat] for x in y.split(';')]
     kde = smnp.KDEUnivariate(np.array(X))
     kde.fit(kernel='gau', bw='scott', fft=1, gridsize=10000, cut=20)
-    grid, y = kde.support, kde.density
-#   grid = np.linspace(0, 1200, num=1201)
-#   y = np.array([kde.evaluate(x) for x in grid]).reshape(1201)
+#   grid, y = kde.support, kde.density
+    grid = np.linspace(0, 1200, num=1201)
+    y = np.array([kde.evaluate(x) for x in grid]).reshape(1201)
     if hist:    
         grid = np.linspace(0, 1200, num=1201)
-        hist, edges = np.histogram(X, bins=grid, normed=True)
+        hist, edges = np.histogram(X, bins=grid, density=True)
         xxx = grid[:-1] + (grid[1] - grid[0]) * 0.5    
         return grid, y, xxx, hist
     else:
@@ -173,7 +171,7 @@ def smooth_dist_kde(df, cat='pair_ints', hist=False):
 
 def get_KDE(df, cat):
     xKDE, yKDE = smooth_dist_kde(df, cat=cat)
-    xKDE, yKDE = convert_grid(xKDE, yKDE)
+#   xKDE, yKDE = convert_grid(xKDE, yKDE)
     return yKDE / np.trapz(yKDE)
 
 def get_real_scales_dists(n, df_real):
@@ -281,13 +279,8 @@ if __name__ == "__main__":
     print(f"Real scales loaded after {(time.time()-timeS)/60.} minutes")
 
 
-#   raw_files = glob.glob(RAW_DIR+'*feather')
     pro_files = [f for f in sorted(glob.glob(PRO_DIR+'*feather')) if 'sample' not in f]
 
-#   [print(f) for f in pro_files if 'n9' in f]
-#   sys.exit()
-
-#   print(raw_files)
 
     def read_model_results(path):
         fName = os.path.split(path)[1]
@@ -304,18 +297,6 @@ if __name__ == "__main__":
             tmp_df.to_feather(pro_name)
             return tmp_df
 
-#   pool = mp.Pool(N_PROC)
-
-#   df_grids = list(pool.map(read_model_results, raw_files))
-
-#   df_grids = []
-#   for f in raw_files:
-#       df_grids.append(read_model_results(f))
-#   df_grid = pd.concat(df_grids, ignore_index=True)
-
-#   df_grids = []
-#   pool.close()
-#   pool.join()
 
     print(f"MC scales loaded after {(time.time()-timeS)/60.} minutes")
 
@@ -330,10 +311,6 @@ if __name__ == "__main__":
         beta = float(bits[-1].strip('.feather'))
         cat = 'pair_ints'
 
-#       if bias == 'none':
-#           df_g = df_grid.loc[(df_grid.n_notes==n)&(df_grid.min_int>mi)&(df_grid.max_int<ma)]
-#       else:
-#           df_g = df_grid.loc[(df_grid.n_notes==n)&(df_grid.min_int>mi)&(df_grid.max_int<ma)&(df_grid.beta==beta)]
 
         n_sample = df_g.n_att.sum()
         q = float(len(df_g))/float(n_sample)
@@ -376,9 +353,6 @@ if __name__ == "__main__":
                                'gn', 'es', 'bp_gn', 'bp_es', 'cum_gn', 'cum_es',
                                'peak_ratio', 'peak_dist', 'deriv_gn', 'deriv_es', 'sc_es', 'sc_des', 'fName'], data=results)
 
-
-#   df = df.drop(df.loc[df.isnull().any(axis=1)].index)
-#   df = df.reset_index(drop=True) 
 
     for w in range(5,25,5):
         df.loc[df.bias==f'HAR_{w}', 'bias'] = f'HAR_{w}_1'

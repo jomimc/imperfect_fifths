@@ -45,93 +45,13 @@ FIG_DIR = '/home/johnmcbride/Dropbox/phd/LaTEX/Scales/Figures'
 ###     FIG 1   ###########
 ###########################
 
-def harmonic_model_correlation(df, corr_mat='None', confidence='None'):
-    n_arr = np.array([1, 2, 3, 5, 10])
-    w_arr = np.array([5, 10, 15, 20])
-    if isinstance(corr_mat, str):
-        corr_mat = np.zeros((w_arr.size, n_arr.size), dtype=float)
-        confidence = np.zeros((w_arr.size, n_arr.size), dtype=float)
-        for i, w in enumerate(w_arr):
-            FIF = [float(len([z for z in y.split(';') if abs(702-int(z)) <= w]) / len(y.split(';'))) for y in df.all_ints2]
-            for j, n in enumerate(n_arr):
-                att = utils.get_attractors(n, diff=w)
-                HAR = df.all_ints2.apply(lambda x: np.mean([utils.get_similarity_of_nearest_attractor(int(y), att[1], att[3]) for y in x.split(';')]))
-                corr = pearsonr(FIF, HAR)
-                corr_mat[i,j] = corr[0]
-                confidence[i,j] = corr[1]
-
-    xi, yi = np.meshgrid(n_arr, w_arr)
-    df_heat = pd.DataFrame(data={r'$m$':xi.ravel(), r'$w$':yi.ravel(), "R":corr_mat.ravel()})
-    df_heat[r'$w$'] = df_heat[r'$w$'] * 2
-            
-    fig = plt.figure(figsize=(10,5))
-    gs = gridspec.GridSpec(1,2, width_ratios=[1, 1])
-    gs.update(wspace=0.40 ,hspace=0.00)
-    ax = [fig.add_subplot(gs[0]), fig.add_subplot(gs[1])]
-    sns.set(font_scale=1.5)
-    sns.set_style('white')
-    sns.set_style("ticks", {'ytick.major.size':4})
-
-    models = np.load("/home/johnmcbride/projects/Scales/Vocal/gill_vs_model_correlations.npy")
-    fif = 0.419
-    corr = list(np.array(models[1], dtype=float)) + [fif]
-
-    lbls = ["Harrison 2018", "Milne 2013", "Pancutt 1988", "Parncutt 1994", "Stolzenburg 2015", "FIF"]
-    ax[0].bar(range(len(corr)), np.abs(corr), color='white', edgecolor='k', ecolor='k')
-    for i in range(len(corr)):
-        ax[0].annotate(f"{abs(corr[i]):4.2f}", (i-0.29, abs(corr[i])+0.05), fontsize=14)
-    ax[0].spines['top'].set_visible(False)
-    ax[0].spines['right'].set_visible(False)
-    ax[0].set_xticks(range(len(corr)))
-    ax[0].set_xticklabels(lbls, rotation=90)
-    ax[0].set_ylim(0,1.3)
-    ax[0].set_ylabel(r"Pearson's $r$")
-
-    for i, a in enumerate(ax):
-        a.text(-.15, 1.05, string.ascii_uppercase[i], transform=a.transAxes, weight='bold', fontsize=16)
-
-    sns.heatmap(df_heat.pivot(r'$m$', r'$w$', 'R'), ax=ax[1], annot=corr_mat.T, cbar_kws={'label':r"Pearson's $r$"})
-    ax[1].invert_yaxis()
-    plt.savefig(os.path.join(FIG_DIR, 'har_metric_correlations.pdf'), bbox_inches='tight')
-
-    return corr_mat, confidence
-
+### See Distinguishability folder for code
 
 ###########################
 ###     FIG 2   ###########
 ###########################
 
-def attenuation_correlation():
-    fig, ax = plt.subplots()
-    data = np.load(os.path.join(BASE_DIR, 'attenutation_model_corr.npy'))
-    att = np.arange(0.01, 1.01, 0.01)
-    col1 = RdYlGn_11.hex_colors
-    col2 = Paired_12.hex_colors
-    col = [col2[5], col1[4], col1[6], col2[3]]
-    lbls = ['FIF', r'$\text{HAR}^{3}$', r'$\text{HAR}^{2}$', r'$\text{HAR}$']
-    for i, d in enumerate(data):
-        ax.plot(att, d[::-1], '-', c=col[i], label=lbls[i])
-    ax.legend(loc='best', frameon=False, ncol=2)
-    ax.set_xlabel('a')
-    ax.set_ylabel(r"Pearson's $r$")
-    ax.set_yticks(np.arange(0.85, 1.05, 0.05))
-    ax.set_ylim(.83, 1.0)
-
-    fig.savefig(os.path.join(FIG_DIR, 'attenuation_correlation.pdf'), bbox_inches='tight')
-
-
-
-###########################
-###     FIG 3   ###########
-###########################
-
-### See Distinguishability folder for code
-
-###########################
-###     FIG 4   ###########
-###########################
-
-def sensitivity_all(df1, df2, X='logq'):
+def sensitivity_all(df1, df2, X='logq', Y1='JSD'):
     fig = plt.figure(figsize=(12,12))
     gs = gridspec.GridSpec(5,3, width_ratios=[1, .3, 1], height_ratios=[1, 1, .4, 1, 1])
     gs.update(wspace=0.00 ,hspace=0.20)
@@ -147,26 +67,26 @@ def sensitivity_all(df1, df2, X='logq'):
     
     df = pd.concat([df1, df2], ignore_index=True).reset_index(drop=True)
     df = df.loc[(df.logq > -5.5)].reset_index(drop=True)
-    if df.met1.max() < 0.1:
-        df['met1'] = df['met1'] * 1000.
-    if df1.met1.max() < 0.1:
-        df1['met1'] = df1['met1'] * 1000.
-    if df2.met1.max() < 0.1:
-        df2['met1'] = df2['met1'] * 1000.
+#   if df.JSD.max() < 0.1:
+#       df['JSD'] = df['JSD'] * 1000.
+#   if df1.JSD.max() < 0.1:
+#       df1['JSD'] = df1['JSD'] * 1000.
+#   if df2.JSD.max() < 0.1:
+#       df2['JSD'] = df2['JSD'] * 1000.
 
     ddf = df1.loc[(df1.n_notes==7)&(df1.bias_group=='TRANS')&(df1.min_int==80)&(df1.max_int==1200)].reset_index(drop=True)
     biases = [f"TRANS_{i}" for i in range(1,4)]
     all_b = biases
     lbl = [r'n={0}'.format(n) for n in range(1,4)]
     for i, bias in enumerate(biases):
-        for j, Y in enumerate(['met1', 'fr_10']):
+        for j, Y in enumerate(['JSD', 'fr_10']):
             if j:
                 sns.scatterplot(x=X, y=Y, data=ddf.loc[(ddf.bias==bias)], ax=ax[j+4], c=col[i])
-                x_fit, y_fit, popt = graphs.simple_fit(ddf.loc[(ddf.bias==bias), X], ddf.loc[(ddf.bias==bias), Y])
+#               x_fit, y_fit, popt = graphs.simple_fit(ddf.loc[(ddf.bias==bias), X], ddf.loc[(ddf.bias==bias), Y])
             else:
                 sns.scatterplot(x=X, y=Y, data=ddf.loc[(ddf.bias==bias)], ax=ax[j+4], label=lbl[i], c=col[i])
                 fn = lambda x, a, b, c: a*x**2 + b*x + c
-                x_fit, y_fit, popt = graphs.simple_fit(ddf.loc[(ddf.bias==bias), X], ddf.loc[(ddf.bias==bias), Y], fit_fn=fn)
+#               x_fit, y_fit, popt = graphs.simple_fit(ddf.loc[(ddf.bias==bias), X], ddf.loc[(ddf.bias==bias), Y], fit_fn=fn)
 #           ax[j+4].plot(x_fit, y_fit, c=col[i], alpha=al)
 
     ddf = df2.loc[(df2.n_notes==7)&(df2.bias_group=='HAR')&(df2.min_int==80)&(df2.max_int==1200)&(df2.fName.apply(lambda x: len(x.split('_'))==9))].reset_index(drop=True)
@@ -174,28 +94,28 @@ def sensitivity_all(df1, df2, X='logq'):
     all_b += biases
     lbl = [r'w={0}'.format(w*2) for w in range(5,25,5)]
     for i, bias in enumerate(biases):
-        for j, Y in enumerate(['met1', 'fr_10']):
+        for j, Y in enumerate(['JSD', 'fr_10']):
             if j:
                 sns.scatterplot(x=X, y=Y, data=ddf.loc[(ddf.bias==bias)], ax=ax[j], c=col[i])
             else:
                 sns.scatterplot(x=X, y=Y, data=ddf.loc[(ddf.bias==bias)], ax=ax[j], label=lbl[i], c=col[i])
-            x_fit, y_fit, popt = graphs.simple_fit(ddf.loc[(ddf.bias==bias), X], ddf.loc[(ddf.bias==bias), Y])
+#           x_fit, y_fit, popt = graphs.simple_fit(ddf.loc[(ddf.bias==bias), X], ddf.loc[(ddf.bias==bias), Y])
 #           ax[j].plot(x_fit, y_fit, c=col[i], alpha=al)
 
     ddf = df2.loc[(df2.n_notes==7)&(df2.bias_group=='FIF')&(df2.min_int==80)&(df2.max_int==1200)].reset_index(drop=True)
     biases = [f"FIF_{w}" for w in [5,10,15,20]]
     all_b += biases
     for i, bias in enumerate(biases):
-        for j, Y in enumerate(['met1', 'fr_10']):
+        for j, Y in enumerate(['JSD', 'fr_10']):
             if j:
                 sns.scatterplot(x=X, y=Y, data=ddf.loc[(ddf.bias==bias)], ax=ax[j+2], c=col[i])
             else:
                 sns.scatterplot(x=X, y=Y, data=ddf.loc[(ddf.bias==bias)], ax=ax[j+2], label=lbl[i], c=col[i])
-            x_fit, y_fit, popt = graphs.simple_fit(ddf.loc[(ddf.bias==bias), X], ddf.loc[(ddf.bias==bias), Y])
+#           x_fit, y_fit, popt = graphs.simple_fit(ddf.loc[(ddf.bias==bias), X], ddf.loc[(ddf.bias==bias), Y])
 #           ax[j+2].plot(x_fit, y_fit, c=col[i], alpha=al)
 
     df = df.loc[(df.n_notes==7)&(df.bias.apply(lambda x: x in all_b))&(df.max_int==1200)&(df.logq>-5)].reset_index(drop=True)
-    sns.catplot(x='min_int', y='met1', data=df, kind='boxen', ax=ax[-2])
+    sns.catplot(x='min_int', y='JSD', data=df, kind='boxen', ax=ax[-2])
     sns.catplot(x='min_int', y='fr_10', data=df, kind='boxen', ax=ax[-1])
 
     ax = np.array(ax)
@@ -204,16 +124,16 @@ def sensitivity_all(df1, df2, X='logq'):
     for a in ax[:6]:
         a.set_xlim(-5.5, 0)
     for a in ax[[0, 2, 4, 6]]:
-        a.set_ylabel(r'$d_{\textrm{I}}$')
+        a.set_ylabel('JSD')
     for a in ax[[1, 3, 5, 7]]:
         a.set_xlabel(r'$\log_{10}q$')
         a.set_ylabel(r'$f_\textrm{D}$')
     for i, a in enumerate(ax[[0, 2, 4]]):
-        a.set_ylim(3.5, 10.5)
+#       a.set_ylim(0.0, 0.5)
         a.set_title(txt[i], fontsize=16)
     for a in ax[[0,2]]:
-        a.legend(bbox_to_anchor=(0.43, 0.50), frameon=False, ncol=2, handletextpad=0, columnspacing=0)
-    ax[4].legend(bbox_to_anchor=(1.00, 0.50), frameon=False, ncol=2, handletextpad=0, columnspacing=0)
+        a.legend(bbox_to_anchor=(0.90, 0.80), frameon=False, ncol=2, handletextpad=0, columnspacing=0)
+    ax[4].legend(bbox_to_anchor=(1.00, 0.40), frameon=False, ncol=2, handletextpad=0, columnspacing=0)
     for a in ax[[0, 2, 4, 6]]:
         a.set_xticks([])
         a.set_xlabel('')
@@ -230,7 +150,7 @@ def sensitivity_all(df1, df2, X='logq'):
 
 
 ###########################
-###     FIG 5   ###########
+###     FIG 3   ###########
 ###########################
 
 def plot_2note_probabilities(df_real, paths, n=7, w=0.2):
@@ -332,7 +252,7 @@ def plot_2note_probabilities(df_real, paths, n=7, w=0.2):
 
 
 ###########################
-###     FIG 6   ###########
+###     FIG 4   ###########
 ###########################
 
 def plot_mixing_effects(df1, df2, n=7):
@@ -365,7 +285,63 @@ def plot_mixing_effects(df1, df2, n=7):
 
 
 ###########################
-###     FIG 7   ###########
+###     FIG 5   ###########
+###########################
+
+def harmonic_model_correlation(df, corr_mat='None', confidence='None'):
+    n_arr = np.array([1, 2, 3, 5, 10])
+    w_arr = np.array([5, 10, 15, 20])
+    if isinstance(corr_mat, str):
+        corr_mat = np.zeros((w_arr.size, n_arr.size), dtype=float)
+        confidence = np.zeros((w_arr.size, n_arr.size), dtype=float)
+        for i, w in enumerate(w_arr):
+            FIF = [float(len([z for z in y.split(';') if abs(702-int(z)) <= w]) / len(y.split(';'))) for y in df.all_ints2]
+            for j, n in enumerate(n_arr):
+                att = utils.get_attractors(n, diff=w)
+                HAR = df.all_ints2.apply(lambda x: np.mean([utils.get_similarity_of_nearest_attractor(int(y), att[1], att[3]) for y in x.split(';')]))
+                corr = pearsonr(FIF, HAR)
+                corr_mat[i,j] = corr[0]
+                confidence[i,j] = corr[1]
+
+    xi, yi = np.meshgrid(n_arr, w_arr)
+    df_heat = pd.DataFrame(data={r'$m$':xi.ravel(), r'$w$':yi.ravel(), "R":corr_mat.ravel()})
+    df_heat[r'$w$'] = df_heat[r'$w$'] * 2
+            
+    fig = plt.figure(figsize=(10,5))
+    gs = gridspec.GridSpec(1,2, width_ratios=[1, 1])
+    gs.update(wspace=0.40 ,hspace=0.00)
+    ax = [fig.add_subplot(gs[0]), fig.add_subplot(gs[1])]
+    sns.set(font_scale=1.5)
+    sns.set_style('white')
+    sns.set_style("ticks", {'ytick.major.size':4})
+
+    models = np.load("/home/johnmcbride/projects/Scales/Vocal/gill_vs_model_correlations.npy")
+    fif = 0.419
+    corr = list(np.array(models[1], dtype=float)) + [fif]
+
+    lbls = ["Harrison 2018", "Milne 2013", "Pancutt 1988", "Parncutt 1994", "Stolzenburg 2015", "FIF"]
+    ax[0].bar(range(len(corr)), np.abs(corr), color='white', edgecolor='k', ecolor='k')
+    for i in range(len(corr)):
+        ax[0].annotate(f"{abs(corr[i]):4.2f}", (i-0.29, abs(corr[i])+0.05), fontsize=14)
+    ax[0].spines['top'].set_visible(False)
+    ax[0].spines['right'].set_visible(False)
+    ax[0].set_xticks(range(len(corr)))
+    ax[0].set_xticklabels(lbls, rotation=90)
+    ax[0].set_ylim(0,1.3)
+    ax[0].set_ylabel(r"Pearson's $r$")
+
+    for i, a in enumerate(ax):
+        a.text(-.15, 1.05, string.ascii_uppercase[i], transform=a.transAxes, weight='bold', fontsize=16)
+
+    sns.heatmap(df_heat.pivot(r'$m$', r'$w$', 'R'), ax=ax[1], annot=corr_mat.T, cbar_kws={'label':r"Pearson's $r$"})
+    ax[1].invert_yaxis()
+    plt.savefig(os.path.join(FIG_DIR, 'har_metric_correlations.pdf'), bbox_inches='tight')
+
+    return corr_mat, confidence
+
+
+###########################
+###     FIG 6   ###########
 ###########################
 
 def found_scales(paths, df):
@@ -506,7 +482,7 @@ def found_scales(paths, df):
 
 
 ###########################
-###     FIG 8   ###########
+###     FIG 7   ###########
 ###########################
 
 def trans_fif_correlation(df_min, df_real, X='distI_2_0'):
@@ -552,7 +528,7 @@ def trans_fif_correlation(df_min, df_real, X='distI_2_0'):
 
 
 ###########################
-###     FIG 9   ###########
+###     FIG 8   ###########
 ###########################
 
 def diabolo_in_music_SI(paths, df_real, diff=20, ver=2, dia=600):
@@ -597,6 +573,41 @@ def diabolo_in_music_SI(paths, df_real, diff=20, ver=2, dia=600):
     plt.savefig(os.path.join(FIG_DIR, 'tritone.pdf'), bbox_inches='tight')
 
 
+############################
+###     FIG 9    ###########
+############################
+
+def count_harmonic_intervals(df_real, att, n_att=20, real=True, inv=False):
+    fig, ax = plt.subplots(2,1, figsize=(10,7))
+    plt.subplots_adjust(hspace=0.20) #wspace=0.3, hspace=0.2)
+    if inv:
+        att_idx = np.argsort(att[3])[:n_att]
+    else:
+        att_idx = np.argsort(att[3])[::-1][2:n_att+2]
+    int_cents = att[1][att_idx]
+    count = {}
+    for n in range(5,8):
+        if real:
+            count[n] = utils.count_ints(df_real.loc[df_real.n_notes==n], int_cents)
+        else:
+            count[n] = utils.count_ints(df_real[n], int_cents)
+        ax[0].plot(count[n], label=f"N={n}")
+        sns.regplot(np.array(att[3])[att_idx], count[n], ax=ax[1], label=f"N={n}", scatter_kws={'alpha':0.5})
+#       ax[1].plot(np.array(att[3])[att_idx], count[n])
+    ratios = ["{0}/{1}".format(*[int(x) for x in att[2][i]]) for i in att_idx]
+    ax[0].set_xticks(range(n_att))
+    ax[0].set_xticklabels(ratios)
+    ax[1].set_xticks(np.arange(10, 80, 10))
+    ax[0].set_xlabel('Interval frequency ratio')
+    ax[1].set_xlabel('Harmonicity Score')
+    for a in ax:
+        a.set_ylabel('Frequency')
+        a.legend(loc='best', frameon=False)
+
+    for i, a in enumerate(ax):
+        a.text(-.10, 1.05, string.ascii_uppercase[i], transform=a.transAxes, weight='bold', fontsize=16)
+
+    plt.savefig(os.path.join(FIG_DIR, 'harmonic_intervals.pdf'), bbox_inches='tight')
 
 
 ############################
@@ -666,55 +677,65 @@ def scale_variability(df):
 ###     FIG 11   ###########
 ############################
 
-def database_sensitivity(paths, X='met1', Y='fr_10', mean='geo'):
-    df = pd.read_feather(os.path.join(BASE_DIR,'Processed/database_sensitivity.feather'))
+def database_sensitivity(paths, resamp_conf, X='JSD', Y='fr_10', mean='euc'):
+#   df = pd.read_feather(os.path.join(BASE_DIR,'Processed/database_sensitivity.feather'))
     col1 = RdYlGn_11.hex_colors
     col2 = Paired_12.hex_colors
     col = [col2[5], col1[4], col1[6], col2[3], col2[1], col2[7], 'k']
-    lbls = ['FIF', r'$\text{HAR}^{3}$', r'$\text{HAR}^{2}$', r'$\text{HAR}$', 'TRANS', 'MIN', 'RAN']
+#   lbls = ['FIF', r'$\text{HAR}^{3}$', r'$\text{HAR}^{2}$', r'$\text{HAR}$', 'TRANS', 'MIN', 'RAN']
+    lbls = ['FIF', 'HAR3', 'HAR2', 'HAR', 'TRANS', 'MIN', 'RAN']
     bias_group = ['im5', 'HAR3', 'HAR2', 'HAR', 'distI', 'none', 'none']
     titles = [r'Theory', r'Measured', r'$n=0.4S$', r'$n=0.6S$', r'$n=0.8S$']
+    resamp_keys = ['theory', 'measured', 'frac0.4', 'frac0.6', 'frac0.8']
     lbls2 = ['FIF', 'HAR3', 'HAR2', 'HAR', 'TRANS', 'MIN', 'RAN']
 #   col = ['k'] + list(np.array(Paired_12.hex_colors)[[7,9,3,5,1,11]])
 #   bias_group = ['none', 'none', 'HAR', 'distI', 'im5', 'HAR2', 'HAR3']
-    min_int = [80]*6 + [0]
+#   min_int = [80]*6 + [0]
     
-    fig, ax = plt.subplots(3,2, sharex=True, sharey=True, figsize=(10,15))
+    fig, ax = plt.subplots(3,2, sharex=True, sharey=True, figsize=( 6, 6))
     plt.subplots_adjust(wspace=0.10, hspace=0.50)
     ax = ax.reshape(ax.size)
     samples = np.array(['theory', 'instrument'] + [f"sample_f{frac:3.1f}_{i:02d}" for frac in [0.4, 0.6, 0.8] for i in range(10)])
     idx = [[0], [1]] + [list(range(2+i*10,2+(i+1)*10)) for i in range(3)]
     for i, l in enumerate(lbls):
         for j in range(5):
-            Xarr = np.array([[df.loc[(df.bias_group==bias_group[i])&(df.min_int==min_int[i])&(df.n_notes==n), f"{s}_{X}"].values[0] for s in samples[idx[j]]] for n in [5,7]]).T
-            Yarr = np.array([[df.loc[(df.bias_group==bias_group[i])&(df.min_int==min_int[i])&(df.n_notes==n), f"{s}_{Y}"].values[0] for s in samples[idx[j]]] for n in [5,7]]).T
-            n_real = np.array([[df.loc[(df.bias_group==bias_group[i])&(df.min_int==min_int[i])&(df.n_notes==n), f"{s}_n_real"].values[0] for s in samples[idx[j]]] for n in [5,7]]).T
+#           Xarr = np.array([[df.loc[(df.bias_group==bias_group[i])&(df.min_int==min_int[i])&(df.n_notes==n), f"{s}_{X}"].values[0] for s in samples[idx[j]]] for n in [5,7]]).T
+#           Yarr = np.array([[df.loc[(df.bias_group==bias_group[i])&(df.min_int==min_int[i])&(df.n_notes==n), f"{s}_{Y}"].values[0] for s in samples[idx[j]]] for n in [5,7]]).T
+#           n_real = np.array([[df.loc[(df.bias_group==bias_group[i])&(df.min_int==min_int[i])&(df.n_notes==n), f"{s}_n_real"].values[0] for s in samples[idx[j]]] for n in [5,7]]).T
 
-            if mean=='geo':
-                Xarr = np.array([Xarr[i][0]**(n_real[i][0] / n_real[i].sum()) * Xarr[i][1]**(n_real[i][1] / n_real[i].sum()) for i in range(Xarr.shape[0])])
-                Yarr = np.array([Yarr[i][0]**(n_real[i][0] / n_real[i].sum()) * Yarr[i][1]**(n_real[i][1] / n_real[i].sum()) for i in range(Yarr.shape[0])])
-            elif mean=='euc':
-                Xarr = np.array([Xarr[i][0]*(n_real[i][0] / n_real[i].sum()) + Xarr[i][1]*(n_real[i][1] / n_real[i].sum()) for i in range(Xarr.shape[0])])
-                Yarr = np.array([Yarr[i][0]*(n_real[i][0] / n_real[i].sum()) + Yarr[i][1]*(n_real[i][1] / n_real[i].sum()) for i in range(Yarr.shape[0])])
+#           if mean=='geo':
+#               Xarr = np.array([Xarr[i][0]**(n_real[i][0] / n_real[i].sum()) * Xarr[i][1]**(n_real[i][1] / n_real[i].sum()) for i in range(Xarr.shape[0])])
+#               Yarr = np.array([Yarr[i][0]**(n_real[i][0] / n_real[i].sum()) * Yarr[i][1]**(n_real[i][1] / n_real[i].sum()) for i in range(Yarr.shape[0])])
+#           elif mean=='euc':
+#               Xarr = np.array([Xarr[i][0]*(n_real[i][0] / n_real[i].sum()) + Xarr[i][1]*(n_real[i][1] / n_real[i].sum()) for i in range(Xarr.shape[0])])
+#               Yarr = np.array([Yarr[i][0]*(n_real[i][0] / n_real[i].sum()) + Yarr[i][1]*(n_real[i][1] / n_real[i].sum()) for i in range(Yarr.shape[0])])
 
-            ax[j].errorbar([Xarr.mean()*1000], [Yarr.mean()], xerr=[Xarr.std()*1000], yerr=[Yarr.std()], color=col[i], fmt='o', label=l, mec='k')
-            ax[j].plot(paths[lbls2[i]][X][0]*1000, paths[lbls2[i]][Y][0], 'o', color='w', mec=col[i], label=l)
+            Xval = [resamp_conf[resamp_keys[j]][l]['jsd_int']['mean']['mean']]
+            Xerr = [[Xval[0] - resamp_conf[resamp_keys[j]][l]['jsd_int']['mean']['lo']],
+                    [resamp_conf[resamp_keys[j]][l]['jsd_int']['mean']['hi'] - Xval[0]]]
+            Yval = [resamp_conf[resamp_keys[j]][l]['fD']['mean']['mean']]
+            Yerr = [[Yval[0] - resamp_conf[resamp_keys[j]][l]['fD']['mean']['lo']],
+                    [resamp_conf[resamp_keys[j]][l]['fD']['mean']['hi'] - Yval[0]]]
+
+            ax[j].errorbar(Xval, Yval, xerr=Xerr, yerr=Yerr, color=col[i], fmt='o', label=l, mec='k', alpha=0.7, ecolor='k')
+            ax[j].plot(paths[lbls2[i]][X][0], paths[lbls2[i]][Y][0], 'o', color='w', mec=col[i], label=l)
 
     fig.delaxes(ax[5])
 
     for i, a in enumerate(ax[:5]):
         a.set_title(titles[i])
-        a.set_xlabel(r'$d_{\textrm{I}}$')
+        a.set_xlabel(r'$\textrm{JSD}$')
         a.set_ylabel(r'$f_{\textrm{D}}$')
         a.tick_params(axis='both', which='major', direction='in', length=6, width=2, pad=8)
-        a.set_xlim(3.0, 9.8)
-        a.set_xticks(np.arange(4, 10, 2))
-        a.set_xticklabels(np.arange(4, 10, 2))
-        a.set_yticks(np.arange(0, 0.5, 0.2))
+#       a.set_xlim(3.0, 9.8)
+        a.set_xticks(np.arange(.1,.5,.1))
+        a.set_xticklabels([round(x,1) for x in np.arange(.1,.5,.1)])
+#       a.set_xticklabels(np.arange(4, 10, 2))
+#       a.set_yticks(np.arange(0, 0.5, 0.2))
         for tk in a.get_xticklabels():
             tk.set_visible(True)
-    ax[4].text(12.2, 0.5, r"$\textsc{\larger{dat}}$")
-    ax[4].text(15.5, 0.5, r"Subsample")
+#   ax[4].text(12.2, 0.5, r"$\textsc{\larger{dat}}$")
+#   ax[4].text(15.5, 0.5, r"Subsample")
     ax[4].legend(bbox_to_anchor=(2.2, 0.9), frameon=False, ncol=2)
 
 
@@ -778,15 +799,6 @@ def essen_collection():
 
 ############################
 ###     FIG 13   ###########
-############################
-
-
-### See eq_vs_ji.py for code
-
-
-
-############################
-###     FIG 14   ###########
 ############################
 
 def choosing_A(m=1):
@@ -868,7 +880,7 @@ def choosing_A(m=1):
 
 
 ############################
-###     FIG 15   ###########
+###     FIG 14   ###########
 ############################
 
 def choosing_m():
@@ -941,12 +953,11 @@ def choosing_m():
 
 
 ############################
-###     FIG 16   ###########
+###     FIG 15   ###########
 ############################
 
-def bias_sensitivity(df3):
+def bias_sensitivity(df2):
     df = pd.read_feather(os.path.join(BASE_DIR,'Processed/methods_check.feather'))
-    df.met1 = df.met1 * 1000.
     biases = sorted(df.bias.unique())
     fig, ax = plt.subplots(7,2, sharex=True, sharey=True, figsize=(15,15))
     ax = ax.reshape(ax.size)
@@ -955,18 +966,17 @@ def bias_sensitivity(df3):
     for i, b in enumerate(biases):
         eqn_type = b.split('_')[3]
         lbl = eqn[eqn_type].format(str(float(b.split('_')[2])))
-        ax[i].plot(*df3.loc[(df3.bias=='HAR_10_1')&(df3.n_notes==7)&(df3.min_int==80), ['met1', 'fr_10']].T.values, 'o', c='k', fillstyle='full', alpha=0.5)
-        ax[i].plot(*df.loc[df.bias==b, ['met1', 'fr_10']].T.values, 'o', c='orange', fillstyle='full', alpha=0.5, label=lbl)
+        ax[i].plot(*df2.loc[(df2.bias=='HAR_10_1')&(df2.n_notes==7)&(df2.min_int==80), ['JSD', 'fr_10']].T.values, 'o', c='k', fillstyle='full', alpha=0.5)
+        ax[i].plot(*df.loc[df.bias==b, ['JSD', 'fr_10']].T.values, 'o', c='orange', fillstyle='full', alpha=0.5, label=lbl)
         ax[i].set_yticks(np.arange(0,.5,.2))
-        ax[i].set_xticks(np.arange(6, 12))
-        ax[i].set_xlim(5.5, 12.5)
-        ax[i].set_xlim(5.5, 12.5)
+#       ax[i].set_xticks(np.arange(6, 12))
+#       ax[i].set_xlim(0.1, 1.0)
         ax[i].tick_params(axis='both', which='major', direction='out', length=6, width=2, pad=8)
         handles = [Line2D([],[], lw=0, marker='o', color='orange', label=lbl, ms=10)]
 #       ax[i].legend(loc='lower right', handles=handles, frameon=False)
         ax[i].legend(bbox_to_anchor=(0.60, 0.5), handles=handles, frameon=False, handletextpad=0)
     for a in ax[-2:]:
-        a.set_xlabel(r"$d_{\textrm{I}}$")
+        a.set_xlabel(r"$\textrm{JSD}$")
     for a in ax[range(0, ax.size,2)]:
         a.set_ylabel(r"$f_{\textrm{D}}$")
 
@@ -1066,33 +1076,73 @@ def write_parameter_values_table(paths):
 ###     TAB 5   ###########
 ###########################
 
-def write_goodness_of_fit_table(df):
+def write_goodness_of_fit_table(df_real, boot_conf):
     labels = ['RAN', 'MIN', 'HAR', 'TRANS', 'FIF']
-    if 0 not in df.N.unique():
-        scores = np.array([[s for s in utils.average_goodness_of_fit(df, X=m)] for m in ['r2', 'RMSD', 'd_RMSD', 'met1']]).T
-        for l, s in zip(labels, scores):
-            df.loc[len(df)] = [l, 0, 0] + list(s)
-    if 1 not in df.N.unique():
-        scores = np.array([[s for s in utils.average_goodness_of_fit(df, X=m, ave='geo')] for m in ['r2', 'RMSD', 'd_RMSD', 'met1']]).T
-        for l, s in zip(labels, scores):
-            df.loc[len(df)] = [l, 1, 0] + list(s)
-    
+#   if 0 not in df.N.unique():
+#       scores = np.array([[s for s in utils.average_goodness_of_fit(df, X=m)] for m in ['r2', 'RMSD', 'd_RMSD', 'met1']]).T
+#       for l, s in zip(labels, scores):
+#           df.loc[len(df)] = [l, 0, 0] + list(s)
+#   if 1 not in df.N.unique():
+#       scores = np.array([[s for s in utils.average_goodness_of_fit(df, X=m, ave='geo')] for m in ['r2', 'RMSD', 'd_RMSD', 'met1']]).T
+#       for l, s in zip(labels, scores):
+#           df.loc[len(df)] = [l, 1, 0] + list(s)
+#   
+    S_n = np.array([len(df_real.loc[df_real.n_notes==n]) for n in range(4,10)])
     with open("/home/johnmcbride/Dropbox/phd/LaTEX/Scales/SI_table_01.txt", 'w') as o:
-        o.write("Model  &  $N$  &  $S$  &  $R^2$  &  RMSD  &  derivative RMSD  &  $\\dI$ \\\\ \n")
+        o.write("Model  &  $N$  &  $S$  &  JSD  &  CI  &  CvM  &  CI  &  $f_D$  &  CI  \\\\ \n")
         for l in labels:
             for i, n in enumerate(range(4,10)):
-                scores = df.loc[(df.N==n)&(df.bias==l), ['r2', 'RMSD', 'd_RMSD', 'met1']].values[0]
-                S = df.loc[(df.N==n)&(df.bias==l), 'S'].values[0]
+#               scores = df.loc[(df.N==n)&(df.bias==l), ['r2', 'RMSD', 'd_RMSD', 'met1']].values[0]
+#               S = df.loc[(df.N==n)&(df.bias==l), 'S'].values[0]
+                JSD = f"{boot_conf[l]['jsd_int'][n]['mean']:4.2f}"
+                JSD_CI = "({0}, {1})".format(*[f"{boot_conf[l]['jsd_int'][n][x]:4.2f}" for x in ['lo', 'hi']])
+                CVM = f"{boot_conf[l]['cvm_int'][n]['mean']:4.2f}"
+                CVM_CI = "({0}, {1})".format(*[f"{boot_conf[l]['cvm_int'][n][x]:4.2f}" for x in ['lo', 'hi']])
+                fD = f"{boot_conf[l]['fD'][n]['mean']:4.2f}"
+                fD_CI = "({0}, {1})".format(*[f"{boot_conf[l]['fD'][n][x]:4.2f}" for x in ['lo', 'hi']])
+                S = S_n[i]
+                scores = ' & '.join([JSD, JSD_CI, CVM, CVM_CI, fD, fD_CI])
                 if not i:
-                    o.write(f"{l:6s} & {n:3d} & {S:3d} & {scores[0]:4.2f} & {scores[1]:5.3f} & {scores[2]:6.4f} & {scores[3]*1000:4.1f} \\\\\n")
+                    o.write(f"{l:6s} & {n:3d} & {S:3d} & {scores} \\\\\n")
                 elif n==9:
-                    o.write(f"       & {n:3d} & {S:3d}  & {scores[0]:4.2f} & {scores[1]:5.3f} & {scores[2]:6.4f} & {scores[3]*1000:4.1f} \\vspace{{0.1cm}} \\\\\n")
+                    o.write(f"       & {n:3d} & {S:3d} & {scores} \\vspace{{0.1cm}} \\\\\n")
                 else:
-                    o.write(f"       & {n:3d} & {S:3d}  & {scores[0]:4.2f} & {scores[1]:5.3f} & {scores[2]:6.4f} & {scores[3]*1000:4.1f} \\\\\n")
-            scores = df.loc[(df.N==0)&(df.bias==l), ['r2', 'RMSD', 'd_RMSD', 'met1']].values[0]
-            o.write(f"       & arithmatic mean &     &  {scores[0]:4.2f} & {scores[1]:5.3f} & {scores[2]:6.4f} & {scores[3]*1000:4.1f} \\\\\n")
-            scores = df.loc[(df.N==1)&(df.bias==l), ['r2', 'RMSD', 'd_RMSD', 'met1']].values[0]
-            o.write(f"       & geometric mean &     & {scores[0]:4.2f} & {scores[1]:5.3f} & {scores[2]:6.4f} & {scores[3]*1000:4.1f} \\vspace{{0.2cm}} \\\\\n")
+                    o.write(f"       & {n:3d} & {S:3d} & {scores} \\\\\n")
+
+            JSD = f"{boot_conf[l]['jsd_int']['mean']['mean']:4.2f}"
+            JSD_CI = "({0}, {1})".format(*[f"{boot_conf[l]['jsd_int']['mean'][x]:4.2f}" for x in ['lo', 'hi']])
+            CVM = f"{boot_conf[l]['cvm_int']['mean']['mean']:4.2f}"
+            CVM_CI = "({0}, {1})".format(*[f"{boot_conf[l]['cvm_int']['mean'][x]:4.2f}" for x in ['lo', 'hi']])
+            fD = f"{boot_conf[l]['fD']['mean']['mean']:4.2f}"
+            fD_CI = "({0}, {1})".format(*[f"{boot_conf[l]['fD']['mean'][x]:4.2f}" for x in ['lo', 'hi']])
+            scores = ' & '.join([JSD, JSD_CI, CVM, CVM_CI, fD, fD_CI])
+
+            o.write(f"       & arithmatic mean &    & {scores} \\vspace{{0.2cm}} \\\\\n")
+
+
+
+
+###########################
+###     FIG #   ###########
+###########################
+
+#   def attenuation_correlation():
+#       fig, ax = plt.subplots()
+#       data = np.load(os.path.join(BASE_DIR, 'attenutation_model_corr.npy'))
+#       att = np.arange(0.01, 1.01, 0.01)
+#       col1 = RdYlGn_11.hex_colors
+#       col2 = Paired_12.hex_colors
+#       col = [col2[5], col1[4], col1[6], col2[3]]
+#       lbls = ['FIF', r'$\text{HAR}^{3}$', r'$\text{HAR}^{2}$', r'$\text{HAR}$']
+#       for i, d in enumerate(data):
+#           ax.plot(att, d[::-1], '-', c=col[i], label=lbls[i])
+#       ax.legend(loc='best', frameon=False, ncol=2)
+#       ax.set_xlabel('a')
+#       ax.set_ylabel(r"Pearson's $r$")
+#       ax.set_yticks(np.arange(0.85, 1.05, 0.05))
+#       ax.set_ylim(.83, 1.0)
+
+#       fig.savefig(os.path.join(FIG_DIR, 'attenuation_correlation.pdf'), bbox_inches='tight')
 
 
 

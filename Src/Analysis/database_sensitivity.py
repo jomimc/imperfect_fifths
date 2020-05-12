@@ -32,7 +32,7 @@ def calc_relative_entropy(pk, qk):
         if pk[i] <= 0 or qk[i] <= 0:
             pass
         else:
-            RE += pk[i] * np.log2(pk[i] / qk[i])
+            RE += pk[i] * np.log(pk[i] / qk[i])
     return RE
 
 def calc_jensen_shannon_distance(pk, qk):
@@ -87,6 +87,7 @@ def how_much_real_scales_predicted(df, n_real, w, s):
 
 def rename_processed_files(f, s='sample_'):
     root, fName = os.path.split(f)
+    print(root, fName)
     return os.path.join(root, f"{s}{fName}")
 
 

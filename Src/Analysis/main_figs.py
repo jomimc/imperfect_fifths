@@ -33,6 +33,8 @@ mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath} \usepackage{xcolor
 BASE_DIR = '/home/johnmcbride/projects/Scales/Data_compare/'
 DATA_DIR = '/home/johnmcbride/projects/Scales/Data_compare/Data_for_figs/'
 REAL_DIR = '/home/johnmcbride/projects/Scales/Data_compare/Processed/Real'
+CLEAN_DIR = "/home/johnmcbride/projects/Scales/imperfect_fifths/Results/Processed"
+MODEL_DIR = "/home/johnmcbride/projects/Scales/imperfect_fifths/Results/Models"
 
 FIG_DIR = '/home/johnmcbride/Dropbox/phd/LaTEX/Scales/Figures'
 
@@ -150,7 +152,7 @@ def hss_instructional(diff=20, att='None'):
 ###     FIG 3   ###########
 ###########################
 
-def plot_all_adj_int_dist_by_model(paths, df_real, X='pair_ints', mix=[], nbin=60, partabase='none'):
+def plot_all_adj_int_dist_by_model(df_real, model_df, boot_conf, X='pair_ints', mix=[], nbin=60, partabase='none'):
     fig, ax = plt.subplots(3,2, figsize=( 8,  8))
     ax = ax.reshape(ax.size)[[0,2,4,1,3,5]]
     plt.subplots_adjust(wspace=0.05, hspace=0.05)
@@ -170,24 +172,26 @@ def plot_all_adj_int_dist_by_model(paths, df_real, X='pair_ints', mix=[], nbin=6
     lw = np.array([1,1,1,1.0])*1.7
 
     dI = [9.36, 7.55, 7.27, 6.02, 4.01]
-    ax2.bar(range(len(dI)), dI, color=['k'] + cols)
+    JSD = [boot_conf[m]['jsd_int']['mean']['mean'] for m in labels[1:]]
+    LO  = [boot_conf[m]['jsd_int']['mean']['mean'] - boot_conf[m]['jsd_int']['mean']['lo'] for m in labels[1:]]
+    HI  = [boot_conf[m]['jsd_int']['mean']['hi'] - boot_conf[m]['jsd_int']['mean']['mean'] for m in labels[1:]]
+    ax2.bar(range(len(JSD)), JSD, yerr=[LO, HI], color=['k'] + cols)
     ax2.set_xticks(range(len(dI)))
     ax2.set_xticklabels(labels[1:], rotation=90, fontsize=ft1)
-    ax2.set_yticks([0,4,8])
-    ax2.set_yticklabels([0,4,8], fontsize=ft1)
+#   ax2.set_yticks([0,.2,.4])
+#   ax2.set_yticklabels([0,4,8], fontsize=ft1)
 #   ax2.set_xlabel(r"Models")
-    ax2.set_ylabel(r"$d_\textrm{I}$", labelpad=0, fontsize=ft1+2)
-#   sys.exit()
+    ax2.set_ylabel("JSD", labelpad=0, fontsize=ft1+2)
 
     for i, n in enumerate(range(4,10)):
-        df_r = pd.read_feather(paths['RAN'][n])
+        df_r = model_df['RAN'][n]
         bins = range(0,550,20)
-        ax[i].hist(utils.extract_floats_from_string(df_real.loc[df_real.n_notes==n, X]), bins=bins, color=[.6]*3, normed=True, alpha=.7, label='DAT')
+        ax[i].hist(utils.extract_floats_from_string(df_real.loc[df_real.n_notes==n, X]), bins=bins, color=[.6]*3, density=True, alpha=.7, label='DAT')
         sns.kdeplot(utils.extract_floats_from_string(df_real.loc[df_real.n_notes==n, X]), ax=ax[i], label='DAT', color='k')
         sns.kdeplot(utils.extract_floats_from_string(df_r[X]), ax=ax[i], color='k', linestyle=":", label='RAN')
         n_data = len(df_real.loc[df_real.n_notes==n, X])
-        for count, j in enumerate(labels[2:]):
-            sns.kdeplot(utils.extract_floats_from_string(pd.read_feather(paths[j][n])[X]), ax=ax[i], label=labels[count+2], color=cols[count], lw=lw[count])
+        for count, m in enumerate(labels[2:]):
+            sns.kdeplot(utils.extract_floats_from_string(model_df[m][n][X]), ax=ax[i], label=labels[count+2], color=cols[count], lw=lw[count])
         for a in [ax[i]]:
             if i not in [2,5]:
                 a.set_xticklabels([])
@@ -222,7 +226,7 @@ def plot_all_adj_int_dist_by_model(paths, df_real, X='pair_ints', mix=[], nbin=6
 ###     FIG 4   ###########
 ###########################
 
-def plot_all_scale_by_model(paths, df_real, X='scale', mix=[], nbin=60, partabase='none'):
+def plot_all_scale_by_model(df_real, df_model, boot_conf, X='scale', mix=[], nbin=60, partabase='none'):
     fig, ax = plt.subplots(2,2, figsize=(12.5,  6.75))
     plt.subplots_adjust(wspace=0.05, hspace=0.05)
     cols = np.array(Paired_12.hex_colors)[[11,9,3,7,0]]
@@ -247,11 +251,11 @@ def plot_all_scale_by_model(paths, df_real, X='scale', mix=[], nbin=60, partabas
 
     for i, n in enumerate([5,7]):
         for j  in range(2):
-            ax[i,j].hist(utils.extract_floats_from_string(df_real.loc[df_real.n_notes==n, X]), bins=bins, color=[.6]*3, normed=True, alpha=0.7, label='DAT')
-            histD, bins = np.histogram(utils.extract_floats_from_string(df_real.loc[df_real.n_notes==n, X]), bins=bins, normed=True)
+            ax[i,j].hist(utils.extract_floats_from_string(df_real.loc[df_real.n_notes==n, X]), bins=bins, color=[.6]*3, density=True, alpha=0.7, label='DAT')
+            histD, bins = np.histogram(utils.extract_floats_from_string(df_real.loc[df_real.n_notes==n, X]), bins=bins, density=True)
         n_data = len(df_real.loc[df_real.n_notes==n, X])
         for count, lbl in enumerate(labels[2:]):
-            histM, bins = np.histogram(utils.extract_floats_from_string(pd.read_feather(paths[lbl][n])[X]), bins=bins, normed=True)
+            histM, bins = np.histogram(utils.extract_floats_from_string(df_model[lbl][n][X]), bins=bins, density=True)
             df_hist = pd.DataFrame(data={'bin':xxx, lbl:histM})
             
             SStot = np.sum((histD - np.mean(histD))**2)
@@ -260,21 +264,24 @@ def plot_all_scale_by_model(paths, df_real, X='scale', mix=[], nbin=60, partabas
 
 #           print(lbl)
 #           print(linregress(histM, histD))
+            txt = r"${0:5.3f} <$ JSD $< {1:5.3f}$".format(*[boot_conf[lbl]['jsd_scale'][n][x] for x in ['lo', 'hi']])
+#           txt = r"JSD CI ${0:5.3f} - {1:5.3f}$".format(*[boot_conf[lbl]['jsd_scale'][n][x] for x in ['lo', 'hi']])
+            ft2 = ft1-2
 
             if count < 2:
                 sns.lineplot(x='bin', y=lbl, data=df_hist, label=lbl, color=cols[count], ax=ax[i,0], lw=lw[count])
-#               ax[i,0].text(0.65, .65-(count%2)*0.1, r"$R^2={0}$".format(round(r2,2)), transform=ax[i,0].transAxes, fontsize=ft1+4, color=cols[count])
+                ax[i,0].text(0.05, .90-(count%2)*0.15, txt, transform=ax[i,0].transAxes, fontsize=ft2, color=cols[count])
 
-                ax[i,0].text(0.65, .70-(count%2)*0.15, r"$R^2={0}$".format(round(r2,2)), transform=ax[i,0].transAxes, fontsize=ft1+4)
-                rect = mpatches.Rectangle((.63,.69-(count%2)*0.15), 0.34, 0.15, facecolor=cols[count], alpha=0.5, transform=ax[i,0].transAxes)
-                ax[i,0].add_patch(rect)
+#               ax[i,0].text(0.65, .70-(count%2)*0.15, r"$R^2={0}$".format(round(r2,2)), transform=ax[i,0].transAxes, fontsize=ft1+4)
+#               rect = mpatches.Rectangle((.63,.69-(count%2)*0.15), 0.34, 0.15, facecolor=cols[count], alpha=0.5, transform=ax[i,0].transAxes)
+#               ax[i,0].add_patch(rect)
             else:
                 sns.lineplot(x='bin', y=lbl, data=df_hist, label=lbl, color=cols[count], ax=ax[i,1], lw=lw[count])
-#               ax[i,1].text(0.65, .65-(count%2)*0.1, r"$R^2={0}$".format(round(r2,2)), transform=ax[i,1].transAxes, fontsize=ft1+4, color=cols[count])
+                ax[i,1].text(0.05, .90-(count%2)*0.15, txt, transform=ax[i,1].transAxes, fontsize=ft2, color=cols[count])
 
-                ax[i,1].text(0.65, .70-(count%2)*0.15, r"$R^2={0}$".format(round(r2,2)), transform=ax[i,1].transAxes, fontsize=ft1+4)
-                rect = mpatches.Rectangle((.63,.69-(count%2)*0.15), 0.34, 0.15, facecolor=cols[count], alpha=0.5, transform=ax[i,1].transAxes)
-                ax[i,1].add_patch(rect)
+#               ax[i,1].text(0.65, .70-(count%2)*0.15, r"$R^2={0}$".format(round(r2,2)), transform=ax[i,1].transAxes, fontsize=ft1+4)
+#               rect = mpatches.Rectangle((.63,.69-(count%2)*0.15), 0.34, 0.15, facecolor=cols[count], alpha=0.5, transform=ax[i,1].transAxes)
+#               ax[i,1].add_patch(rect)
             
 
         for a in ax[i]:
@@ -291,7 +298,7 @@ def plot_all_scale_by_model(paths, df_real, X='scale', mix=[], nbin=60, partabas
             a.set_xlim(-50, 1250)
             a.set_ylim(0, ylims[i])
             a.get_legend().set_visible(False)
-            a.text(0.65, .87, r"$N={0}$".format(n), transform=a.transAxes, fontsize=ft1+4)
+            a.text(0.65, .85, r"$N={0}$".format(n), transform=a.transAxes, fontsize=ft1+4)
 #           a.text(0.65, .75, r"$S={0}$".format(n_data), transform=a.transAxes, fontsize=ft1+4)
 #       ax[i,0].set_yticks(ytick[i])
     ax[1,0].set_xlabel('Notes in scale / cents', fontsize=ft1+6)
@@ -315,7 +322,7 @@ def plot_all_scale_by_model(paths, df_real, X='scale', mix=[], nbin=60, partabas
 ###     FIG 5   ###########
 ###########################
 
-def model_comparison(df1, df2):
+def model_comparison(df1, df2, boot_conf):
     fig, ax = plt.subplots(1,1, figsize=( 5,2.0))
     col1 = RdYlGn_11.hex_colors
     col2 = Paired_12.hex_colors
@@ -327,27 +334,43 @@ def model_comparison(df1, df2):
 
     for i, bg in enumerate(groups):
         if i in [0,4,5,6]:
-            ax.scatter(df1.loc[(df1.bias_group==bg)&(df1.method=='best'), 'met1']*1000., df1.loc[(df1.bias_group==bg)&(df1.method=='best'), 'fr_10'], color=col_s[i],  s=60, edgecolor='k', alpha=0.7, label=lbls[i])
+            ax.scatter(df1.loc[(df1.bias_group==bg)&(df1.method=='best'), 'JSD'], df1.loc[(df1.bias_group==bg)&(df1.method=='best'), 'fr_10'], color=col_s[i],  s=20, edgecolor='k', alpha=0.7, label=lbls[i])
         else:
             ax.scatter([], [], color=col_s[i],  s=60, edgecolor='k', alpha=0.7, label=lbls[i])
     for i, bg in enumerate(groups):
         if i not in [1,2,3]:
             continue
-        ax.scatter(df2.loc[(df2.bias_group==bg)&(df1.method=='best'), 'met1']*1000., df2.loc[(df2.bias_group==bg)&(df1.method=='best'), 'fr_10'], color=col_s[i],  s=60, edgecolor='k', alpha=0.7)
+        ax.scatter(df2.loc[(df2.bias_group==bg)&(df1.method=='best'), 'JSD'], df2.loc[(df2.bias_group==bg)&(df1.method=='best'), 'fr_10'], color=col_s[i],  s=20, edgecolor='k', alpha=0.7)
 
-    idx = [36, 34, 25, 19]
-    ax.plot(np.array(df1.loc[idx, 'met1'])*1000., np.array(df1.loc[idx, 'fr_10']), 's', mec='k', mew=1.5, ms=10, fillstyle='none')
-    idx = 13
-    ax.plot(np.array(df2.loc[idx, 'met1'])*1000., np.array(df2.loc[idx, 'fr_10']), 's', mec='k', mew=1.5, ms=10, fillstyle='none')
+    # Add squares to main models
+#   idx = [36, 34, 25, 19]
+#   ax.plot(np.array(df1.loc[idx, 'JSD']), np.array(df1.loc[idx, 'fr_10']), 's', mec='k', mew=1.5, ms=10, fillstyle='none')
+#   idx = 13
+#   ax.plot(np.array(df2.loc[idx, 'JSD']), np.array(df2.loc[idx, 'fr_10']), 's', mec='k', mew=1.5, ms=10, fillstyle='none')
+
+
+    # Add confidence intervals to main models
+    labels = ['DAT', 'RAN', 'MIN', 'TRANS', 'HAR', 'FIF']
+    JSD = [boot_conf[m]['jsd_int']['mean']['mean'] for m in labels[1:]]
+    JLO  = [boot_conf[m]['jsd_int']['mean']['mean'] - boot_conf[m]['jsd_int']['mean']['lo'] for m in labels[1:]]
+    JHI  = [boot_conf[m]['jsd_int']['mean']['hi'] - boot_conf[m]['jsd_int']['mean']['mean'] for m in labels[1:]]
+
+    FD  = [boot_conf[m]['fD']['mean']['mean'] for m in labels[1:]]
+    FLO  = [boot_conf[m]['fD']['mean']['mean'] - boot_conf[m]['fD']['mean']['lo'] for m in labels[1:]]
+    FHI  = [boot_conf[m]['fD']['mean']['hi'] - boot_conf[m]['fD']['mean']['mean'] for m in labels[1:]]
+
+    ax.errorbar(np.array(JSD), FD, xerr=[JLO, JHI], yerr=[FLO, FHI], fmt='o', color='k', ms=0.01, alpha=0.7, lw=1.0)
+
+
 
     handles, labels = ax.get_legend_handles_labels()
     handles = [mpatches.Circle([[],[]], fc=col_s[i], ec='k', label=groups[i]) for i in range(7)]
-    ax.legend(loc='best', labels=labels[:7], handles=handles[:7], frameon=False, ncol=2, columnspacing=0.5, handletextpad=0.3)
-    ax.set_xlim(3.5, 10)
+    ax.legend(loc='best', labels=labels, handles=handles, frameon=False, ncol=2, columnspacing=0.5, handletextpad=0.3)
+#   ax.set_xlim(3.5, 10)
     ax.set_ylim(0.0, 0.48)
     ax.set_ylabel(r'$f_{\textrm{D}}$', fontsize=ft)
-    ax.set_xlabel(r'$I_A$ distribution deviation ($d_{\textrm{I}}$)', fontsize=ft)
-    ax.set_xticks(np.arange(4, 12, 2))
+    ax.set_xlabel(r'$I_A$ distribution JSD', fontsize=ft)
+#   ax.set_xticks(np.arange(4, 12, 2))
     ax.set_yticks(np.arange(0, 0.5, 0.1))
 
     plt.savefig(os.path.join(FIG_DIR, 'model_comparison.pdf'), bbox_inches='tight')
@@ -502,7 +525,7 @@ def plot_clusters_and_found_scales(paths, df):
     bar_col = np.array(Dark2_8.hex_colors)[[0,1,2,5,7,6,3,4]]
 
     for i, lbl in enumerate(np.array(lab_uni)[idxsort]):
-        ax[i].hist(utils.extract_floats_from_string(df.loc[df[f"cl_{cl:02d}"]==lbl, 'pair_ints']), bins=bins, label='DAT', color=[.6]*3, normed=True, alpha=0.7, edgecolor='k')
+        ax[i].hist(utils.extract_floats_from_string(df.loc[df[f"cl_{cl:02d}"]==lbl, 'pair_ints']), bins=bins, label='DAT', color=[.6]*3, density=True, alpha=0.7, edgecolor='k')
 #       sns.kdeplot(utils.extract_floats_from_string(df.loc[df[f"cl_{cl:02d}"]==lbl, 'pair_ints']), ax=ax[i], color='k')
 #       sns.distplot(df.loc[df[f"cl_{cl:02d}"]==lbl, 'p_80_450'], bins=bins, ax=ax[i])
         n_data = len(df.loc[df[f"cl_{cl:02d}"]==lbl, 'pair_ints'])

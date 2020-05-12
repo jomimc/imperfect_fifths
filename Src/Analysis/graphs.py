@@ -15,7 +15,6 @@ import seaborn as sns
 from scipy.optimize import curve_fit
 
 import utils
-import compare_grid_stochastic as CGS
 
 mpl.rcParams['text.usetex'] = True
 mpl.rcParams['text.latex.preamble'] = [r'\usepackage{amsmath}']
@@ -115,11 +114,6 @@ def get_violin_order(df, X, Y):
         violin_order = groups[np.argsort(min_J)]
     return violin_order
 
-def sample_distplot_with_constraints(df, bias, MI, MA, q, cat='pair_ints'):
-    tmp_df = utils.filter_df(df, {'min_int':['>',MI], 'max_int':['<',MA]})
-    beta = CGS.get_beta_from_stats(tmp_df, bias, q)
-    sdf = CGS.sample_scales_using_beta(tmp_df, bias, beta)
-    sns.distplot(utils.extract_floats_from_string(sdf.pair_ints))
 
 def df_distplot_with_constraints(df, bias, MI, MA, q, cat='pair_ints', ret=0):
     if 'hs' in bias:

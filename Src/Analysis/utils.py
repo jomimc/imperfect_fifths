@@ -1,3 +1,5 @@
+from collections import defaultdict
+from itertools import permutations, product
 import re
 import os
 import pickle
@@ -5,7 +7,6 @@ import sys
 import time
 
 import matplotlib.pyplot as plt
-from itertools import permutations, product
 from matching import Player, StableMarriage, HospitalResident
 import multiprocessing as mp
 import numpy as np
@@ -17,8 +18,8 @@ import seaborn as sns
 from scipy.cluster.hierarchy import fcluster, linkage, dendrogram
 from scipy.optimize import curve_fit
 from scipy.signal import argrelextrema
-from scipy.spatial.distance import pdist
-from scipy.stats import linregress, pearsonr
+from scipy.spatial.distance import pdist, jensenshannon
+from scipy.stats import linregress, pearsonr, ks_2samp, anderson_ksamp, energy_distance, wasserstein_distance, rankdata
 from sklearn.cluster import DBSCAN
 import statsmodels.nonparametric.api as smnp
 
@@ -28,7 +29,10 @@ N_PROC = 28
 BASE_DIR = "/home/johnmcbride/projects/Scales/Data_compare"
 DIST_DIR = "/home/johnmcbride/projects/Scales/Toy_model/Data/None_dist"
 SRC_DIR = "/home/johnmcbride/projects/Scales/Data_compare/Src"
-CLEAN_DIR = "/home/johnmcbride/projects/Scales/Data_compare/Processed/Cleaned"
+CLEAN_DIR = "/home/johnmcbride/projects/Scales/imperfect_fifths/Results/Processed"
+MODEL_DIR = "/home/johnmcbride/projects/Scales/imperfect_fifths/Results/Models"
+MET_DIR = "/home/johnmcbride/projects/Scales/imperfect_fifths/Results/Metrics"
+HAR_DIR = "/home/johnmcbride/projects/Scales/imperfect_fifths/Harmonicity_models"
 
 
 INST = np.array([1,0,1,0,1,1,0,1,0,1,1,1,1,0,1,0,1,1,0,1,0,1,1,1,1], dtype=bool)
@@ -84,8 +88,24 @@ def load_data_for_figs():
 
     # Best performing models (optimized beta)
     # for each set of parameters
-    df_b1, paths1 = pick_best_models(df, df_real)
-    df_b2, paths2 = pick_best_models(df2, df_real)
+    f = os.path.join(CLEAN_DIR, "best_model_1.feather")
+    if os.path.exists(f):
+        df_b1 = pd.read_feather(f)
+        paths1 = pickle.load(open(os.path.join(CLEAN_DIR, "paths_1.pickle"), 'rb'))
+    else:
+        df_b1, paths1 = pick_best_models(df, df_real, parallel=True)
+        df_b1.to_feather(f)
+        pickle.dump(paths1, open(os.path.join(CLEAN_DIR, "paths_1.pickle"), 'wb'))
+
+    f = os.path.join(CLEAN_DIR, "best_model_2.feather")
+    if os.path.exists(f):
+        df_b2 = pd.read_feather(f)
+        paths2 = pickle.load(open(os.path.join(CLEAN_DIR, "paths_2.pickle"), 'rb'))
+    else:
+        df_b2, paths2 = pick_best_models(df2, df_real, parallel=True)
+        df_b2.to_feather(f)
+        pickle.dump(paths2, open(os.path.join(CLEAN_DIR, "paths_2.pickle"), 'wb'))
+
     paths = amalgamate_paths(paths1, paths2)
 
     # Update DataFrame for the scales
@@ -100,15 +120,28 @@ def load_data_for_figs():
     # Theoretical populations for the model scales
     model_df = {}
     for l in ['RAN', 'MIN', 'TRANS', 'FIF', 'HAR', 'HAR2', 'HAR3']:
-        f = os.path.join(CLEAN_DIR, "Cleaned", "scales_database.feather")
+        f = os.path.join(CLEAN_DIR, "scales_database.feather")
         try:
-            model_df.update({l:{n: pd.read_feather(os.path.join(CLEAN_DIR, "Cleaned", "Models", f"{l}_{n:02d}.feather")) for n in range(4,10)}})
+            model_df.update({l:{n: pd.read_feather(os.path.join(MODEL_DIR, f"{l}_{n:02d}.feather")) for n in range(4,10)}})
         except ArrowIOError:
             model_df.update({l:{n: update_hss_scores_df(calculate_fifths_bias_all_w(get_all_ints(pd.read_feather(paths[l][n])))) for n in range(4,10)}})
             for n in range(4,10):
-                model_df[l][n].to_feather(os.path.join(CLEAN_DIR, "Models", f"{l}_{n:02d}.feather"))
+                model_df[l][n].to_feather(os.path.join(MODEL_DIR, f"{l}_{n:02d}.feather"))
 
-    return df, df2, df_real, df_b1, df_b2, paths, model_df
+    # Harmonic attractors for w=20
+    f = os.path.join(HAR_DIR, "harmonic_attractors.pickle")
+    if os.path.exists(f):
+        att = pickle.load(open(f, 'rb'))
+    else:
+        att = utils.get_attractors(1, dI=1., diff=10)
+
+    # Bootstrapped metrics with 95% confidence intervals for main results
+    boot_conf = pickle.load(open(os.path.join(MET_DIR, "metrics_confidence.pickle"), 'rb'))
+
+    # Bootstrapped metrics with 95% confidence intervals for different types of samples
+    resamp_conf = pickle.load(open(os.path.join(MET_DIR, "database_resampling_confidence.pickle"), 'rb'))
+
+    return df, df2, df_real, df_b1, df_b2, paths, model_df, boot_conf, resamp_conf, att
     
 
 def get_beta_values(df):
@@ -151,7 +184,8 @@ def calc_relative_entropy(pk, qk):
 #           print("{} out f {} is zero\npk = {}\tqk = {}".format(i, len(pk), pk[i], qk[i]))
             pass
         else:
-            RE += pk[i] * np.log2(pk[i] / qk[i])
+#           RE += pk[i] * np.log2(pk[i] / qk[i])
+            RE += pk[i] * np.log(pk[i] / qk[i])
     return RE
 
 def convert_grid(grid, y, num=1201):
@@ -1675,14 +1709,16 @@ def calculate_goodness_of_fit(paths, df_real, X='pair_ints'):
             out_df.loc[len(out_df)] = [labels[j], n, S, r2, RMSD, deriv_RMSD, met1]
     return out_df
 
-def average_goodness_of_fit(df, X='r2', ave='euc'):
-    labels = ['RAN', 'MIN', 'HAR', 'TRANS', 'FIF']
+
+def average_goodness_of_fit(df, X='r2', ave='euc', b='bias'):
+    labels = ['RAN', 'MIN', 'TRANS', 'HAR', 'FIF']
     for i, l in enumerate(labels):
         if ave=='euc':
-            score = np.sum([df.loc[j, X] * df.loc[j, 'S'] / df.loc[df.bias==l, 'S'].sum() for j in df.loc[df.bias==l].index])
+            score = np.sum([df.loc[j, X] * df.loc[j, 'S'] / df.loc[df[b]==l, 'S'].sum() for j in df.loc[df[b]==l].index])
         elif ave=='geo':
-            score = np.product([df.loc[j, X] ** (df.loc[j, 'S'] / df.loc[df.bias==l, 'S'].sum()) for j in df.loc[df.bias==l].index])
+            score = np.product([df.loc[j, X] ** (df.loc[j, 'S'] / df.loc[df[b]==l, 'S'].sum()) for j in df.loc[df[b]==l].index])
         yield score
+
 
 def get_primes(n):
     numbers = set(range(n, 1, -1))
@@ -1794,11 +1830,11 @@ def find_best_beta(df, f_real):
     return [Q[idx], X[idx], Y[idx], beta[idx]]
 
 
-def pick_best_models(df, df_real, plot=False):
+def pick_best_models(df, df_real, plot=False, parallel=True):
     biases = df.bias.unique()
     n_real = np.array([len(df_real.loc[df_real.n_notes==n]) for n in range(4,10)])
     f_real = n_real / n_real.sum()
-    cols = ['min_int', 'bias', 'bias_group', 'beta_mean', 'beta_std', 'logq_mean', 'met1', 'fr_10', 'method']
+    cols = ['min_int', 'bias', 'bias_group', 'beta_mean', 'beta_std', 'logq_mean', 'met1', 'JSD', 'fr_10', 'method']
     col1 = RdYlGn_11.hex_colors
     col2 = Paired_12.mpl_colors
     col3 = RdYlGn_6.hex_colors
@@ -1813,13 +1849,23 @@ def pick_best_models(df, df_real, plot=False):
                 idx = [df.loc[(df.n_notes==n)&(df.bias==b)&(df.min_int==mi)&(df.max_int==1200), 'Z'].idxmin() for n in range(4,10)]
             except ValueError:
                 continue
-            out1 = [np.product(df.loc[idx, 'met1'].values ** f_real)]
-            out2 = [np.sum(x * f_real) for x in df.loc[idx, ['fr_10', 'logq']].values.T]
+            # Report original values
+#           out1 = [np.product(df.loc[idx, 'met1'].values ** f_real)]
+#           out2 = [np.sum(x * f_real) for x in df.loc[idx, ['fr_10', 'logq']].values.T]
+#           out3 = [np.sum(df.loc[idx, 'JSD'].values * f_real)]
+
+            # Report bootstrapped averages
+            out1 = [0]
+            model_df = {n:pd.read_feather(f) for n, f in zip(range(4,10), df.loc[idx, 'fName'])}
+            boot_met = bootstrap_metrics(df_real, model_df, parallel=parallel)
+            out2 = [np.mean(boot_met['fD'][:,6]), np.sum(df.loc[idx, 'logq'] * f_real)]
+            out3 = [np.mean(boot_met['jsd_int'][:,6])]
+            print(out2, out3)
 
             bg = df.loc[idx[0], 'bias_group']
 
             df_best.loc[len(df_best)] = [mi, b, bg] + [df.loc[idx, 'beta'].mean(), df.loc[idx, 'beta'].std()] + \
-                                        [out2[1]] + out1 + [out2[0]] + ['best']
+                                        [out2[1]] + out1 + out3 + [out2[0]] + ['best']
 
 #           out3 = find_best_beta(df.loc[(df.bias==b)&(df.min_int==mi)&(df.max_int==1200)], f_real)
 #           df_best.loc[len(df_best)] = [mi, b, bg] + [out3[3], 0] + out3[:3] + ['bias']
@@ -1829,27 +1875,27 @@ def pick_best_models(df, df_real, plot=False):
                 plt.plot([out3[1]], [out3[2]], 'o', color=col[bg])
                 plt.plot(out1+[out3[1]], [out2[0]]+[out3[2]], '-', color=col[bg])
 
-    df_best = normalise_metrics_2(df_best)
+    df_best = normalise_metrics_2(df_best, X='JSD')
 
     PATHS = {}
     for bg in df_best.bias_group.unique():
         if bg == 'HAR':
-            mi, b, met1, fr_10 = df_best.loc[df_best.loc[df_best.bias=="HAR_10_1", 'Z'].idxmin(), ['min_int', 'bias', 'met1', 'fr_10']].values
+            mi, b, JSD, fr_10 = df_best.loc[df_best.loc[df_best.bias=="HAR_10_1", 'Z'].idxmin(), ['min_int', 'bias', 'JSD', 'fr_10']].values
         else:
-            mi, b, met1, fr_10 = df_best.loc[df_best.loc[df_best.bias_group==bg, 'Z'].idxmin(), ['min_int', 'bias', 'met1', 'fr_10']].values
+            mi, b, JSD, fr_10 = df_best.loc[df_best.loc[df_best.bias_group==bg, 'Z'].idxmin(), ['min_int', 'bias', 'JSD', 'fr_10']].values
         mi = 80
         if bg == 'RAN':
             idx = [df.loc[(df.n_notes==n)&(df.bias==b)&(df.min_int==0)&(df.max_int==1200), 'Z'].idxmin() for n in range(4,10)]
         else:
             idx = [df.loc[(df.n_notes==n)&(df.bias==b)&(df.min_int==mi)&(df.max_int==1200), 'Z'].idxmin() for n in range(4,10)]
         PATHS.update({bg:{**{n:df.loc[i, 'fName'] for i, n in zip(idx, range(4,10))},
-                      **{'met1':{**{n:df.loc[i, 'met1'] for i, n in zip(idx, range(4,10))}, **{0:met1}}},
+                      **{'JSD':{**{n:df.loc[i, 'JSD'] for i, n in zip(idx, range(4,10))}, **{0:JSD}}},
                       **{'fr_10':{**{n:df.loc[i, 'fr_10'] for i, n in zip(idx, range(4,10))}, **{0:fr_10}}}}})
 
     return df_best, PATHS
 
-def amalgamate_paths(paths1, paths3):
-    paths = paths3.copy()
+def amalgamate_paths(paths1, paths2):
+    paths = paths2.copy()
     paths['TRANS'] = paths1['TRANS']
     paths['MIN'] = paths1['MIN']
     paths['FIF'] = paths1['FIF']
@@ -2023,6 +2069,7 @@ def return_beta_below_optimum(df, bias, n):
             idx += list(df.loc[([True if i in idx1 else False for i in df.index])&(df.beta<=betamax)].index)
     return df.loc[idx].reset_index(drop=True)
 
+
 def save_min_model_costs(df_min):
     biases = ['hs_n1_w10', 'distI_2_0', 'Nim5_r0.0_w10']
     labels = ['HAR', 'TRANS', 'FIF']
@@ -2033,6 +2080,247 @@ def save_min_model_costs(df_min):
             hist = hist / hist.sum()
             X = bn[:-1] + 0.5 * (bn[1] - bn[0])
             np.save(BASE_DIR + f"/Processed/Cleaned/MIN_cost_func/MIN_{n}_{l}_stats", np.array([X, hist]))
+
+
+def kde_smooth(X):
+    kde = smnp.KDEUnivariate(np.array(X, dtype=float))
+    kde.fit(kernel='gau', bw='scott', fft=1, gridsize=10000, cut=20)
+    grid = np.linspace(0, 1200, num=1201)
+    return np.array([kde.evaluate(x) for x in grid]).reshape(1201)
+
+
+def get_scale_histogram(X):
+    bins = np.arange(15, 1200, 30)
+    return np.histogram(X, bins=bins, density=True)[0]
+
+
+def cramer_von_mises_2samp(X, Y):
+    N, M = len(X), len(Y)
+    rank = rankdata(np.append(X, Y))
+    rx = rank[:N]
+    ry = rank[N:]
+    U = N * np.sum((rx - rankdata(X))**2) + M * np.sum((ry - rankdata(Y))**2)
+    return U / (N*M*(N+M)) - (4*M*N-1) / (6*(M+N))
+
+
+
+def pair_ints_fit(df_real, df_model):
+    models = ['RAN', 'MIN', 'TRANS', 'HAR', 'FIF']
+    n_arr = np.arange(4,10)
+    df_out = pd.DataFrame(columns=['N', 'model', 'S', 'JSD', 'RMSD', 'CVM', 'KS', 'eDist', 'wDist'])
+    for n in n_arr:
+        X = extract_ints_from_string(df_real.loc[df_real.n_notes==n, 'pair_ints'])
+        S = len(df_real.loc[df_real.n_notes==n])
+        pX = kde_smooth(X)
+        for m in models:
+            Y = extract_ints_from_string(df_model[m][n]['pair_ints'])
+            pY = kde_smooth(Y)
+
+            gof = []
+            gof.append(calc_jensen_shannon_distance(pX, pY))
+#           gof.append(mean_squared_error(pX, pY))
+            gof.append(np.sum(np.abs(pX-pY)))
+            gof.append(cramer_von_mises_2samp(X, Y))
+            gof.append(ks_2samp(X, Y)[0])
+            gof.append(energy_distance(X, Y))
+            gof.append(wasserstein_distance(X, Y))
+
+            df_out.loc[len(df_out)] = [n, m, S] + gof
+
+    return df_out
+
+
+def scales_fit(df_real, df_model):
+    models = ['RAN', 'MIN', 'TRANS', 'HAR', 'FIF']
+    n_arr = [5,7]
+    bins = np.linspace(50, 1150, 55)
+    df_out = pd.DataFrame(columns=['N', 'model', 'S', 'JSD', 'RMSD', 'CVM', 'KS', 'eDist', 'wDist'])
+    for n in n_arr:
+        X = [x for x in extract_ints_from_string(df_real.loc[df_real.n_notes==n, 'scale']) if 50 <= x <= 1150]
+        S = len(df_real.loc[df_real.n_notes==n])
+        pX = np.histogram(X, bins=bins, density=True)[0]
+        for m in models:
+            Y = [x for x in extract_ints_from_string(df_model[m][n]['scale']) if 50 <= x <= 1150]
+            pY = np.histogram(Y, bins=bins, density=True)[0]
+
+            gof = []
+            gof.append(calc_jensen_shannon_distance(pX, pY))
+#           gof.append(mean_squared_error(pX, pY))
+            gof.append(np.sum(np.abs(pX-pY)))
+            gof.append(cramer_von_mises_2samp(X, Y))
+            gof.append(ks_2samp(X, Y)[0])
+            gof.append(energy_distance(X, Y))
+            gof.append(wasserstein_distance(X, Y))
+            
+            df_out.loc[len(df_out)] = [n, m, S] + gof
+
+    return df_out
+
+
+def scales_fit_bin_size(df_real, df_model):
+    models = ['RAN', 'MIN', 'TRANS', 'HAR', 'FIF']
+    n_arr = [5,7]
+    bin_size = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100]
+    JSD = np.zeros((len(bin_size), len(models), len(n_arr)), dtype=float)
+    for i, bs in enumerate(bin_size):
+        bins = np.arange(50, 1155, bs)
+        for j, n in enumerate(n_arr):
+            X = [x for x in extract_ints_from_string(df_real.loc[df_real.n_notes==n, 'scale']) if 50 <= x <= 1150]
+            S = len(df_real.loc[df_real.n_notes==n])
+            pX = np.histogram(X, bins=bins, density=True)[0]
+            for k, m in enumerate(models):
+                Y = [x for x in extract_ints_from_string(df_model[m][n]['scale']) if 50 <= x <= 1150]
+                pY = np.histogram(Y, bins=bins, density=True)[0]
+                JSD[i,k,j] = calc_jensen_shannon_distance(pX, pY)
+    S = np.array([len(df_real.loc[df_real.n_notes==n]) for n in n_arr])
+    return np.mean(JSD**(S/S.sum()), axis=2)
+
+
+def calculate_metrics_int_scale(inputs):
+    df_real, n_arr, S_n, frac, base_idx, scales_uniq, model_ints, model_scales, int_dist, scale_dist = inputs 
+    np.random.seed()
+    metrics = ['jsd_int', 'cvm_int', 'jsd_scale', 'cvm_scale', 'fD']
+    m_size = [6, 6, 2, 2, 6]
+    metrics = {m:np.zeros(s) for m, s in zip(metrics, m_size)}
+    for j, n in enumerate(n_arr):
+        idx = np.random.choice(base_idx[n], replace=True, size=int(frac * S_n[j]))
+        X = extract_floats_from_string(df_real.loc[idx, 'pair_ints'])
+        pX = kde_smooth(X)
+
+        metrics['jsd_int'][j] = calc_jensen_shannon_distance(pX, int_dist[n])
+        metrics['cvm_int'][j] = cramer_von_mises_2samp(X, model_ints[n])
+        metrics['fD'][j] = len([i for i in idx if i in scales_uniq[n]]) / S_n[j]
+
+        if n in [5, 7]:
+            X = extract_floats_from_string(df_real.loc[idx, 'scale'])
+            pX = get_scale_histogram(X)
+            k = {5:0, 7:1}[n]
+            metrics['jsd_scale'][k] = calc_jensen_shannon_distance(pX, scale_dist[n])
+            metrics['cvm_scale'][k] = cramer_von_mises_2samp(X, model_scales[n])
+
+    return metrics
+
+
+def feed_inputs(N, inputs):
+    for i in range(N):
+        yield inputs
+
+
+def bootstrap_metrics(df_real, df_model, n_boot=1000, parallel=False, frac=1.0):
+    n_arr = np.arange(4,10)
+    S_n = np.array([len(df_real.loc[df_real.n_notes==n]) for n in n_arr])
+    base_idx = {n:df_real.loc[df_real.n_notes==n].index for n in n_arr}
+    scales_uniq = {n:set(extract_ints_from_string(df_model[n]['ss_w10'])) for n in n_arr}
+    model_ints = {n:extract_floats_from_string(df_model[n]['pair_ints']) for n in n_arr}
+    model_scales = {n:extract_floats_from_string(df_model[n]['scale']) for n in [5,7]}
+    int_dist = {n:kde_smooth(x) for n, x in model_ints.items()}
+    scale_dist = {n:get_scale_histogram(x) for n, x in model_scales.items()}
+    out = defaultdict(list)
+    metrics = ['jsd_int', 'cvm_int', 'jsd_scale', 'cvm_scale', 'fD']
+    m_size = [6, 6, 2, 2, 6]
+    if parallel:
+        inputs = (df_real, n_arr, S_n, frac, base_idx, scales_uniq, model_ints, model_scales, int_dist, scale_dist)
+        with mp.Pool(N_PROC) as pool:
+            all_metrics = list(pool.imap_unordered(calculate_metrics_int_scale, feed_inputs(n_boot, inputs), 5))
+        for metrics in all_metrics:
+            for m in metrics:
+                if 'scale' in m:
+                    out[m].append(np.append(metrics[m], np.sum(metrics[m]*(S_n[[1,3]]/S_n[[1,3]].sum()))))
+                else:
+                    out[m].append(np.append(metrics[m], np.sum(metrics[m]*(S_n/S_n.sum()))))
+    else:
+        for i in range(n_boot):
+            metrics = {m:np.zeros(s) for m, s in zip(metrics, m_size)}
+            for j, n in enumerate(n_arr):
+                idx = np.random.choice(base_idx[n], replace=True, size=int(frac * S_n[j]))
+                X = extract_floats_from_string(df_real.loc[idx, 'pair_ints'])
+                pX = kde_smooth(X)
+
+                metrics['jsd_int'][j] = calc_jensen_shannon_distance(pX, int_dist[n])
+                metrics['cvm_int'][j] = cramer_von_mises_2samp(X, model_ints[n])
+                metrics['fD'][j] = len([i for i in idx if i in scales_uniq[n]]) / S_n[j]
+
+                if n in [5, 7]:
+                    X = extract_floats_from_string(df_real.loc[idx, 'scale'])
+                    pX = get_scale_histogram(X)
+                    k = {5:0, 7:1}[n]
+                    metrics['jsd_scale'][k] = calc_jensen_shannon_distance(pX, scale_dist[n])
+                    metrics['cvm_scale'][k] = cramer_von_mises_2samp(X, model_scales[n])
+
+
+            for m in metrics:
+                if 'scale' in m:
+                    out[m].append(np.append(metrics[m], np.sum(metrics[m]*(S_n[[1,3]]/S_n[[1,3]].sum()))))
+                else:
+                    out[m].append(np.append(metrics[m], np.sum(metrics[m]*(S_n/S_n.sum()))))
+
+    for k in out.keys():
+        out[k] = np.array(out[k])
+
+    return out
+
+
+def get_confidence_interval(X, conf=0.95):
+    lo = int(len(X)*0.5*(1-conf))
+    hi = int(len(X)*(conf + 0.5*(1-conf)))
+    return np.mean(X), sorted(X)[lo], sorted(X)[hi]
+
+
+def update_conf_ints(boot):
+    output = {}
+    for m, metrics in boot.items():
+        output.update({m:{}})
+        for met, data in metrics.items():
+            output[m].update({met:{}})
+            if 'scale' in met:
+                for i, l in enumerate([5, 7, 'mean']):
+                    output[m][met].update({l:defaultdict(float)})
+                    mean, lo, hi = get_confidence_interval(data[:,i])
+                    output[m][met][l]['mean'] = mean
+                    output[m][met][l]['lo'] = lo
+                    output[m][met][l]['hi'] = hi
+
+            else:
+                for i, l in enumerate(list(range(4,10)) + ['mean']):
+                    output[m][met].update({l:defaultdict(float)})
+                    mean, lo, hi = get_confidence_interval(data[:,i])
+                    output[m][met][l]['mean'] = mean
+                    output[m][met][l]['lo'] = lo
+                    output[m][met][l]['hi'] = hi
+    return output
+
+
+def database_resampling(df_real, df_model):
+    output = defaultdict(dict)
+    df_theory = df_real.loc[df_real.Theory=='Y']
+    df_measured = df_real.loc[df_real.Theory=='N']
+    for m, dat in df_model.items():
+        output['theory'][m] = bootstrap_metrics(df_theory, df_model[m], n_boot=1000, parallel=True, frac=1)
+        output['measured'][m] = bootstrap_metrics(df_measured, df_model[m], n_boot=1000, parallel=True, frac=1)
+        output['frac0.8'][m] = bootstrap_metrics(df_real, df_model[m], n_boot=1000, parallel=True, frac=0.8)
+        output['frac0.6'][m] = bootstrap_metrics(df_real, df_model[m], n_boot=1000, parallel=True, frac=0.6)
+        output['frac0.4'][m] = bootstrap_metrics(df_real, df_model[m], n_boot=1000, parallel=True, frac=0.4)
+    return output
+
+
+def count_ints_fn(inputs, w=20):
+    int_str, int_cents = inputs
+    ints = np.array([int(x) for x in int_str.split(';')])
+    count = np.zeros(len(int_cents), dtype=float)
+    for i in range(len(int_cents)):
+        count[i] = count[i] + len([x for x in ints if abs(x-int_cents[i])<w])
+    return count
+
+
+def count_ints(df, int_cents):
+    count = np.zeros(len(int_cents), dtype=float)
+    with mp.Pool(N_PROC) as pool:
+        for c in pool.imap_unordered(count_ints_fn, product(df['all_ints2'], [int_cents])):
+            count = count + c
+    count /= len(df)
+    return count
+
+
 
 
 
