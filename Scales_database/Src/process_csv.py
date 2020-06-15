@@ -25,7 +25,11 @@ def load_data():
     df_4 = pd.read_csv(os.path.join(DATA_DIR,'scales_D.csv'))
     df_4 = utils.reformat_surjodiningrat(df_4)
 
-    return df_1, df_2, df_3, df_4
+    # Data from Ellis (1885)
+    df_5 = pd.read_csv(os.path.join(DATA_DIR,'scales_E.csv'))
+    df_5 = utils.reformat_original_csv_data(df_5)
+
+    return df_1, df_2, df_3, df_4, df_5
 
 
 ### Create new DataFrame with intervals in cents for all tunings
@@ -35,28 +39,27 @@ def reformat_data(old_dfs):
 
     for i, df in enumerate(old_dfs):
         if i==0:
-            cultures, tunings, conts, names, scales, all_ints, pair_ints, ref, theory = utils.extract_scales_and_ints_from_scales(df)
-            str_ints = [';'.join([str(int(round(x))) for x in y]) for y in pair_ints]
+            df_dict = utils.extract_scales_and_ints_from_scales(df)
+            df_dict['pair_ints'] = [';'.join([str(int(round(x))) for x in y]) for y in df_dict['pair_ints']]
         elif i==3:
-            cultures, tunings, conts, names, str_ints, ref, theory = [df.loc[:,key] for key in ['Culture', 'Tuning', 'Continent', 'Name', 'pair_ints','Reference', 'Theory']]
-            pair_ints = [[int(x) for x in y.split(';')] for y in str_ints]
-            scales = [[0] + list(np.cumsum(ints)) for ints in pair_ints]
-            all_ints = [[s[i] - s[j] for j in range(len(s)) for i in range(j+1,len(s))] for s in scales]
+            cols = ['Culture', 'Tuning', 'Continent', 'Country', 'Name', 'pair_ints','Reference', 'RefID', 'Theory']
+            df_dict = {c:df[c] for c in cols}
+            df_dict['scale'] = [[0] + list(np.cumsum([int(x) for x in ints.split(';')])) for ints in df_dict['pair_ints']]
+            df_dict['all_ints'] = [[s[i] - s[j] for j in range(len(s)) for i in range(j+1,len(s))] for s in df_dict['scale']]
         else:
-            cultures, tunings, conts, names, scales, all_ints, pair_ints, ref, theory = utils.extract_scales_and_ints_from_unique(df)
-            str_ints = [';'.join([str(int(round(x))) for x in y]) for y in pair_ints]
+            df_dict = utils.extract_scales_and_ints_from_unique(df)
+            df_dict['pair_ints'] = [';'.join([str(int(round(x))) for x in y]) for y in df_dict['pair_ints']]
 
-        str_all_ints = [';'.join([str(int(round(x))) for x in y]) for y in all_ints]
-        str_scales = [';'.join([str(int(round(x))) for x in y]) for y in scales]
-        df_dict = {'Name':names, 'scale':str_scales, 'pair_ints':str_ints, 'all_ints':str_all_ints,
-                  'Tuning':tunings, 'Culture':cultures, 'Continent':conts, 'Reference':ref, 'Theory':theory}
+        ### all_ints only counts intervals that fall within a single octave
+        df_dict['all_ints'] = [';'.join([str(int(round(x))) for x in y]) for y in df_dict['all_ints']]
+        df_dict['scale'] = [';'.join([str(int(round(x))) for x in y]) for y in df_dict['scale']]
         new_dfs.append(pd.DataFrame(data=df_dict))
 
     return pd.concat(new_dfs, ignore_index=True)
 
 def process_data():
-    df_1, df_2, df_3, df_4 = load_data()
-    df = reformat_data([df_1, df_2, df_3, df_4])
+    df_list = load_data()
+    df = reformat_data(df_list)
     df['n_notes'] = df.pair_ints.apply(lambda x: len(x.split(';')))
 
     ### Clean up duplicates
@@ -70,6 +73,23 @@ def process_data():
             for i in idx[1:]:
                 to_bin.add(i)
     df = df.drop(index=to_bin).reset_index(drop=True)
+
+    ### Only include scales with 4 <= N <= 9
+    df = df.loc[(df.n_notes>=4)&(df.n_notes<=9)].reset_index(drop=True)
+
+    ### Some basic metrics for scales
+    df['min_int'] = df.pair_ints.apply(lambda x: min(utils.str_to_ints(x)))
+    df['max_int'] = df.pair_ints.apply(lambda x: max(utils.str_to_ints(x)))
+    df['octave'] = df.scale.apply(lambda x: max(utils.str_to_ints(x)))
+    df['irange'] = df['max_int'] - df['min_int']
+
+    ### all_ints2 counts intervals that are smaller than an octave,
+    ### but can be made within the first two octaves
+    ### e.g. the interval between the 2nd note and the 8th (1st) note in a 7-note scale
+    df = utils.get_all_ints(df)
+
+    ### Clustering the scales by similarity between adjacent interval sets
+    df = utils.label_scales_by_cluster(df)
     return df
     
 

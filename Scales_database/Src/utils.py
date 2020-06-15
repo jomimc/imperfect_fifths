@@ -1,4 +1,4 @@
-
+from collections import defaultdict
 import re
 import sys
 import time
@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 from itertools import permutations
 import numpy as np
 import pandas as pd
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.spatial.distance import pdist
 import seaborn as sns
 from sklearn.cluster import DBSCAN
 import statsmodels.nonparametric.api as smnp
@@ -55,10 +57,60 @@ def get_cents_from_ratio(ratio):
     return 1200.*np.log10(ratio)/np.log10(2)
 
 
+def str_to_ints(st, delim=';'):
+    return [int(s) for s in st.split(delim) if len(s)]
+
+
+def ints_to_str(i):
+    return ';'.join([str(x) for x in i])
+
+
+def get_all_ints(df, old='pair_ints', new='all_ints2'):
+    def fn(pi):
+        ints = np.array(str_to_ints(pi))
+        return ints_to_str([x for i in range(len(ints)) for x in np.cumsum(np.roll(ints,i))[:-1]])
+    df[new] = df[old].apply(fn)
+    return df
+
 
 
 #############################################################################
-### Functions for extracting and reformatting the data
+### Clusting the scales by the distance between interval sets
+
+
+def find_min_pair_int_dist(b, c):
+    dist = 0.0
+    for i in range(len(b)):
+        dist += np.min(np.abs(c-b[i]))
+    return dist
+
+
+def pair_int_distance(pair_ints):
+    pair_dist = np.zeros((len(pair_ints), len(pair_ints)), dtype=float)
+    for i in range(len(pair_ints)):
+        for j in range(len(pair_ints)):
+            dist1 = find_min_pair_int_dist(pair_ints[i], pair_ints[j])
+            dist2 = find_min_pair_int_dist(pair_ints[j], pair_ints[i])
+            pair_dist[i,j] = (dist1 + dist2) * 0.5
+    return pair_dist
+
+
+def cluster_pair_ints(df, n_clusters):
+    pair_ints = np.array([np.array([float(x) for x in y.split(';')]) for y in df.pair_ints])
+    pair_dist = pair_int_distance(pair_ints)
+    li = linkage(pdist(pair_dist), 'ward')
+    return fcluster(li, li[-n_clusters,2], criterion='distance')
+
+
+def label_scales_by_cluster(df, n=16):
+    nc = cluster_pair_ints(df, n)
+    df[f"cl_{n:02d}"] = nc
+    return df
+
+
+
+#############################################################################
+### Functions for extracting and reformatting the raw data
 
 
 ### Encode a scale as a binary string:
@@ -89,33 +141,43 @@ def reformat_surjodiningrat(df):
 
 
 def reformat_original_csv_data(df):
-    new_df = pd.DataFrame(columns=['Name', 'Intervals', 'Culture', 'Continent', 'Tuning', 'Reference', 'Theory'])
+    new_df = pd.DataFrame(columns=['Name', 'Intervals', 'Culture', 'Continent', 'Country', 'Tuning', 'Reference', 'RefID', 'Theory'])
     for i, col in enumerate(df.columns):
         tuning  = df.loc[0, col]
         culture = df.loc[1, col]
         cont    = df.loc[2, col]
-        ref     = df.loc[3, col]
-        theory  = df.loc[4, col]
+        country = df.loc[3, col]
+        ref     = df.loc[4, col]
+        refid   = df.loc[5, col]
+        theory  = df.loc[6, col]
         try:
             int(col)
             name = '_'.join([culture, col])
         except:
             name = col
-        ints = ';'.join([str(int(round(float(x)))) for x in df.loc[5:, col] if not str(x)=='nan'])
-        new_df.loc[i] = [name, ints, culture, cont, tuning, ref, theory]
+        ints = ';'.join([str(int(round(float(x)))) for x in df.loc[7:, col] if not str(x)=='nan'])
+        new_df.loc[i] = [name, ints, culture, cont, country, tuning, ref, refid, theory]
     return new_df
 
 
+def update_scale_data(data_dict, scale, name, country, culture, tuning, cont, ref, refID, theory):
+    data_dict['Name'].append(name)
+    data_dict['scale'].append(scale)
+    data_dict['all_ints'].append([scale[i] - scale[j] for j in range(len(scale)) for i in range(j+1,len(scale))])
+    data_dict['pair_ints'].append([scale[j+1] - scale[j] for j in range(len(scale)-1)])
+    data_dict['Tuning'].append(tuning)
+    data_dict['Country'].append(country)
+    data_dict['Culture'].append(culture)
+    data_dict['Continent'].append(cont)
+    data_dict['Reference'].append(ref)
+    data_dict['RefID'].append(refID)
+    data_dict['Theory'].append(theory)
+    return data_dict
+
+
 def extract_scales_and_ints_from_scales(df):
-    names = []
-    scales = []
-    all_ints = []
-    pair_ints = []
-    cultures = []
-    tunings = []
-    conts = []
-    ref = []
-    theory = []
+    data_dict = defaultdict(list)
+    
     for row in df.itertuples():
         try:
             idx = np.where(np.array([int(x) for x in row.mask]))[0]
@@ -132,7 +194,7 @@ def extract_scales_and_ints_from_scales(df):
                 scale = JI_INTS[idx]
             elif tun == 'Pythagorean':
                 scale = PYT_INTS[idx]
-            elif tun == 'Arabian':
+            elif tun == 'Arabic':
                 scale = EQ24_INTS[idx]
             elif tun == 'Dastgah-ha':
                 scale = DASTGAH[idx]
@@ -147,45 +209,23 @@ def extract_scales_and_ints_from_scales(df):
                     base = KHM[[i-1 for i in idx[1:]]]
                     for i in range(len(base)):
                         scale = np.cumsum([0.] + np.roll(KHM,i))
-                        names.append(row.Name)
-                        scales.append(scale)
-                        all_ints.append([scale[i] - scale[j] for j in range(len(scale)) for i in range(j+1,len(scale))])
-                        pair_ints.append([scale[j+1] - scale[j] for j in range(len(scale)-1)])
-                        cultures.append(row.Culture)
-                        tunings.append(tun)
-                        conts.append(row.Continent)
-                        ref.append(row.Reference)
-                        theory.append(row.Theory)
+                        data_dict = update_scale_data(data_dict, scale, row.Name, row.Culture, tun,
+                                          row.Continent, row.Reference, row.RefID, row.Theory)
                 continue
             elif tun == 'Unique':
                 scale = np.cumsum([0.] + [float(x) for x in row.Intervals.split(';')])
             else:
-                print(row.Name, tun, tun=='12-tet')
+#               print(row.Name, tun, tun=='12-tet')
                 continue
 
-            names.append(row.Name)
-            scales.append(scale)
-            all_ints.append([scale[i] - scale[j] for j in range(len(scale)) for i in range(j+1,len(scale))])
-            pair_ints.append([scale[j+1] - scale[j] for j in range(len(scale)-1)])
-            cultures.append(row.Culture)
-            tunings.append(tun)
-            conts.append(row.Continent)
-            ref.append(row.Reference)
-            theory.append(row.Theory)
-
-    return cultures, tunings, conts, names, scales, all_ints, pair_ints, ref, theory
+            data_dict = update_scale_data(data_dict, scale, row.Name, row.Country, row.Culture, tun,
+                              row.Continent, row.Reference, row.RefID, row.Theory)
+    return data_dict
 
 
 def extract_scales_and_ints_from_unique(df):
-    names = []
-    scales = []
-    all_ints = []
-    pair_ints = []
-    cultures = []
-    tunings = []
-    conts = []
-    ref = []
-    theory = []
+    data_dict = defaultdict(list)
+
     for row in df.itertuples():
         ints = [int(x) for x in row.Intervals.split(';')]
         if sum(ints) < (1200 - OCT_CUT):
@@ -208,20 +248,15 @@ def extract_scales_and_ints_from_unique(df):
                 continue
             
             scale = [0.] + list(sum_ints[:idx_oct+1])
-            names.append(row.Name)
-            scales.append(scale)
-            all_ints.append([scale[i] - scale[j] for j in range(len(scale)) for i in range(j+1,len(scale))])
-            pair_ints.append([scale[j+1] - scale[j] for j in range(len(scale)-1)])
-            cultures.append(row.Culture)
-            tunings.append(row.Tuning)
-            conts.append(row.Continent)
-            ref.append(row.Reference)
-            theory.append('N')
+            data_dict = update_scale_data(data_dict, scale, row.Name, row.Country, row.Culture,
+                              row.Tuning, row.Continent, row.Reference, row.RefID, row.Theory)
 
             # When searching for new scales from this entry, start from
             # this index
             start_from = idx_oct + i
 
-    return cultures, tunings, conts, names, scales, all_ints, pair_ints, ref, theory
+    return data_dict
+
+
 
 

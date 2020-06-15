@@ -6,6 +6,7 @@ import sys
 import string
 import time
 
+from brokenaxes import brokenaxes
 import geopandas
 import matplotlib.pyplot as plt
 from itertools import permutations
@@ -152,7 +153,7 @@ def hss_instructional(diff=20, att='None'):
 ###     FIG 3   ###########
 ###########################
 
-def plot_all_adj_int_dist_by_model(df_real, model_df, boot_conf, X='pair_ints', mix=[], nbin=60, partabase='none'):
+def plot_all_adj_int_dist_by_model(df_real, model_df, boot_conf, X='pair_ints'):
     fig, ax = plt.subplots(3,2, figsize=( 8,  8))
     ax = ax.reshape(ax.size)[[0,2,4,1,3,5]]
     plt.subplots_adjust(wspace=0.05, hspace=0.05)
@@ -177,11 +178,11 @@ def plot_all_adj_int_dist_by_model(df_real, model_df, boot_conf, X='pair_ints', 
     HI  = [boot_conf[m]['jsd_int']['mean']['hi'] - boot_conf[m]['jsd_int']['mean']['mean'] for m in labels[1:]]
     ax2.bar(range(len(JSD)), JSD, yerr=[LO, HI], color=['k'] + cols)
     ax2.set_xticks(range(len(dI)))
-    ax2.set_xticklabels(labels[1:], rotation=90, fontsize=ft1)
+    ax2.set_xticklabels(labels[1:], rotation=90, fontsize=ft1-2)
 #   ax2.set_yticks([0,.2,.4])
 #   ax2.set_yticklabels([0,4,8], fontsize=ft1)
 #   ax2.set_xlabel(r"Models")
-    ax2.set_ylabel("JSD", labelpad=0, fontsize=ft1+2)
+    ax2.set_ylabel("JSD", labelpad=0, fontsize=ft1+0)
 
     for i, n in enumerate(range(4,10)):
         df_r = model_df['RAN'][n]
@@ -208,6 +209,10 @@ def plot_all_adj_int_dist_by_model(df_real, model_df, boot_conf, X='pair_ints', 
             else:
                 a.text(0.68, .25, r"$N={0}$".format(n), transform=a.transAxes, fontsize=ft1+4)
                 a.text(0.68, .10, r"$S={0}$".format(n_data), transform=a.transAxes, fontsize=ft1+4)
+    for a in ax:
+        a.spines['top'].set_visible(False)
+        a.spines['right'].set_visible(False)
+
     ax[1].set_ylabel('Normalised probability distribution', fontsize=ft1+4)
     ax[5].set_xlabel(r'Adjacent interval size ($I_A$) / cents', fontsize=ft1+4)
     ax[5].xaxis.set_label_coords(-0.05, -0.15)
@@ -226,13 +231,18 @@ def plot_all_adj_int_dist_by_model(df_real, model_df, boot_conf, X='pair_ints', 
 ###     FIG 4   ###########
 ###########################
 
-def plot_all_scale_by_model(df_real, df_model, boot_conf, X='scale', mix=[], nbin=60, partabase='none'):
-    fig, ax = plt.subplots(2,2, figsize=(12.5,  6.75))
+def plot_all_scale_by_model(df_real, df_model, boot_conf, X='scale'):
+#   fig, ax = plt.subplots(2,2, figsize=(12.0,  8.00))
+#   plt.subplots_adjust(wspace=0.05, hspace=0.05)
+    fig = plt.figure(figsize=(10.0, 9.6))
+    gs  = gridspec.GridSpec(4,2, height_ratios=(1,1,.4,1))
     plt.subplots_adjust(wspace=0.05, hspace=0.05)
+    ax = [[fig.add_subplot(gs[i,j]) for j in [0,1]] for i in [0,1]]
+    ax2 = fig.add_subplot(gs[3,1])
     cols = np.array(Paired_12.hex_colors)[[11,9,3,7,0]]
     ytick = [np.arange(0, (i+1)*0.001, 0.001) for i in [3, 3, 3, 3, 2, 3]]
     ylims = [0.0044, 0.0043]
-    ft1 = 21
+    ft1 = 18
     lw = 2
 
     labels = ['DAT', 'RAN', 'MIN', 'TRANS', 'HAR', 'FIF']
@@ -248,10 +258,30 @@ def plot_all_scale_by_model(df_real, df_model, boot_conf, X='scale', mix=[], nbi
     bins = np.linspace(15, 1185, num=40)
     xxx = bins[:-1] + 0.5 * (bins[1] - bins[0])
 
+#   ax2 = fig.add_axes([0.820, 0.335, 0.12, 0.15])
+#   ax2 = fig.add_axes([0.120, -0.30, 0.75, 0.30])
+    xJSD = [boot_conf[m]['jsd_scale'][5]['mean'] for m in labels[2:]]
+    yJSD = [boot_conf[m]['jsd_scale'][7]['mean'] for m in labels[2:]]
+    xLO  = [boot_conf[m]['jsd_scale'][5]['mean'] - boot_conf[m]['jsd_scale'][5]['lo'] for m in labels[2:]]
+    xHI  = [boot_conf[m]['jsd_scale'][5]['hi'] - boot_conf[m]['jsd_scale'][5]['mean'] for m in labels[2:]]
+    yLO  = [boot_conf[m]['jsd_scale'][7]['mean'] - boot_conf[m]['jsd_scale'][7]['lo'] for m in labels[2:]]
+    yHI  = [boot_conf[m]['jsd_scale'][7]['hi'] - boot_conf[m]['jsd_scale'][7]['mean'] for m in labels[2:]]
+    for i in range(len(xJSD)):
+        ax2.errorbar([xJSD[i]], [yJSD[i]], xerr=[[xLO[i]], [xHI[i]]], yerr=[[yLO[i]], [yHI[i]]], color=cols[i], fmt='o')
+    ax2.set_xlabel('JSD (N=5)', fontsize=ft1+6)
+    ax2.set_ylabel('JSD (N=7)', fontsize=ft1+6)
+    ax2.set_xticks([0.04, 0.06])
+    ax2.set_yticks([0.03, 0.05])
+    ax2.spines['top'].set_visible(False)
+    ax2.spines['right'].set_visible(False)
+    ax2.tick_params(axis='both', direction='in', length=5, width=1.5, color='k')
+    [tick.label.set_fontsize(ft1+2) for tick in ax2.xaxis.get_major_ticks()]
+    [tick.label.set_fontsize(ft1+2) for tick in ax2.yaxis.get_major_ticks()]
+    
 
     for i, n in enumerate([5,7]):
         for j  in range(2):
-            ax[i,j].hist(utils.extract_floats_from_string(df_real.loc[df_real.n_notes==n, X]), bins=bins, color=[.6]*3, density=True, alpha=0.7, label='DAT')
+            ax[i][j].hist(utils.extract_floats_from_string(df_real.loc[df_real.n_notes==n, X]), bins=bins, color=[.6]*3, density=True, alpha=0.7, label='DAT')
             histD, bins = np.histogram(utils.extract_floats_from_string(df_real.loc[df_real.n_notes==n, X]), bins=bins, density=True)
         n_data = len(df_real.loc[df_real.n_notes==n, X])
         for count, lbl in enumerate(labels[2:]):
@@ -264,20 +294,20 @@ def plot_all_scale_by_model(df_real, df_model, boot_conf, X='scale', mix=[], nbi
 
 #           print(lbl)
 #           print(linregress(histM, histD))
-            txt = r"${0:5.3f} <$ JSD $< {1:5.3f}$".format(*[boot_conf[lbl]['jsd_scale'][n][x] for x in ['lo', 'hi']])
+#           txt = r"${0:5.3f} <$ JSD $< {1:5.3f}$".format(*[boot_conf[lbl]['jsd_scale'][n][x] for x in ['lo', 'hi']])
 #           txt = r"JSD CI ${0:5.3f} - {1:5.3f}$".format(*[boot_conf[lbl]['jsd_scale'][n][x] for x in ['lo', 'hi']])
-            ft2 = ft1-2
+#           ft2 = ft1-2
 
             if count < 2:
-                sns.lineplot(x='bin', y=lbl, data=df_hist, label=lbl, color=cols[count], ax=ax[i,0], lw=lw[count])
-                ax[i,0].text(0.05, .90-(count%2)*0.15, txt, transform=ax[i,0].transAxes, fontsize=ft2, color=cols[count])
+                sns.lineplot(x='bin', y=lbl, data=df_hist, label=lbl, color=cols[count], ax=ax[i][0], lw=lw[count])
+#               ax[i,0].text(0.05, .90-(count%2)*0.15, txt, transform=ax[i,0].transAxes, fontsize=ft2, color=cols[count])
 
 #               ax[i,0].text(0.65, .70-(count%2)*0.15, r"$R^2={0}$".format(round(r2,2)), transform=ax[i,0].transAxes, fontsize=ft1+4)
 #               rect = mpatches.Rectangle((.63,.69-(count%2)*0.15), 0.34, 0.15, facecolor=cols[count], alpha=0.5, transform=ax[i,0].transAxes)
 #               ax[i,0].add_patch(rect)
             else:
-                sns.lineplot(x='bin', y=lbl, data=df_hist, label=lbl, color=cols[count], ax=ax[i,1], lw=lw[count])
-                ax[i,1].text(0.05, .90-(count%2)*0.15, txt, transform=ax[i,1].transAxes, fontsize=ft2, color=cols[count])
+                sns.lineplot(x='bin', y=lbl, data=df_hist, label=lbl, color=cols[count], ax=ax[i][1], lw=lw[count])
+#               ax[i,1].text(0.05, .90-(count%2)*0.15, txt, transform=ax[i,1].transAxes, fontsize=ft2, color=cols[count])
 
 #               ax[i,1].text(0.65, .70-(count%2)*0.15, r"$R^2={0}$".format(round(r2,2)), transform=ax[i,1].transAxes, fontsize=ft1+4)
 #               rect = mpatches.Rectangle((.63,.69-(count%2)*0.15), 0.34, 0.15, facecolor=cols[count], alpha=0.5, transform=ax[i,1].transAxes)
@@ -289,7 +319,7 @@ def plot_all_scale_by_model(df_real, df_model, boot_conf, X='scale', mix=[], nbi
             if i != 1:
                 a.set_xticklabels([])
             else:
-                a.set_xticklabels(['0', '', '400', '', '800', '', '1200'])
+                a.set_xticklabels([0, '', 400, '', 800, '', 1200])
                 [tick.label.set_fontsize(ft1+2) for tick in a.xaxis.get_major_ticks()]
             a.tick_params(axis='x', direction='in', length=5, width=1.5, color='k')
             a.set_yticks([])
@@ -298,24 +328,28 @@ def plot_all_scale_by_model(df_real, df_model, boot_conf, X='scale', mix=[], nbi
             a.set_xlim(-50, 1250)
             a.set_ylim(0, ylims[i])
             a.get_legend().set_visible(False)
-            a.text(0.65, .85, r"$N={0}$".format(n), transform=a.transAxes, fontsize=ft1+4)
+            a.text(0.05, .85, r"$N={0}$".format(n), transform=a.transAxes, fontsize=ft1+4)
+            a.spines['top'].set_visible(False)
+            a.spines['right'].set_visible(False)
 #           a.text(0.65, .75, r"$S={0}$".format(n_data), transform=a.transAxes, fontsize=ft1+4)
 #       ax[i,0].set_yticks(ytick[i])
-    ax[1,0].set_xlabel('Notes in scale / cents', fontsize=ft1+6)
-    ax[1,0].xaxis.set_label_coords(1.0, -0.14)
-    ax[1,0].set_ylabel('Normalised probability distribution', fontsize=ft1+6)
-    ax[1,0].yaxis.set_label_coords(-0.05,  1.00)
+    ax[1][0].set_xlabel('Notes in scale / cents', fontsize=ft1+6)
+    ax[1][0].xaxis.set_label_coords(1.0, -0.14)
+    ax[1][0].set_ylabel('Normalised probability distribution', fontsize=ft1+6)
+    ax[1][0].yaxis.set_label_coords(-0.05,  1.00)
 
-    h1, l1 = ax[0,0].get_legend_handles_labels()
-    h2, l2 = ax[0,1].get_legend_handles_labels()
+    h1, l1 = ax[0][0].get_legend_handles_labels()
+    h2, l2 = ax[0][1].get_legend_handles_labels()
 #   handles = np.array(h1 + h2)[[2,0,1,3,4]]
 #   labels = ['DAT', 'constrained', 'HSS', 'compress', '5ths']
-    handles = [h1[0],h1[1]] + [h1[2]] + [Line2D([0],[0], color='w')] + h2[:2]
-    labels = ['MIN', 'TRANS', 'DAT', '', 'HAR', 'FIF']
-    fig.legend(handles, labels, bbox_to_anchor=(0.68, 1.04), frameon=False, ncol=3, fontsize=ft1)
-    lgd = fig.legend([], [], bbox_to_anchor=(0.71, 1.04), frameon=False, ncol=5)
+    handles = [h1[0],h1[1]] + [h1[2]] + h2[:2]
+    labels = ['MIN', 'TRANS', 'DAT', 'HAR', 'FIF']
+#   fig.legend(handles, labels, bbox_to_anchor=(0.68, 1.04), frameon=False, ncol=3, fontsize=ft1)
+#   lgd = fig.legend([], [], bbox_to_anchor=(0.71, 1.04), frameon=False, ncol=5)
+    fig.legend(handles, labels, bbox_to_anchor=(0.31,  0.30), frameon=False, ncol=1, fontsize=ft1)
 
-    fig.savefig(os.path.join(FIG_DIR, 'scale_distribution.pdf'), bbox_extra_artists=(lgd,), bbox_inches='tight')
+#   fig.savefig(os.path.join(FIG_DIR, 'scale_distribution.pdf'), bbox_extra_artists=(lgd,), bbox_inches='tight')
+    fig.savefig(os.path.join(FIG_DIR, 'scale_distribution.pdf'), bbox_inches='tight')
 
 
 ###########################
@@ -323,7 +357,9 @@ def plot_all_scale_by_model(df_real, df_model, boot_conf, X='scale', mix=[], nbi
 ###########################
 
 def model_comparison(df1, df2, boot_conf):
-    fig, ax = plt.subplots(1,1, figsize=( 5,2.0))
+#   fig, ax = plt.subplots(1,1, figsize=(4.0,2.5))
+    fig = plt.figure(figsize=(4.5,4.5))
+    ax = brokenaxes(xlims=((0.11, 0.212), (0.326, 0.35)))
     col1 = RdYlGn_11.hex_colors
     col2 = Paired_12.hex_colors
     ft = 12
@@ -332,15 +368,15 @@ def model_comparison(df1, df2, boot_conf):
     groups = np.array(['FIF', 'HAR3', 'HAR2', 'HAR', 'TRANS', 'MIN', 'RAN'])
     lbls = ['FIF', r'$\text{HAR}^{3}$', r'$\text{HAR}^{2}$', r'$\text{HAR}$', 'TRANS', 'MIN', 'RAN']
 
-    for i, bg in enumerate(groups):
-        if i in [0,4,5,6]:
-            ax.scatter(df1.loc[(df1.bias_group==bg)&(df1.method=='best'), 'JSD'], df1.loc[(df1.bias_group==bg)&(df1.method=='best'), 'fr_10'], color=col_s[i],  s=20, edgecolor='k', alpha=0.7, label=lbls[i])
-        else:
-            ax.scatter([], [], color=col_s[i],  s=60, edgecolor='k', alpha=0.7, label=lbls[i])
-    for i, bg in enumerate(groups):
+    for i, bg in zip(range(len(groups))[::-1], groups[::-1]):
         if i not in [1,2,3]:
             continue
-        ax.scatter(df2.loc[(df2.bias_group==bg)&(df1.method=='best'), 'JSD'], df2.loc[(df2.bias_group==bg)&(df1.method=='best'), 'fr_10'], color=col_s[i],  s=20, edgecolor='k', alpha=0.7)
+        ax.scatter(df2.loc[(df2.bias_group==bg)&(df1.method=='best'), 'JSD'], df2.loc[(df2.bias_group==bg)&(df1.method=='best'), 'fr_10'], color=col_s[i],  s=50, edgecolor='k', alpha=0.7)
+    for i, bg in zip(range(len(groups))[::-1], groups[::-1]):
+        if i in [0,4,5,6]:
+            ax.scatter(df1.loc[(df1.bias_group==bg)&(df1.method=='best'), 'JSD'], df1.loc[(df1.bias_group==bg)&(df1.method=='best'), 'fr_10'], color=col_s[i],  s=50, edgecolor='k', alpha=0.7, label=lbls[i])
+        else:
+            ax.scatter([], [], color=col_s[i],  s=60, edgecolor='k', alpha=0.7, label=lbls[i])
 
     # Add squares to main models
 #   idx = [36, 34, 25, 19]
@@ -362,16 +398,16 @@ def model_comparison(df1, df2, boot_conf):
     ax.errorbar(np.array(JSD), FD, xerr=[JLO, JHI], yerr=[FLO, FHI], fmt='o', color='k', ms=0.01, alpha=0.7, lw=1.0)
 
 
-
-    handles, labels = ax.get_legend_handles_labels()
-    handles = [mpatches.Circle([[],[]], fc=col_s[i], ec='k', label=groups[i]) for i in range(7)]
-    ax.legend(loc='best', labels=labels, handles=handles, frameon=False, ncol=2, columnspacing=0.5, handletextpad=0.3)
+    handles = [mpatches.Circle([[],[]], fc=col_s[i], ec='k', label=lbls[i]) for i in range(7)]
+    ax.legend(loc='lower left', labels=lbls, handles=handles, bbox_to_anchor=(0.00, 0.15),
+              frameon=False, ncol=2, columnspacing=0.5, handletextpad=0.3, fontsize=ft-2)
 #   ax.set_xlim(3.5, 10)
-    ax.set_ylim(0.0, 0.48)
+#   ax.set_xlim(0.11, 0.24)
+#   ax.set_ylim(0.25, 0.48)
     ax.set_ylabel(r'$f_{\textrm{D}}$', fontsize=ft)
-    ax.set_xlabel(r'$I_A$ distribution JSD', fontsize=ft)
+    ax.set_xlabel(r'$I_A$ distribution JSD', fontsize=ft, labelpad=20)
 #   ax.set_xticks(np.arange(4, 12, 2))
-    ax.set_yticks(np.arange(0, 0.5, 0.1))
+#   ax.set_yticks(np.arange(0, 0.5, 0.1))
 
     plt.savefig(os.path.join(FIG_DIR, 'model_comparison.pdf'), bbox_inches='tight')
 

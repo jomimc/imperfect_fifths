@@ -1,52 +1,52 @@
-Name,1,2,3,4,5,6,7,8,Continent,Culture,Tuning
-Mardiswara,307,331,355,424,448,478,527,617,South East Asia,Gamelan,Pelog
-Konservatori Karawitan Gamelan I,306,328,357,418,450,481,538,618,South East Asia,Gamelan,Pelog
-Harjaswara,297,321,351,413,441,468,524,594,South East Asia,Gamelan,Pelog
-Kanyutmesem,295,320,347,406,440,470,519,598,South East Asia,Gamelan,Pelog
-Konservatori Karawitan Gamelan II,298,318,344,402,431,453,518,593,South East Asia,Gamelan,Pelog
-Kadukmanis,292,317,338,406,430,464,513,595,South East Asia,Gamelan,Pelog
-Kancilbelik,295,317,342,399,434,465,507,593,South East Asia,Gamelan,Pelog
-Radio Republik Indonesia Sala,294,308,338,407,434,467,505,597,South East Asia,Gamelan,Pelog
-Landung,293,311,338,397,433,462,507,596,South East Asia,Gamelan,Pelog
-Siratmadu,286,309,333,394,420,454,501,574,South East Asia,Gamelan,Pelog
-Semarngigel,287,308,332,395,420,449,500,580,South East Asia,Gamelan,Pelog
-Gam. GPH Tejakusuma Yogya,286,306,332,391,422,444,488,570,South East Asia,Gamelan,Pelog
-Mangunharja,276,297,322,385,410,435,480,570,South East Asia,Gamelan,Pelog
-Madukusuma,276,296,319,380,411,437,474,557,South East Asia,Gamelan,Pelog
-Radio Republik Indonesia Yogya,275,295,318,380,410,435,474,551,South East Asia,Gamelan,Pelog
-Panji,276,293,327,378,408,429,470,561,South East Asia,Gamelan,Pelog
-Pancasona,272,297,320,380,409,432,474,547,South East Asia,Gamelan,Pelog
-Harjamulya,273,293,316,378,406,430,472,549,South East Asia,Gamelan,Pelog
-Konservatori Karawitan Gamelan III,268,287,305,356,398,432,464,538,South East Asia,Gamelan,Pelog
-Udanarum,261,283,304,351,386,411,456,527,South East Asia,Gamelan,Pelog
-Guntursari,216,232,250,300,316,335,365,436,South East Asia,Gamelan,Pelog
-Nagawilaga,214,224,248,293,308,331,365,432,South East Asia,Gamelan,Pelog
-Gunturmadu,198,207,220,267,288,304,328,399,South East Asia,Gamelan,Pelog
-Mardiswara,306,351,402,466,536,617,0,0,South East Asia,Gamelan,Slendro
-Lokananta,296,340,395,451,521,605,0,0,South East Asia,Gamelan,Slendro
-Swaraharja,293,334,387,438,503,585,0,0,South East Asia,Gamelan,Slendro
-Nagalima,289,334,382,440,503,585,0,0,South East Asia,Gamelan,Slendro
-Kanyutmesem,288,333,382,439,503,582,0,0,South East Asia,Gamelan,Slendro
-Manisrengga,281,322,372,429,493,572,0,0,South East Asia,Gamelan,Slendro
-Lipurtambaneng,279,316,366,419,484,558,0,0,South East Asia,Gamelan,Slendro
-Konservatori Karawitan Gamelan I,278,317,361,418,479,556,0,0,South East Asia,Gamelan,Slendro
-Landung,274,311,359,414,476,558,0,0,South East Asia,Gamelan,Slendro
-Gam. GPH Tedjakusuma,274,314,358,416,476,556,0,0,South East Asia,Gamelan,Slendro
-Surak,273,312,357,412,476,552,0,0,South East Asia,Gamelan,Slendro
-Prarasrum,273,312,358,413,472,548,0,0,South East Asia,Gamelan,Slendro
-Sadadpengasih,273,311,359,412,475,548,0,0,South East Asia,Gamelan,Slendro
-Harjawinangun,269,309,357,409,471,546,0,0,South East Asia,Gamelan,Slendro
-Pancasona,272,309,352,409,472,546,0,0,South East Asia,Gamelan,Slendro
-Hajanagara,270,306,351,404,465,540,0,0,South East Asia,Gamelan,Slendro
-Madumurti,268,305,349,405,466,541,0,0,South East Asia,Gamelan,Slendro
-Gamelan Kedokngorek Kyahi,270,308,350,404,468,539,0,0,South East Asia,Gamelan,Slendro
-RRI Sala,267,307,359,407,465,538,0,0,South East Asia,Gamelan,Slendro
-Udanriris,267,306,349,401,466,534,0,0,South East Asia,Gamelan,Slendro
-Tunggul,265,304,351,404,461,537,0,0,South East Asia,Gamelan,Slendro
-Konservatori Karawitan Gamelan II,264,301,347,403,464,533,0,0,South East Asia,Gamelan,Slendro
-Konservatori Karawitan Gamelan III,263,303,348,401,461,527,0,0,South East Asia,Gamelan,Slendro
-Gam. GPH Hangabehi,260,298,341,395,453,524,0,0,South East Asia,Gamelan,Slendro
-Pengawesari,259,295,341,396,453,525,0,0,South East Asia,Gamelan,Slendro
-Pusparana,261,298,340,391,454,522,0,0,South East Asia,Gamelan,Slendro
-Madukentir,259,297,339,393,452,522,0,0,South East Asia,Gamelan,Slendro
-Precet,246,286,332,377,437,502,0,0,South East Asia,Gamelan,Slendro
+Name,1,2,3,4,5,6,7,8,Continent,Culture,Tuning,RefID,Country
+Mardiswara,307,331,355,424,448,478,527,617,South East Asia,Gamelan,Pelog,11,Indonesia
+Konservatori Karawitan Gamelan I,306,328,357,418,450,481,538,618,South East Asia,Gamelan,Pelog,11,Indonesia
+Harjaswara,297,321,351,413,441,468,524,594,South East Asia,Gamelan,Pelog,11,Indonesia
+Kanyutmesem,295,320,347,406,440,470,519,598,South East Asia,Gamelan,Pelog,11,Indonesia
+Konservatori Karawitan Gamelan II,298,318,344,402,431,453,518,593,South East Asia,Gamelan,Pelog,11,Indonesia
+Kadukmanis,292,317,338,406,430,464,513,595,South East Asia,Gamelan,Pelog,11,Indonesia
+Kancilbelik,295,317,342,399,434,465,507,593,South East Asia,Gamelan,Pelog,11,Indonesia
+Radio Republik Indonesia Sala,294,308,338,407,434,467,505,597,South East Asia,Gamelan,Pelog,11,Indonesia
+Landung,293,311,338,397,433,462,507,596,South East Asia,Gamelan,Pelog,11,Indonesia
+Siratmadu,286,309,333,394,420,454,501,574,South East Asia,Gamelan,Pelog,11,Indonesia
+Semarngigel,287,308,332,395,420,449,500,580,South East Asia,Gamelan,Pelog,11,Indonesia
+Gam. GPH Tejakusuma Yogya,286,306,332,391,422,444,488,570,South East Asia,Gamelan,Pelog,11,Indonesia
+Mangunharja,276,297,322,385,410,435,480,570,South East Asia,Gamelan,Pelog,11,Indonesia
+Madukusuma,276,296,319,380,411,437,474,557,South East Asia,Gamelan,Pelog,11,Indonesia
+Radio Republik Indonesia Yogya,275,295,318,380,410,435,474,551,South East Asia,Gamelan,Pelog,11,Indonesia
+Panji,276,293,327,378,408,429,470,561,South East Asia,Gamelan,Pelog,11,Indonesia
+Pancasona,272,297,320,380,409,432,474,547,South East Asia,Gamelan,Pelog,11,Indonesia
+Harjamulya,273,293,316,378,406,430,472,549,South East Asia,Gamelan,Pelog,11,Indonesia
+Konservatori Karawitan Gamelan III,268,287,305,356,398,432,464,538,South East Asia,Gamelan,Pelog,11,Indonesia
+Udanarum,261,283,304,351,386,411,456,527,South East Asia,Gamelan,Pelog,11,Indonesia
+Guntursari,216,232,250,300,316,335,365,436,South East Asia,Gamelan,Pelog,11,Indonesia
+Nagawilaga,214,224,248,293,308,331,365,432,South East Asia,Gamelan,Pelog,11,Indonesia
+Gunturmadu,198,207,220,267,288,304,328,399,South East Asia,Gamelan,Pelog,11,Indonesia
+Mardiswara,306,351,402,466,536,617,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Lokananta,296,340,395,451,521,605,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Swaraharja,293,334,387,438,503,585,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Nagalima,289,334,382,440,503,585,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Kanyutmesem,288,333,382,439,503,582,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Manisrengga,281,322,372,429,493,572,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Lipurtambaneng,279,316,366,419,484,558,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Konservatori Karawitan Gamelan I,278,317,361,418,479,556,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Landung,274,311,359,414,476,558,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Gam. GPH Tedjakusuma,274,314,358,416,476,556,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Surak,273,312,357,412,476,552,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Prarasrum,273,312,358,413,472,548,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Sadadpengasih,273,311,359,412,475,548,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Harjawinangun,269,309,357,409,471,546,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Pancasona,272,309,352,409,472,546,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Hajanagara,270,306,351,404,465,540,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Madumurti,268,305,349,405,466,541,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Gamelan Kedokngorek Kyahi,270,308,350,404,468,539,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+RRI Sala,267,307,359,407,465,538,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Udanriris,267,306,349,401,466,534,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Tunggul,265,304,351,404,461,537,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Konservatori Karawitan Gamelan II,264,301,347,403,464,533,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Konservatori Karawitan Gamelan III,263,303,348,401,461,527,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Gam. GPH Hangabehi,260,298,341,395,453,524,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Pengawesari,259,295,341,396,453,525,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Pusparana,261,298,340,391,454,522,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Madukentir,259,297,339,393,452,522,0,0,South East Asia,Gamelan,Slendro,11,Indonesia
+Precet,246,286,332,377,437,502,0,0,South East Asia,Gamelan,Slendro,11,Indonesia

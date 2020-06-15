@@ -569,6 +569,7 @@ def get_most_harmonic_ratios_equal_temp():
         harmonic_similarity.append(max_similarity)
     return np.array(harmonic_similarity)
 
+
 # Takes as input the scale given in cents from 0 to 1200
 def get_similarity_rating_any_scale(scale_cents):
     all_ints = [scale_cents[j] - scale_cents[i] for i in range(len(scale_cents)) for j in range(i+1, len(scale_cents))]
@@ -579,6 +580,7 @@ def get_similarity_rating_any_scale(scale_cents):
         max_similarity, best_ratio, cents = calculate_most_harmonic_neighbour(int_cents)
         harmonic_similarity.append(max_similarity)
     return np.array(harmonic_similarity)
+
  
 def get_harmonic_similarity_score_equal_temp(df):
     INTERVAL_SCORE = get_most_harmonic_ratios_equal_temp()
@@ -588,6 +590,7 @@ def get_harmonic_similarity_score_equal_temp(df):
     df['score_eq'] = df.str_fmt.apply(lambda x: fn(x))
     return df
 
+
 def get_harmonic_similarity_score_equal_temp_extra_notes(df):
     INTERVAL_SCORE = get_most_harmonic_ratios_equal_temp()
     def fn(x):
@@ -595,6 +598,7 @@ def get_harmonic_similarity_score_equal_temp_extra_notes(df):
         return np.mean(INTERVAL_SCORE[[l-1 for i in range(len(x)) for l in list(np.cumsum(a[i:i+len(x)]))]])
     df['score_eq_en'] = df.str_fmt.apply(lambda x: fn(x))
     return df
+
 
 def dataframe_possible_scales(df):
     sc_df = pd.DataFrame(columns=['n_notes', 'code', 'str_fmt', 'family'])
@@ -605,6 +609,7 @@ def dataframe_possible_scales(df):
             for scale in sp[1].split(','):
                 sc_df.loc[len(sc_df)] = [row.notes_in_scale, row.code, scale, fam]
     return sc_df
+
 
 def plot_score_histograms(df):
     fig, ax = plt.subplots(2,2, sharex=True, sharey=True)
@@ -622,6 +627,7 @@ def get_intervals_as_list(df, i):
     ints = [int(x) for x in df.loc[i,['1','2','3','4']]]
     return ''.join([ j for i in range(4) for j in ints[i]*str(i+1) ])
 
+
 def get_translational_invariants(non_ident):
     trans_inv = []
     variants = set()
@@ -634,6 +640,7 @@ def get_translational_invariants(non_ident):
         trans_inv.append(ni)
         families.update({ni:var_set})
     return trans_inv, families
+
 
 def get_unique_scales(df):
     for row in df.itertuples():
@@ -654,6 +661,7 @@ def get_unique_scales(df):
             df.loc[row[0],'possible_arrangements'] = ti_str
     return df
 
+
 def match_scale_with_instrument(scale):
     in_mask = np.where(INST)[0]
     sc_mask = np.array([int(x) for x in scale], dtype=bool)
@@ -662,19 +670,23 @@ def match_scale_with_instrument(scale):
         notes_per_key.append(sum([1 for x in np.where(sc_mask[key:])[0] if x in in_mask ]))
     return ';'.join([str(x) for x in notes_per_key])
 
+
 def count_those_over_75p(mix):
     counts, n_max = mix.split('-')
     return sum([1 for x in counts.split(';') if float(x) >= 0.75*(float(n_max)*2.+1.)])
 
+
 def count_those_over_85p(mix):
     counts, n_max = mix.split('-')
     return sum([1 for x in counts.split(';') if float(x) >= 0.85*(float(n_max)*2.+1.)])
+
 
 def new_score(mix):
     counts, n_notes = mix.split('-')
     n_max = int(n_notes) * 2 + 1
     points = {n_max-i: max(5-i,0) for i in range(n_max)}
     return sum([points[int(x)] for x in counts.split(';')])
+
 
 def a_n_u(scale):
     in_mask = np.where(INST)[0]
@@ -690,6 +702,7 @@ def all_notes_used(df):
     df['all_notes'] = df['mask'].apply(lambda x: a_n_u(x))
     return df
 
+
 def get_inst_var_score(df):
     df['inst_keys'] = df['mask'].apply(lambda x: match_scale_with_instrument(x))
     df['inst_score'] = df.inst_keys.apply(lambda x: sum([int(y) for y in x.split(';')]))
@@ -701,10 +714,12 @@ def get_inst_var_score(df):
     df['inst_new_score'] = tmp_df.apply(lambda x: new_score(x))
     return df
 
+
 def df_cols_as_int(df):
     cols = ['1','2','3','4','possible_arrangements','notes_in_scale','n_ni','n_ti']
     df.loc[:, cols] = df.loc[:, cols].astype(int)
     return df
+
 
 def get_codes(df):
     for row in df.itertuples():
@@ -1125,9 +1140,11 @@ def mix_pair_ints_df(df):
     df['pair_ints'] = df.pair_ints.apply(mix_pair_ints)
     return df
 
+
 def permute_scale(int_str):
     ints = np.array([int(x) for x in int_str.split(';')])
     return np.array(list(set(permutations(ints))))
+
 
 def get_real_scale_permutations(df_real):
     pool = mp.Pool(28)
@@ -1135,6 +1152,7 @@ def get_real_scale_permutations(df_real):
     df_real['perm'] = perm
     pool.close()
     return df_real
+
 
 def metrics(df_real, df,  test_cases):
     metric_cols = ['type', 'geo_norm', 'err_sq', 'bp_geo_norm',
@@ -1507,11 +1525,13 @@ def create_base_probability_database(df_real):
         df_real = calculate_base_probability_ints(df_real, mi, ma)
     return df_real
 
+
 def calculate_base_prob(*inputs):
     scale = np.array(inputs[:-1])
     prob = inputs[-1]
     ints = scale[1:] - scale[:-1]
     return np.product([prob[int(i)] for i in ints])
+
 
 def create_base_probability_database_2(df_real):
     df_real = df_real.loc[(df_real.n_notes>=4)&(df_real.n_notes<=9),['Name','n_notes','pair_ints', 'scale', 'cl_16']]
@@ -1529,11 +1549,14 @@ def create_base_probability_database_2(df_real):
                 df_real.loc[i, f'p_{mi:d}_{ma:d}'] = sum(list(pool.starmap(calculate_base_prob, product([0], *variable_notes, [1200], [prob]))))
     return df_real
 
+
 def str_to_ints(st, delim=';'):
     return [int(s) for s in st.split(delim) if len(s)]
 
+
 def ints_to_str(i):
     return ';'.join([str(x) for x in i])
+
 
 def get_all_ints(df, old='pair_ints', new='all_ints2'):
     def fn(pi):
@@ -1542,12 +1565,14 @@ def get_all_ints(df, old='pair_ints', new='all_ints2'):
     df[new] = df[old].apply(fn)
     return df
 
+
 def calculate_fifths_bias(df, w=10):
     if 'all_ints2' not in df.columns:
         df = get_all_ints(df)
 #   df[f"Nim5_r0.0_w{w}"] = [float(1./(1 + (100 / 3. * 2. * len([z for z in y.split(';') if abs(702-int(z)) <= w])) / len(y.split(';')))) for y in df.all_ints2]
     df[f"Nim5_r0.0_w{w}"] = [float(len([z for z in y.split(';') if abs(702-int(z)) <= w]) / len(y.split(';'))) for y in df.all_ints2]
     return df
+
 
 def calculate_fifths_bias_all_w(df, w=10):
     if 'all_ints2' not in df.columns:
@@ -1556,6 +1581,7 @@ def calculate_fifths_bias_all_w(df, w=10):
     for w in [5,10,15,20]:
         df[f"Nim5_r0.0_w{w:02d}"] = [float(len([z for z in y.split(';') if abs(702-int(z)) <= w]) / len(y.split(';'))) for y in df.all_ints2]
     return df
+
 
 def update_fifths_bias(df_list):
     if isinstance(df_list, list):
@@ -2320,6 +2346,39 @@ def count_ints(df, int_cents):
     count /= len(df)
     return count
 
+
+##################################################
+### Some tidied/cleaned functions
+
+
+### Given a scale and a probability for adjacent intervals, 
+### what is the probability of randomly producing the scale
+def calculate_base_prob(*inputs):
+    scale = np.array(inputs[:-1])
+    prob = inputs[-1]
+    ints = scale[1:] - scale[:-1]
+    return np.product([prob[int(i)] for i in ints])
+
+
+### Calculate the probability of the MIN (min_int = 80) model
+### producing each DAT scale.
+### Scales with N=9 are not included as it takes too long to run.
+def create_base_probability_database_2(df_real):
+    df_real = df_real.loc[(df_real.n_notes>=4)&(df_real.n_notes<=9),['Name','n_notes','pair_ints', 'scale', 'cl_16']]
+    ma = 1200
+    n_arr = np.arange(4,10)
+    pool = mp.Pool(N_PROC)
+    path_min80_prob = "/home/johnmcbride/projects/Scales/imperfect_fifths/Results/MIN80_int_prob/MIN80.npy"
+    prob = np.load(path_min80_prob)
+    mi = 80
+    for i, n in enumerate(n_arr):
+        print(mi, n)
+        for i in df_real.loc[df_real.n_notes==n].index:
+            print(i) 
+            scale = np.cumsum([0] + [int(x) for x in df_real.loc[i, 'pair_ints'].split(';')])
+            variable_notes = [range(scale[i]-10, scale[i]+11) for i in range(1, len(scale)-1)]
+            df_real.loc[i, f'p_{mi:d}_{ma:d}'] = sum(list(pool.starmap(calculate_base_prob, product([0], *variable_notes, [1200], [prob[i]]))))
+    return df_real
 
 
 
