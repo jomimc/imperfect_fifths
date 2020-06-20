@@ -947,11 +947,14 @@ def plot_score_by_cat(df, cat='Tuning', score='s1'):
         ax[i].legend(loc='best')
     plt.show()
 
+
 def calculate_energy_harmonic(ints, base):
     return np.mean([(round(i/base) - i/base)**2 for i in ints])
 
+
 def calculate_energy(ints, base):
     return np.mean([(round(i/base) - i/base)**2 * float(round(i/base)) for i in ints])
+
 
 def get_min_energy_integer_ratios(pair_ints):
     ratios = []
@@ -967,6 +970,7 @@ def get_min_energy_integer_ratios(pair_ints):
         print(energy)
     return ratios, base_o
 
+
 def reformat_original_csv_data(df):
     new_df = pd.DataFrame(columns=['Name', 'Intervals', 'Culture', 'Continent', 'Tuning'])
     for i, col in enumerate(df.columns):
@@ -977,6 +981,7 @@ def reformat_original_csv_data(df):
         ints = ';'.join([str(int(round(float(x)))) for x in df.loc[3:, col] if not str(x)=='nan'])
         new_df.loc[i] = [name, ints, culture, cont, tuning]
     return new_df
+
 
 def extract_scales_and_ints_from_unique(df):
     names = []

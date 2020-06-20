@@ -1,6 +1,6 @@
 # imperfect_fifths
 Code for Monte Carlo simulations, analysis and figures for the paper:
-"Imperfect fifths pack into musical scales", John M. McBride & Tsvi Tlusty (2019),
+"Cross-cultural data suggests musical scales evolved to maximise imperfect fifths", John M. McBride & Tsvi Tlusty (2019),
 https://arxiv.org/abs/1906.06171.
 
 This package contains all the results and code needed to produce all of the

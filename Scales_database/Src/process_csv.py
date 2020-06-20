@@ -96,6 +96,6 @@ def process_data():
 if __name__ == '__main__':
 
     df = process_data()
-    df.to_feather("../Data_processed/real_scales.feather")
+    df.to_pickle("../Data_processed/real_scales.pickle")
 
 
