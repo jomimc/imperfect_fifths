@@ -23,6 +23,7 @@ from scipy.stats import linregress, pearsonr, ks_2samp, anderson_ksamp, energy_d
 from sklearn.cluster import DBSCAN
 import statsmodels.nonparametric.api as smnp
 
+import biases
 
 N_PROC = 28
 
@@ -68,7 +69,7 @@ def load_data_for_figs():
     # DataFrame for the first set of results
     # (contains MIN, RAN, TRANS and FIF main results)
     f = os.path.join(CLEAN_DIR, "monte_carlo_results_1.feather")
-    if os.path.exists(f):
+    if os.path.exists(f) and 1:
         df = pd.read_feather(f)
     else:
         df = reformat_old_df(normalise_metrics(pd.read_feather(os.path.join(BASE_DIR, 'Processed', 'monte_carlo_comparison.feather'))))
@@ -77,14 +78,14 @@ def load_data_for_figs():
     # DataFrame for the second set of results
     # (contains HAR, HAR2, and HAR3 main results)
     f = os.path.join(CLEAN_DIR, "monte_carlo_results_2.feather")
-    if os.path.exists(f):
+    if os.path.exists(f) and 1:
         df2 = pd.read_feather(f)
     else:
         df2 = normalise_metrics(pd.read_feather(os.path.join(BASE_DIR, 'Processed', 'monte_carlo_comparison3.feather')))
         df2.to_feather(f)
 
     # DataFrame for the scales database
-    df_real = pd.read_feather(os.path.join(BASE_DIR, 'Processed', 'Real', 'theories_real_scales.feather'))
+    df_real = pd.read_feather(os.path.join(BASE_DIR, 'Processed', 'Real', 'real_scales.feather'))
 
     # Best performing models (optimized beta)
     # for each set of parameters
@@ -102,25 +103,23 @@ def load_data_for_figs():
         df_b2 = pd.read_feather(f)
         paths2 = pickle.load(open(os.path.join(CLEAN_DIR, "paths_2.pickle"), 'rb'))
     else:
-        df_b2, paths2 = pick_best_models(df2, df_real, parallel=True)
+        df_b2, paths2 = pick_best_models(df2, df_real, parallel=True, min_bias=False)
         df_b2.to_feather(f)
         pickle.dump(paths2, open(os.path.join(CLEAN_DIR, "paths_2.pickle"), 'wb'))
 
     paths = amalgamate_paths(paths1, paths2)
 
     # Update DataFrame for the scales
-    f = os.path.join(CLEAN_DIR, "scales_database.feather")
+    f = os.path.join(CLEAN_DIR, "scales_database.pickle")
     if os.path.exists(f):
-        df_real = pd.read_feather(f)
+        df_real = pd.read_pickle(f)
     else:
-        df_real = calculate_fifths_bias_all_w(update_hss_scores_df(df_real, n=1))
-        df_real = probability_of_finding_scales(paths, df_real) 
-        df_real.to_feather(f)
+        df_real =  update_database_biases(df_real, paths)
+        df_real.to_pickle(f)
 
     # Theoretical populations for the model scales
     model_df = {}
     for l in ['RAN', 'MIN', 'TRANS', 'FIF', 'HAR', 'HAR2', 'HAR3']:
-        f = os.path.join(CLEAN_DIR, "scales_database.feather")
         try:
             model_df.update({l:{n: pd.read_feather(os.path.join(MODEL_DIR, f"{l}_{n:02d}.feather")) for n in range(4,10)}})
         except ArrowIOError:
@@ -1335,16 +1334,19 @@ def update_best_df(df_best, df, df_real):
 
     return df_best
 
+
 def get_df_idx_from_best(df_best, df, i, n):
     mi, ma, bias, beta = df_best.loc[i, ['min_int', 'max_int', 'bias', 'beta']]
     try:
         return df.loc[(df.min_int==mi)&(df.max_int==ma)&(df.bias==bias)&(df.beta==beta)&(df.n_notes==n)].index[0]
     except:
         return []
+
         
 def load_df_from_best(df_best, df, i, n):
     mi, ma, bias, beta = df_best.loc[i, ['min_int', 'max_int', 'bias', 'beta']]
     return pd.read_feather(df.loc[(df.min_int==mi)&(df.max_int==ma)&(df.bias==bias)&(df.beta==beta)&(df.n_notes==n), 'fName'].values[0])
+
 
 def get_ss_set_from_model(df_best, df, i, X='ss_w20'):
     all_idx = []
@@ -1355,12 +1357,14 @@ def get_ss_set_from_model(df_best, df, i, X='ss_w20'):
             pass
     return sorted(list(set(all_idx)))
 
+
 def remove_matched_edge(con1, con2, edge):
     con1 = {i:np.delete(con1[i], np.where(con1[i]==edge[1])[0]) for i in range(len(con1))}
     con2 = {i:np.delete(con2[i], np.where(con2[i]==edge[0])[0]) for i in range(len(con2))}
     con1[edge[0]] = []
     con2[edge[1]] = []
     return con1, con2
+
 
 def check_if_pair_ints_equivalent(pi1, pi2, d=10):
     N = len(pi1)
@@ -1458,6 +1462,7 @@ def check_if_pair_ints_equivalent(pi1, pi2, d=10):
         tmp = match_nodes(con1, con2, matched1, matched2)
         return tmp[-1]
         
+
 def how_many_pair_ints_similar(pi_str, df_real, d=10):
     pi1 = np.array([int(x) for x in pi_str.split(';')])
     n = len(pi1)
@@ -1471,6 +1476,7 @@ def how_many_pair_ints_similar(pi_str, df_real, d=10):
         elif out == None:
             print(pi_str, i, df_real.loc[i, 'pair_ints'])
     return ';'.join([str(x) for x in pi_10])
+
 
 def update_df_real_ss(df_real, df_best, df, idx1, idx2, idx3):
     for w in [10, 20]:
@@ -1496,6 +1502,7 @@ def update_df_real_ss(df_real, df_best, df, idx1, idx2, idx3):
 
     return df_real
 
+
 def calculate_base_probability_ints(df_real, mi, ma):
     X = np.arange(0, 1201)
     n_arr = np.arange(4,10)
@@ -1516,6 +1523,7 @@ def calculate_base_probability_ints(df_real, mi, ma):
         df_real.loc[i, f'p_{mi:d}_{ma:d}'] = np.product([prob[n][X==i] for i in ints]) ** (1./n)
 
     return df_real
+
 
 def create_base_probability_database(df_real):
     df_real = df_real.loc[(df_real.n_notes>=4)&(df_real.n_notes<=9),['Name','n_notes','pair_ints', 'scale', 'cl_16']]
@@ -1583,6 +1591,12 @@ def calculate_fifths_bias_all_w(df, w=10):
     return df
 
 
+def calculate_trans_bias_all_n(df):
+    for n in [1,2,3]:
+        df[f"distI_{n}_0"] = [biases.template_function((str_to_ints(i), n, 0)) for i in df.pair_ints]
+    return df
+
+
 def update_fifths_bias(df_list):
     if isinstance(df_list, list):
         idx = range(len(df_list))
@@ -1592,6 +1606,7 @@ def update_fifths_bias(df_list):
         for w in range(5,25,5):
             df_list[i] = calculate_fifths_bias(df_list[i], w=w)
     return df_list
+
 
 def old_hss_prob(df_list, beta=1):
     if isinstance(df_list, list):
@@ -1856,93 +1871,18 @@ def find_best_beta(df, f_real):
     return [Q[idx], X[idx], Y[idx], beta[idx]]
 
 
-def pick_best_models(df, df_real, plot=False, parallel=True):
-    biases = df.bias.unique()
-    n_real = np.array([len(df_real.loc[df_real.n_notes==n]) for n in range(4,10)])
-    f_real = n_real / n_real.sum()
-    cols = ['min_int', 'bias', 'bias_group', 'beta_mean', 'beta_std', 'logq_mean', 'met1', 'JSD', 'fr_10', 'method']
-    col1 = RdYlGn_11.hex_colors
-    col2 = Paired_12.mpl_colors
-    col3 = RdYlGn_6.hex_colors
-    col = {'HAR':col2[3], 'HS':col2[3], 'FIF':col1[0], 'im5':col1[0], 'none':col2[7],
-           'HAR2':col1[6], 'HAR3':col1[4], 'MIN':col3[1], 'RAN':'k', 'TRANS':col2[1], 'distI':col2[1], 'TRANSB':'purple'}
-    df_best = pd.DataFrame(columns=cols)
-    if plot:
-        fig, ax = plt.subplots()
-    for b in biases:
-        for mi in [0, 70, 80, 90]:
-            try:
-                idx = [df.loc[(df.n_notes==n)&(df.bias==b)&(df.min_int==mi)&(df.max_int==1200), 'Z'].idxmin() for n in range(4,10)]
-            except ValueError:
-                continue
-            # Report original values
-#           out1 = [np.product(df.loc[idx, 'met1'].values ** f_real)]
-#           out2 = [np.sum(x * f_real) for x in df.loc[idx, ['fr_10', 'logq']].values.T]
-#           out3 = [np.sum(df.loc[idx, 'JSD'].values * f_real)]
-
-            # Report bootstrapped averages
-            out1 = [0]
-            model_df = {n:pd.read_feather(f) for n, f in zip(range(4,10), df.loc[idx, 'fName'])}
-            boot_met = bootstrap_metrics(df_real, model_df, parallel=parallel)
-            out2 = [np.mean(boot_met['fD'][:,6]), np.sum(df.loc[idx, 'logq'] * f_real)]
-            out3 = [np.mean(boot_met['jsd_int'][:,6])]
-            print(out2, out3)
-
-            bg = df.loc[idx[0], 'bias_group']
-
-            df_best.loc[len(df_best)] = [mi, b, bg] + [df.loc[idx, 'beta'].mean(), df.loc[idx, 'beta'].std()] + \
-                                        [out2[1]] + out1 + out3 + [out2[0]] + ['best']
-
-#           out3 = find_best_beta(df.loc[(df.bias==b)&(df.min_int==mi)&(df.max_int==1200)], f_real)
-#           df_best.loc[len(df_best)] = [mi, b, bg] + [out3[3], 0] + out3[:3] + ['bias']
-
-            if plot:
-                plt.plot(out1, [out2[0]], 'o', color=col[bg], fillstyle='none')
-                plt.plot([out3[1]], [out3[2]], 'o', color=col[bg])
-                plt.plot(out1+[out3[1]], [out2[0]]+[out3[2]], '-', color=col[bg])
-
-    df_best = normalise_metrics_2(df_best, X='JSD')
-
-    PATHS = {}
-    for bg in df_best.bias_group.unique():
-        if bg == 'HAR':
-            mi, b, JSD, fr_10 = df_best.loc[df_best.loc[df_best.bias=="HAR_10_1", 'Z'].idxmin(), ['min_int', 'bias', 'JSD', 'fr_10']].values
-        else:
-            mi, b, JSD, fr_10 = df_best.loc[df_best.loc[df_best.bias_group==bg, 'Z'].idxmin(), ['min_int', 'bias', 'JSD', 'fr_10']].values
-        mi = 80
-        if bg == 'RAN':
-            idx = [df.loc[(df.n_notes==n)&(df.bias==b)&(df.min_int==0)&(df.max_int==1200), 'Z'].idxmin() for n in range(4,10)]
-        else:
-            idx = [df.loc[(df.n_notes==n)&(df.bias==b)&(df.min_int==mi)&(df.max_int==1200), 'Z'].idxmin() for n in range(4,10)]
-        PATHS.update({bg:{**{n:df.loc[i, 'fName'] for i, n in zip(idx, range(4,10))},
-                      **{'JSD':{**{n:df.loc[i, 'JSD'] for i, n in zip(idx, range(4,10))}, **{0:JSD}}},
-                      **{'fr_10':{**{n:df.loc[i, 'fr_10'] for i, n in zip(idx, range(4,10))}, **{0:fr_10}}}}})
-
-    return df_best, PATHS
-
-def amalgamate_paths(paths1, paths2):
-    paths = paths2.copy()
-    paths['TRANS'] = paths1['TRANS']
-    paths['MIN'] = paths1['MIN']
-    paths['FIF'] = paths1['FIF']
-    paths['RAN'] = paths1['RAN']
-#   paths['RAN'] = {n:v for n, v in zip(range(4,10), df.loc[(df.bias=="none")&(df.min_int==0)&(df.max_int==1200), 'fName'].values)}
-#   paths['TRANS'] = {n:df.loc[(df.n_notes==n)&(df.bias=="distI_n2")&(df.min_int==80)&(df.max_int==1200)].sort_values(by='Z')['fName'].values[0] for n in range(4,10)}
-    return paths
-
-
 def fifths_bias_old(all_ints2, w=10):
     return 1.0 / (1.0 + np.mean([66.7 if abs(702-int(z)) <= w else 0. for z in all_ints2.split(';')]))
 
 
 def probability_of_finding_scales(paths, df):
-    if os.path.exists(os.path.join(DIST_DIR, 'MIN80.npy')):
-        min_prob = np.load(os.path.join(DIST_DIR, 'MIN80.npy'))
-    else:
-        bins = np.linspace(0, 1200, num=1201)
-        files = [f"/home/johnmcbride/projects/Scales/Toy_model/Data/Processed3/n{n}_none_MI80_MA1200_BETA_001.000.feather" for n in range(4,10)]
-        min_prob = np.array([np.histogram(extract_floats_from_string(pd.read_feather(f).pair_ints), bins=bins, normed=True)[0] for f in files])
-        np.save(os.path.join(DIST_DIR, 'MIN80.npy'), min_prob)
+#   if os.path.exists(os.path.join(DIST_DIR, 'MIN80.npy')):
+#       min_prob = np.load(os.path.join(DIST_DIR, 'MIN80.npy'))
+#   else:
+#       bins = np.linspace(0, 1200, num=1201)
+#       files = [f"/home/johnmcbride/projects/Scales/Toy_model/Data/Processed3/n{n}_none_MI80_MA1200_BETA_001.000.feather" for n in range(4,10)]
+#       min_prob = np.array([np.histogram(extract_floats_from_string(pd.read_feather(f).pair_ints), bins=bins, normed=True)[0] for f in files])
+#       np.save(os.path.join(DIST_DIR, 'MIN80.npy'), min_prob)
 
     models = ["TRANS", "HAR", "FIF"]
 
@@ -2298,6 +2238,7 @@ def update_conf_ints(boot):
         output.update({m:{}})
         for met, data in metrics.items():
             output[m].update({met:{}})
+            print(m,met)
             if 'scale' in met:
                 for i, l in enumerate([5, 7, 'mean']):
                     output[m][met].update({l:defaultdict(float)})
@@ -2316,8 +2257,10 @@ def update_conf_ints(boot):
     return output
 
 
+### Get data for SI Fig. 12
+### by re-analysing the data with different bootstrapped resamples
 def database_resampling(df_real, df_model):
-    output = defaultdict(dict)
+    resamp_res = defaultdict(dict)
     df_theory = df_real.loc[df_real.Theory=='Y']
     df_measured = df_real.loc[df_real.Theory=='N']
     for m, dat in df_model.items():
@@ -2326,9 +2269,10 @@ def database_resampling(df_real, df_model):
         output['frac0.8'][m] = bootstrap_metrics(df_real, df_model[m], n_boot=1000, parallel=True, frac=0.8)
         output['frac0.6'][m] = bootstrap_metrics(df_real, df_model[m], n_boot=1000, parallel=True, frac=0.6)
         output['frac0.4'][m] = bootstrap_metrics(df_real, df_model[m], n_boot=1000, parallel=True, frac=0.4)
-    return output
+    return resamp_res
 
 
+### Count harmonic intervals
 def count_ints_fn(inputs, w=20):
     int_str, int_cents = inputs
     ints = np.array([int(x) for x in int_str.split(';')])
@@ -2338,6 +2282,7 @@ def count_ints_fn(inputs, w=20):
     return count
 
 
+### Count harmonic intervals
 def count_ints(df, int_cents):
     count = np.zeros(len(int_cents), dtype=float)
     with mp.Pool(N_PROC) as pool:
@@ -2349,6 +2294,17 @@ def count_ints(df, int_cents):
 
 ##################################################
 ### Some tidied/cleaned functions
+
+
+### Calculate bias cost functions for all scales
+### And calculate corresponding probabilities that the models will find them
+def update_database_biases(df_real, paths):
+    df_real = update_hss_scores_df(df_real, n=1)
+    df_real = calculate_fifths_bias_all_w(df_real)
+    df_real = calculate_trans_bias_all_n(df_real)
+    df_real = probability_of_finding_scales(paths, df_real) 
+    return df_real
+
 
 
 ### Given a scale and a probability for adjacent intervals, 
@@ -2381,6 +2337,118 @@ def create_base_probability_database_2(df_real):
     return df_real
 
 
+### Bootstrapping metrics on all the main results
+def bootstrap_main_results(model_df, df_real, parallel=True):
+    boot_res = {}
+    for model, data in model_df.items():
+        boot_res[model] = bootstrap_metrics(df_real, data, parallel=parallel)
+    return boot_res, update_conf_ints(boot_res)
 
 
+### Choose optimized Beta values for each bias
+def pick_best_models(df, df_real, plot=False, parallel=True, min_bias=True):
+    ts = time.time()
+    biases = df.bias.unique()
+    n_real = np.array([len(df_real.loc[df_real.n_notes==n]) for n in range(4,10)])
+    f_real = n_real / n_real.sum()
+    cols = ['min_int', 'bias', 'bias_group', 'beta_mean', 'beta_std', 'logq_mean', 'met1', 'JSD', 'fr_10', 'method']
+    col1 = RdYlGn_11.hex_colors
+    col2 = Paired_12.mpl_colors
+    col3 = RdYlGn_6.hex_colors
+    col = {'HAR':col2[3], 'HS':col2[3], 'FIF':col1[0], 'im5':col1[0], 'none':col2[7],
+           'HAR2':col1[6], 'HAR3':col1[4], 'MIN':col3[1], 'RAN':'k', 'TRANS':col2[1], 'distI':col2[1], 'TRANSB':'purple'}
+    df_best = pd.DataFrame(columns=cols)
+    if plot:
+        fig, ax = plt.subplots()
+    for b in biases:
+        if not min_bias:
+            if b == 'none':
+                continue
+        for mi in [0, 70, 80, 90]:
+            try:
+                idx = [df.loc[(df.n_notes==n)&(df.bias==b)&(df.min_int==mi)&(df.max_int==1200), 'Z'].idxmin() for n in range(4,10)]
+            except ValueError:
+                continue
+            # Report original values
+#           out1 = [np.product(df.loc[idx, 'met1'].values ** f_real)]
+#           out2 = [np.sum(x * f_real) for x in df.loc[idx, ['fr_10', 'logq']].values.T]
+#           out3 = [np.sum(df.loc[idx, 'JSD'].values * f_real)]
+
+            # Report bootstrapped averages
+            print(b, mi)
+            out1 = [0]
+            model_df = {n:pd.read_feather(f) for n, f in zip(range(4,10), df.loc[idx, 'fName'])}
+            boot_met = bootstrap_metrics(df_real, model_df, parallel=parallel)
+            out2 = [np.mean(boot_met['fD'][:,6]), np.sum(df.loc[idx, 'logq'] * f_real)]
+            out3 = [np.mean(boot_met['jsd_int'][:,6])]
+            print(out2, out3)
+
+            bg = df.loc[idx[0], 'bias_group']
+
+            df_best.loc[len(df_best)] = [mi, b, bg] + [df.loc[idx, 'beta'].mean(), df.loc[idx, 'beta'].std()] + \
+                                        [out2[1]] + out1 + out3 + [out2[0]] + ['best']
+
+#           out3 = find_best_beta(df.loc[(df.bias==b)&(df.min_int==mi)&(df.max_int==1200)], f_real)
+#           df_best.loc[len(df_best)] = [mi, b, bg] + [out3[3], 0] + out3[:3] + ['bias']
+
+            if plot:
+                plt.plot(out1, [out2[0]], 'o', color=col[bg], fillstyle='none')
+                plt.plot([out3[1]], [out3[2]], 'o', color=col[bg])
+                plt.plot(out1+[out3[1]], [out2[0]]+[out3[2]], '-', color=col[bg])
+
+    print(f'Bootstrapping finished: {(time.time()-ts)/60:7.4f} mins')
+
+    df_best = normalise_metrics_2(df_best, X='JSD')
+
+    PATHS = {}
+    for bg in df_best.bias_group.unique():
+        if bg == 'HAR':
+            mi, b, JSD, fr_10 = df_best.loc[df_best.loc[df_best.bias=="HAR_10_1", 'Z'].idxmin(), ['min_int', 'bias', 'JSD', 'fr_10']].values
+        else:
+            mi, b, JSD, fr_10 = df_best.loc[df_best.loc[df_best.bias_group==bg, 'Z'].idxmin(), ['min_int', 'bias', 'JSD', 'fr_10']].values
+        mi = 80
+        if bg == 'RAN':
+            idx = [df.loc[(df.n_notes==n)&(df.bias==b)&(df.min_int==0)&(df.max_int==1200), 'Z'].idxmin() for n in range(4,10)]
+        else:
+            idx = [df.loc[(df.n_notes==n)&(df.bias==b)&(df.min_int==mi)&(df.max_int==1200), 'Z'].idxmin() for n in range(4,10)]
+        PATHS.update({bg:{**{n:df.loc[i, 'fName'] for i, n in zip(idx, range(4,10))},
+                      **{'JSD':{**{n:df.loc[i, 'JSD'] for i, n in zip(idx, range(4,10))}, **{0:JSD}}},
+                      **{'fr_10':{**{n:df.loc[i, 'fr_10'] for i, n in zip(idx, range(4,10))}, **{0:fr_10}}}}})
+
+    return df_best, PATHS
+
+
+### Amalgamate two paths dicts to get the final set of
+### best-performing models
+def amalgamate_paths(paths1, paths2):
+    paths = paths2.copy()
+    paths['TRANS'] = paths1['TRANS']
+    paths['MIN'] = paths1['MIN']
+    paths['FIF'] = paths1['FIF']
+    paths['RAN'] = paths1['RAN']
+    return paths
+
+
+### Get the pMIN and pALL cutoffs needed for calculating
+### the reasons for why scales are not found
+def get_pmin_pany_cutoffs(df, q=0.1):
+    fig, ax = plt.subplots(2,1)
+    idx = (df.pMIN.notnull())&(df.min_int>=71)&(np.abs(1200-df.octave)<=10)
+    sns.distplot(np.log10(df.loc[idx, 'pMIN']), kde=False, norm_hist=True, hist_kws={'cumulative':True}, ax=ax[0], bins=1000)
+    print(np.quantile(np.log10(df.loc[idx, 'pMIN']), q))
+    sns.distplot(np.log10(df.loc[idx, 'pALL']), kde=False, norm_hist=True, hist_kws={'cumulative':True}, ax=ax[1], bins=1000)
+    print(np.quantile(np.log10(df.loc[idx, 'pALL']), q))
+
+
+def get_reason_not_found(df, q=0.1):
+    idx = (df.pMIN.notnull())&(df.min_int>=71)&(np.abs(1200-df.octave)<=10)
+    pmin_cut = 10**np.quantile(np.log10(df.loc[idx, 'pMIN']), q)
+    pall_cut = 10**np.quantile(np.log10(df.loc[idx, 'pALL']), q)
+
+    df.loc[(df.found==False)&((df.min_int<71)|(np.abs(1200-df.octave)>10)), 'reason'] = 'i'
+    df.loc[(df.found==False)&(df.min_int>=71)&(np.abs(1200-df.octave)<=10)&(df.pMIN<pmin_cut), 'reason'] = 'ii'
+    df.loc[(df.found==False)&(df.min_int>=71)&(np.abs(1200-df.octave)<=10)&(df.pMIN>pmin_cut)&(df.pALL>pall_cut), 'reason'] = 'iii'
+    df.loc[(df.found==False)&(df.min_int>=71)&(np.abs(1200-df.octave)<=10)&(df.pMIN>pmin_cut)&(df.pALL<pall_cut), 'reason'] = 'iv'
+
+    return df
 

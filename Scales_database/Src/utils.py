@@ -21,7 +21,7 @@ import swifter
 
 ### Theoretical scale markers
 ### PYT = Pythagorean tuning
-### EQ5 = 5-Tone Equal Temperament
+### EQ{N} = N-Tone Equal Temperament
 ### JI  = Just intonation
 ### CHINA = Shi-er-lu
 ### The rest are sourced from Rechberger, Herman
@@ -253,7 +253,7 @@ def extract_scales_and_ints_from_unique(df):
 
             # When searching for new scales from this entry, start from
             # this index
-            start_from = idx_oct + i
+            start_from = idx_oct + i + 1
 
     return data_dict
 

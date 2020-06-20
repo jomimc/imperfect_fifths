@@ -68,6 +68,8 @@ BIAS_KEY = {BIASES[i]:groups[i] for i in range(len(BIASES))}
 
 def world_map(df_real):
     df_real = df_real.loc[(df_real.n_notes>3)&(df_real.n_notes<10)].reset_index(drop=True)
+    df_real.loc[df_real.Country=='Laos', 'Country'] = "Lao PDR"
+    df_real.loc[df_real.Country=='Singapore', 'Country'] = "Malaysia"
 
     counts = df_real.loc[(df_real.Theory=='N')&(df_real.Country.str.len()>0), 'Country'].value_counts()
     countries = counts.keys()
@@ -84,7 +86,7 @@ def world_map(df_real):
     theory = [len(df_real.loc[(df_real.Theory=='Y')&(df_real.Continent==c)]) for c in Cont]
     inst   = [len(df_real.loc[(df_real.Theory=='N')&(df_real.Continent==c)]) for c in Cont]
 
-    cont_coord = [Point(*x) for x in [[17, 48], [38, 35], [79, 24], [110, 32], [107, 12], [18, 8], [150, -20], [-70, -10]]]
+    cont_coord = [Point(*x) for x in [[17, 48], [32, 33], [79, 24], [110, 32], [107, 12], [18, 8], [150, -20], [-70, -10]]]
 
     cont_df = geopandas.GeoDataFrame(pd.DataFrame(data={'Cont':Cont, 'count':theory, 'coord':cont_coord}), geometry='coord')
 
@@ -97,7 +99,7 @@ def world_map(df_real):
 
     world.plot(ax=ax[0], color=(0.6, 0.6, 0.6), edgecolor=(1.0,1.0,1.0), lw=0.2)
     world.loc[world.name.apply(lambda x: x in countries)].plot(ax=ax[0], color=(0.3, 0.3, 0.3), edgecolor=(1.0,1.0,1.0), lw=0.2)
-    gdf.plot(color='r', ax=ax[0], markersize=gdf['count'].values*0.5)
+    gdf.plot(color='r', ax=ax[0], markersize=gdf['count'].values*0.5, alpha=1)
     cont_df.plot(color='g', ax=ax[0], markersize=cont_df['count'].values)
     ax[0].set_xticks([])
     ax[0].set_yticks([])
@@ -118,7 +120,7 @@ def world_map(df_real):
     ax[1].set_xticklabels(Cont, rotation=28, fontsize=ft1)
     ax[1].legend(loc='upper right', frameon=False, fontsize=ft1)
     ax[1].set_ylabel('Number of scales', fontsize=ft1+2)
-    ax[1].set_ylim(0, 175)
+    ax[1].set_ylim(0, 200)
 
     plt.savefig(os.path.join(FIG_DIR, 'world_map.pdf'), bbox_inches='tight')
     
@@ -371,9 +373,10 @@ def model_comparison(df1, df2, boot_conf):
     for i, bg in zip(range(len(groups))[::-1], groups[::-1]):
         if i not in [1,2,3]:
             continue
-        ax.scatter(df2.loc[(df2.bias_group==bg)&(df1.method=='best'), 'JSD'], df2.loc[(df2.bias_group==bg)&(df1.method=='best'), 'fr_10'], color=col_s[i],  s=50, edgecolor='k', alpha=0.7)
+        ax.scatter(df2.loc[(df2.bias_group==bg)&(df2.method=='best'), 'JSD'], df2.loc[(df2.bias_group==bg)&(df2.method=='best'), 'fr_10'], color=col_s[i],  s=50, edgecolor='k', alpha=0.7)
     for i, bg in zip(range(len(groups))[::-1], groups[::-1]):
         if i in [0,4,5,6]:
+            print(1, bg)
             ax.scatter(df1.loc[(df1.bias_group==bg)&(df1.method=='best'), 'JSD'], df1.loc[(df1.bias_group==bg)&(df1.method=='best'), 'fr_10'], color=col_s[i],  s=50, edgecolor='k', alpha=0.7, label=lbls[i])
         else:
             ax.scatter([], [], color=col_s[i],  s=60, edgecolor='k', alpha=0.7, label=lbls[i])
@@ -405,7 +408,8 @@ def model_comparison(df1, df2, boot_conf):
 #   ax.set_xlim(0.11, 0.24)
 #   ax.set_ylim(0.25, 0.48)
     ax.set_ylabel(r'$f_{\textrm{D}}$', fontsize=ft)
-    ax.set_xlabel(r'$I_A$ distribution JSD', fontsize=ft, labelpad=20)
+    ax.set_xlabel(r'$I_A$ distribution JSD', fontsize=ft, labelpad=22)
+    ax.tick_params(axis='both', labelsize=ft-2)
 #   ax.set_xticks(np.arange(4, 12, 2))
 #   ax.set_yticks(np.arange(0, 0.5, 0.1))
 
@@ -511,16 +515,20 @@ def plot_clusters_and_found_scales(paths, df):
     ax[16].spines['left'].set_visible(False)
     ax[17].spines['right'].set_visible(False)
 
+    pmin_cut = 10**-9.6
+    pall_cut = 10**-3.5
+
     not_found = {k:len(df.loc[(df.n_notes<=9)&(df.n_notes>=4)&(df[cat]==k)&(df.found==False)]) for k in df[cat].unique()}
     reason1 = {k:len(df.loc[(df.n_notes<=9)&(df.n_notes>=4)&(df[cat]==k)&(df.found==False)&((df.min_int<71)|(np.abs(1200-df.octave)>10))]) for k in df[cat].unique()}
-    reason2 = {k:len(df.loc[(df.n_notes<=9)&(df.n_notes>=4)&(df[cat]==k)&(df.found==False)&(df.min_int>=71)&(np.abs(1200-df.octave)<=10)&(df.pMIN<10**-9.95)]) for k in df[cat].unique()}
-    reason3 = {k:len(df.loc[(df.n_notes<=9)&(df.n_notes>=4)&(df[cat]==k)&(df.found==False)&(df.min_int>=71)&(np.abs(1200-df.octave)<=10)&(df.pMIN>10**-9.95)&(df.pALL>10**-3.20)]) for k in df[cat].unique()}
-    reason4 = {k:len(df.loc[(df.n_notes<=9)&(df.n_notes>=4)&(df[cat]==k)&(df.found==False)&(df.min_int>=71)&(np.abs(1200-df.octave)<=10)&(df.pMIN>10**-9.95)&(df.pALL<10**-3.20)]) for k in df[cat].unique()}
+    reason2 = {k:len(df.loc[(df.n_notes<=9)&(df.n_notes>=4)&(df[cat]==k)&(df.found==False)&(df.min_int>=71)&(np.abs(1200-df.octave)<=10)&(df.pMIN<pmin_cut)]) for k in df[cat].unique()}
+    reason3 = {k:len(df.loc[(df.n_notes<=9)&(df.n_notes>=4)&(df[cat]==k)&(df.found==False)&(df.min_int>=71)&(np.abs(1200-df.octave)<=10)&(df.pMIN>pmin_cut)&(df.pALL>pall_cut)]) for k in df[cat].unique()}
+    reason4 = {k:len(df.loc[(df.n_notes<=9)&(df.n_notes>=4)&(df[cat]==k)&(df.found==False)&(df.min_int>=71)&(np.abs(1200-df.octave)<=10)&(df.pMIN>pmin_cut)&(df.pALL<pall_cut)]) for k in df[cat].unique()}
     base = np.zeros(len(x_labels))
     X = np.arange(1,17)[::-1]
 
     col_r = np.array(Accent_4.hex_colors)[[0,3,1,2]]
-    lbl_r = ['i', 'ii', 'iii', 'iv']
+#   lbl_r = ['i', 'ii', 'iii', 'iv']
+    lbl_r = [r'(i) prohibited', r'(ii) unlikely ($I_{\textrm{min}}$)', r'(iii) sampling', r'(iv) unlikely (bias)']
     for i, r in enumerate([reason1, reason2, reason3, reason4]):
         Y = np.array([r[k] if k in r.keys() else 0 for k in uniq])[idxsort]
         ax[17].barh(X, Y, width, left=base, color=col_r[i], label=lbl_r[i], edgecolor='k', linewidth=0.1)
@@ -612,7 +620,8 @@ def plot_clusters_and_found_scales(paths, df):
     handles = [mpatches.Patch(color=bar_col[i], label=Cont[i], ec='k', lw=0.2) for i in range(len(Cont))]
     inset[3].legend(loc='center right', bbox_to_anchor=( 0.70,  1.45), handles=handles, frameon=False, ncol=4, fontsize=ft+2, columnspacing=1.0, handletextpad=0.2)
     ax[16].legend(loc='upper left', bbox_to_anchor=( 0.10, 1.15), fontsize=ft+2, frameon=False, ncol=2, columnspacing=1, handlelength=1., handletextpad=0.2)
-    ax[17].legend(loc='upper left', bbox_to_anchor=( 0.10, 1.15), fontsize=ft+2, frameon=False, ncol=2, columnspacing=1, handlelength=1., handletextpad=0.2)
+#   ax[17].legend(loc='upper left', bbox_to_anchor=( 0.10, 1.15), fontsize=ft+2, frameon=False, ncol=2, columnspacing=1, handlelength=1., handletextpad=0.2)
+    ax[17].legend(loc='upper left', bbox_to_anchor=( 0.10, 1.15), fontsize=ft+2, frameon=False, ncol=1, columnspacing=1, handlelength=1., handletextpad=0.2)
 
     fig.savefig(os.path.join(FIG_DIR, 'clustering.pdf'), bbox_inches='tight')
 #   plt.close()

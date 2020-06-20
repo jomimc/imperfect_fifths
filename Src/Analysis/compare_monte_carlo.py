@@ -262,12 +262,13 @@ if __name__ == "__main__":
     categories = ['pair_ints', 'scale']
     n_arr = np.arange(4,10,dtype=int)
 
-    if os.path.exists(os.path.join(REAL_DIR, 'theories_real_scales.feather')):
-        df_real = pd.read_feather(os.path.join(REAL_DIR, 'theories_real_scales.feather'))
-    else:
-        df_real = pd.read_feather(os.path.join(REAL_DIR, 'real_scales.feather'))
-        df_real = process_df(df_real, 0)
-        df_real.to_feather(os.path.join(REAL_DIR, 'theories_real_scales.feather'))
+    df_real = pd.read_pickle(os.path.join(REAL_DIR, 'real_scales.pickle'))
+#   if os.path.exists(os.path.join(REAL_DIR, 'theories_real_scales.feather')):
+#       df_real = pd.read_feather(os.path.join(REAL_DIR, 'theories_real_scales.feather'))
+#   else:
+#       df_real = pd.read_feather(os.path.join(REAL_DIR, 'real_scales.feather'))
+#       df_real = process_df(df_real, 0)
+#       df_real.to_feather(os.path.join(REAL_DIR, 'theories_real_scales.feather'))
 
     if args.partabase == 'theory':
         df_real = df_real.drop(labels=df_real.loc[df_real.Continent.apply(lambda x: x in ['Western', 'East Asia', 'South Asia', 'Middle East'])].index, axis=0)
