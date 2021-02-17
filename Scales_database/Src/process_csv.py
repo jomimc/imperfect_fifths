@@ -5,7 +5,7 @@ import pandas as pd
 
 import utils
 
-DATA_DIR = '/home/johnmcbride/projects/Scales/imperfect_fifths/Scales_database/Data/'
+DATA_DIR = '/home/jmcbride/projects/imperfect_fifths/Scales_database/Data/'
 
 ### Load the data from csv files
 def load_data():
@@ -34,7 +34,7 @@ def load_data():
 
 ### Create new DataFrame with intervals in cents for all tunings
 
-def reformat_data(old_dfs):
+def reformat_data(old_dfs, oct_cut=50):
     new_dfs = []
 
     for i, df in enumerate(old_dfs):
@@ -47,7 +47,7 @@ def reformat_data(old_dfs):
             df_dict['scale'] = [[0] + list(np.cumsum([int(x) for x in ints.split(';')])) for ints in df_dict['pair_ints']]
             df_dict['all_ints'] = [[s[i] - s[j] for j in range(len(s)) for i in range(j+1,len(s))] for s in df_dict['scale']]
         else:
-            df_dict = utils.extract_scales_and_ints_from_unique(df)
+            df_dict = utils.extract_scales_and_ints_from_unique(df, oct_cut=oct_cut)
             df_dict['pair_ints'] = [';'.join([str(int(round(x))) for x in y]) for y in df_dict['pair_ints']]
 
         ### all_ints only counts intervals that fall within a single octave
@@ -57,9 +57,9 @@ def reformat_data(old_dfs):
 
     return pd.concat(new_dfs, ignore_index=True)
 
-def process_data():
+def process_data(oct_cut=50):
     df_list = load_data()
-    df = reformat_data(df_list)
+    df = reformat_data(df_list, oct_cut=oct_cut)
     df['n_notes'] = df.pair_ints.apply(lambda x: len(x.split(';')))
 
     ### Clean up duplicates

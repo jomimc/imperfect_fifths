@@ -12,7 +12,6 @@ from scipy.spatial.distance import pdist
 import seaborn as sns
 from sklearn.cluster import DBSCAN
 import statsmodels.nonparametric.api as smnp
-import swifter
 
 
 #############################################################################
@@ -223,12 +222,12 @@ def extract_scales_and_ints_from_scales(df):
     return data_dict
 
 
-def extract_scales_and_ints_from_unique(df):
+def extract_scales_and_ints_from_unique(df, oct_cut=OCT_CUT):
     data_dict = defaultdict(list)
 
     for row in df.itertuples():
         ints = [int(x) for x in row.Intervals.split(';')]
-        if sum(ints) < (1200 - OCT_CUT):
+        if sum(ints) < (1200 - oct_cut):
             continue
 
         start_from = 0
