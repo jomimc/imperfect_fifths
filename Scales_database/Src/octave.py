@@ -12,7 +12,7 @@ import process_csv
 from process_csv import DATA_DIR
 import utils
 
-N_PROC = 8
+N_PROC = 60
 
 
 def load_text_summary():
@@ -132,7 +132,7 @@ def create_new_scales(df, n_rep=10):
     return df_list
 
 
-def get_stats(df, i, k, n_rep=50, w1=100, w2=20, nrep2=100):
+def get_stats(df, i, k, w1=100, w2=20, n_rep=50, nrep2=100):
     out = np.zeros((3,nrep2), float)
     for j in range(nrep2):
         res = octave_chance_individual(df, octave=i, n_rep=n_rep, w1=w1, w2=w2)
@@ -146,13 +146,23 @@ def get_stats(df, i, k, n_rep=50, w1=100, w2=20, nrep2=100):
 def unexpected_intervals(df):
     df = df.loc[:, ['Intervals', 'scale']]
     ints = np.arange(200, 2605, 5)
-#   with Pool(N_PROC) as pool:
-#       res = pool.starmap(get_stats, product([df], ints, [0]), 5)
+    w1_list = [50, 75, 100, 125, 150, 175, 200]
+    w2_list = [5, 10, 15, 20, 30, 40]
+    for w1 in w1_list:
+        for w2 in w2_list:
+            with Pool(N_PROC) as pool:
+                res = pool.starmap(get_stats, product([df], ints, [0], [w1], [w2]), 9)
 
-    alt_df = create_new_scales(df, n_rep=10)
-    with Pool(N_PROC) as pool:
-        for i in range(10):
-            res = pool.starmap(get_stats, product([alt_df[i]], ints, [i+1]), 5)
+    for c in df.Continent.unique():
+        alt_df = df.loc[df.Continent!=c]
+        with Pool(N_PROC) as pool:
+            res = pool.starmap(get_stats, product([alt_df], ints, [c], [w1], [w2]), 9)
+        
+
+#   alt_df = create_new_scales(df, n_rep=3)
+#   with Pool(N_PROC) as pool:
+#       for i in range(10):
+#           res = pool.starmap(get_stats, product([alt_df[i]], ints, [i+1]), 9)
 
 
 if __name__ == "__main__":

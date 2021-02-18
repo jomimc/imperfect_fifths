@@ -1,11 +1,13 @@
 import os
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 import utils
 
-DATA_DIR = '/home/jmcbride/projects/imperfect_fifths/Scales_database/Data/'
+PATH_BASE = [p for p in [Path.cwd()] + list(Path.cwd().parents) if p.name == 'imperfect_fifths'][0]
+DATA_DIR = PATH_BASE.joinpath("Scales_database", "Data")
 
 ### Load the data from csv files
 def load_data():
