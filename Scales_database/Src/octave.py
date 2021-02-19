@@ -30,7 +30,7 @@ def instrument_tunings():
     df_5 = pd.read_csv(os.path.join(DATA_DIR,'scales_E.csv'))
     df_5 = utils.reformat_original_csv_data(df_5)
 
-    df = pd.concat([df_2, df_3, df_5])
+    df = pd.concat([df_2, df_3, df_5]).reset_index(drop=True)
     df['scale'] = df.Intervals.apply(lambda x: np.cumsum(utils.str_to_ints(x)))
     df['max_scale'] = df.scale.apply(max)
     return df

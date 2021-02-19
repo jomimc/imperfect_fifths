@@ -2,6 +2,7 @@ from itertools import product
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from multiprocessing import Pool
 import numpy as np
 import pandas as pd
@@ -13,6 +14,26 @@ import utils
 N_PROC = 8
 
 PATH_FIG = Path("../Figures")
+
+
+def set_ticks(ax, xMaj, xMin, xForm, yMaj, yMin, yForm):
+    ax.xaxis.set_major_locator(MultipleLocator(xMaj))
+    ax.xaxis.set_major_formatter(FormatStrFormatter(xForm))
+    ax.xaxis.set_minor_locator(MultipleLocator(xMin))
+
+    ax.yaxis.set_major_locator(MultipleLocator(yMaj))
+    ax.yaxis.set_major_formatter(FormatStrFormatter(yForm))
+    ax.yaxis.set_minor_locator(MultipleLocator(yMin))
+
+
+def major_ticks( ax ):
+    ax.tick_params(axis='both', which='major', right='on', top='on', \
+                  labelsize=12, length=6, width=2, pad=8)
+
+
+def minor_ticks( ax ):
+    ax.tick_params(axis='both', which='minor', right='on', top='on', \
+                  labelsize=12, length=3, width=1, pad=8)
 
 
 def scale_degree(df, norm=False, nmax=9):
@@ -52,6 +73,7 @@ def scale_dist(df):
 #       for j in range(3):
 #           if not j:
         hist = np.histogram([x for y in df.scale for x in utils.str_to_ints(y)], bins=bins)[0]
+#       hist = np.histogram([x for y in df.scale for x in y], bins=bins)[0]
 #           else:
 #               hist = np.histogram([x for y in df.loc[df.n_notes==n_arr[j-1], "scale"] for x in utils.str_to_ints(y)], bins=bins)[0]
         hist = hist / hist.sum()
@@ -78,7 +100,7 @@ def int_dist(df):
     for i, df in enumerate(df_list):
 #       for j in range(3):
 #           if not j:
-        hist = np.histogram([x for y in df.pair_ints for x in utils.str_to_ints(y)], bins=bins)[0]
+        hist = np.histogram([x for y in df.Intervals for x in utils.str_to_ints(y)], bins=bins)[0]
 #           else:
 #               hist = np.histogram([x for y in df.loc[df.n_notes==n_arr[j-1], "pair_ints"] for x in utils.str_to_ints(y)], bins=bins)[0]
         hist = hist / hist.sum()
@@ -224,7 +246,54 @@ def octave_by_source(df, res):
             pass
 
 
+def load_interval_data(path_list):
+    data = np.array([np.load(path) for path in path_list])
+    total = data.sum(axis=1)
+    Y1 = data[:,0,:] / total
+    Y2 = data[:,1,:] / total
+    out = []
+    for y in [Y1, Y2]:
+        out.append(np.mean(y, axis=1))
+        out.append(np.quantile(y, 0.025, axis=1))
+        out.append(np.quantile(y, 0.975, axis=1))
+    return out
 
 
+def interval_sig():
+    fig, ax = plt.subplots(3,1)
+    ints = np.arange(200, 2605, 5)
+
+    m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/0_w1100_w220_I{i:04d}.npy" for i in ints])
+    ax[0].plot(ints, m1, '-', label='Support', color='b')
+    ax[0].fill_between(ints, lo1, hi1, color='grey')
+    ax[0].plot(ints, m2, ':', label='Against', color='g')
+    ax[0].fill_between(ints, lo2, hi2, color='grey')
+
+    for j in range(1, 3):
+        m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/{j}_w1100_w220_I{i:04d}.npy" for i in ints])
+        ax[1].plot(ints, m1, '-', label='Support', color='b')
+        ax[1].fill_between(ints, lo1, hi1, color='grey')
+        ax[1].plot(ints, m2, ':', label='Against', color='g')
+        ax[1].fill_between(ints, lo2, hi2, color='grey')
+
+    cont = ['South East Asia', 'Africa', 'Oceania', 'South Asia', 'Western',
+            'South America', 'East Asia', 'Middle East']
+    for c in cont[:5]:
+        m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/{c}_w1100_w220_I{i:04d}.npy" for i in ints])
+        ax[2].plot(ints, m1, '-', label='Support', color='b')
+        ax[2].fill_between(ints, lo1, hi1, color='grey')
+        ax[2].plot(ints, m2, ':', label='Against', color='g')
+        ax[2].fill_between(ints, lo2, hi2, color='grey')
+
+    for a in ax:
+        a.set_xlabel("Interval size (cents)")
+        a.set_ylabel("Fraction of significant results")
+        a.set_ylim(0, 0.4)
+        a.set_xticks(range(0, 2700, 200))
+        a.xaxis.set_tick_params(which='minor', bottom=True)
+
+        set_ticks(a, 200, 100, '%d', 0.1, 0.05, '%3.1f')
+
+    fig.savefig(PATH_FIG.joinpath("interval_sig.pdf"), bbox_inches='tight')
 
 
