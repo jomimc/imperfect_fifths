@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import pdist
+from scipy.stats import lognorm
 import seaborn as sns
 from sklearn.cluster import DBSCAN
 import statsmodels.nonparametric.api as smnp
@@ -255,6 +256,23 @@ def extract_scales_and_ints_from_unique(df, oct_cut=OCT_CUT):
             start_from = idx_oct + i + 1
 
     return data_dict
+
+
+def distribution_statistics(X, xhi=0, N=1000):
+    X = X[np.isfinite(X)]
+    if xhi:
+        bins = np.linspace(0, xhi, N)
+    else:
+        bins = np.linspace(0, np.max(X), N)
+    hist = np.histogram(X, bins=bins)[0]
+
+    bin_mid = bins[:-1] + 0.5 * np.diff(bins[:2])
+    mode = bin_mid[np.argmax(hist)]
+    median = np.median(X)
+    mean = np.mean(X)
+
+    shape, loc, scale = lognorm.fit(X)
+    return mean, median, mode, shape, loc, scale
 
 
 

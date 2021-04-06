@@ -1,10 +1,12 @@
 from itertools import product
 from pathlib import Path
+import pickle
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from multiprocessing import Pool
 import numpy as np
+from palettable.colorbrewer.qualitative import Paired_12
 import pandas as pd
 import seaborn as sns
 
@@ -14,6 +16,7 @@ import utils
 N_PROC = 8
 
 PATH_FIG = Path("../Figures")
+PATH_DATA = Path("../Figures/Data")
 
 
 def set_ticks(ax, xMaj, xMin, xForm, yMaj, yMin, yForm):
@@ -38,20 +41,16 @@ def minor_ticks( ax ):
 
 def scale_degree(df, norm=False, nmax=9):
     fig, ax = plt.subplots()
-    bins = np.arange(3.5, nmax+1, 1)
-    X = bins[:-1] + 0.5 * np.diff(bins[:2])
+    data = pickle.load(open(PATH_DATA.joinpath("scale_degree.pickle"), 'rb'))
+    X = data['X']
+    width = 0.15
+    lbls = ['All', 'Theory', 'Measured', 'Continent', 'Culture']
+    cols = sns.color_palette()
+    for i, l in enumerate(lbls):
+        m, lo, hi = data[l]
+        err = np.array([m - lo, hi - m])
+        ax.bar(X + (i-2)*width, m, width, yerr=err, color=cols[i], label=l, ec='k')
 
-    width = 0.25
-    hist = [np.histogram(df.n_notes, bins=bins)[0]] + \
-           [np.histogram(df.loc[df.Theory==s, "n_notes"], bins=bins)[0] for s in 'YN']
-
-    if norm:
-        hist = [h / sum(h) for h in hist]
-
-    col = sns.color_palette()
-    lbls = ['All', 'Theory', 'Measured']
-    for i, h in enumerate(hist):
-        ax.bar(X + (i-1)*width, h/h.sum(), width, color=col[i], ec='k', label=lbls[i])
     ax.legend(loc='best', frameon=False)
     ax.set_xlabel("Scale degree")
     ax.set_ylabel("Normalised frequency")
@@ -59,27 +58,18 @@ def scale_degree(df, norm=False, nmax=9):
     fig.savefig(PATH_FIG.joinpath("scale_degree.pdf"), bbox_inches='tight')
 
 
-def scale_dist(df):
+def scale_dist():
     fig, ax = plt.subplots()
+    data = pickle.load(open(PATH_DATA.joinpath("scale.pickle"), 'rb'))
+    X = data['X']
 
-    n_arr = [5, 7]
-    df_list = [df, df.loc[df.Theory=='Y'], df.loc[df.Theory=='N']]
-    bins = np.arange(-10, 1220, 20)
-    X = bins[:-1] + 0.5 * np.diff(bins[:2])
-    lbls = ['All', 'Theory', 'Measured']
+    lbls = ['All', 'Theory', 'Measured', 'Continent', 'Culture']
+    cols = Paired_12.hex_colors
+    for i, l in enumerate(lbls):
+        m, lo, hi = data[l]
+        ax.plot(X, m, '-', c=cols[i*2+1], label=lbls[i])
+        ax.fill_between(X, lo, hi, color=cols[i*2], alpha=0.5)
 
-
-    for i, df in enumerate(df_list):
-#       for j in range(3):
-#           if not j:
-        hist = np.histogram([x for y in df.scale for x in utils.str_to_ints(y)], bins=bins)[0]
-#       hist = np.histogram([x for y in df.scale for x in y], bins=bins)[0]
-#           else:
-#               hist = np.histogram([x for y in df.loc[df.n_notes==n_arr[j-1], "scale"] for x in utils.str_to_ints(y)], bins=bins)[0]
-        hist = hist / hist.sum()
-        ax.plot(X, hist, label=lbls[i])
-#       if not i:
-#           ax[i].set_xticks([])
     ax.legend(loc='best', frameon=False)
     ax.set_xlabel("Scale note")
     ax.set_ylabel("Normalised frequency")
@@ -87,27 +77,36 @@ def scale_dist(df):
     fig.savefig(PATH_FIG.joinpath("scale_dist.pdf"), bbox_inches='tight')
 
 
-def int_dist(df):
+def adjacent_int_dist():
     fig, ax = plt.subplots()
+    data = pickle.load(open(PATH_DATA.joinpath("adjacent_int.pickle"), 'rb'))
+    X = data['X']
 
-    n_arr = [5, 7]
-    df_list = [df, df.loc[df.Theory=='Y'], df.loc[df.Theory=='N']]
-    bins = np.arange(-10, 520, 10)
-    X = bins[:-1] + 0.5 * np.diff(bins[:2])
-    lbls = ['All', 'Theory', 'Measured']
+    lbls = ['All', 'Theory', 'Measured', 'Continent', 'Culture']
+    cols = Paired_12.hex_colors
+    for i, l in enumerate(lbls):
+        m, lo, hi = data[l]
+        ax.plot(X, m, '-', c=cols[i*2+1], label=lbls[i])
+        ax.fill_between(X, lo, hi, color=cols[i*2], alpha=0.5)
 
-
-    for i, df in enumerate(df_list):
-#       for j in range(3):
-#           if not j:
-        hist = np.histogram([x for y in df.Intervals for x in utils.str_to_ints(y)], bins=bins)[0]
-#           else:
-#               hist = np.histogram([x for y in df.loc[df.n_notes==n_arr[j-1], "pair_ints"] for x in utils.str_to_ints(y)], bins=bins)[0]
-        hist = hist / hist.sum()
-        ax.plot(X, hist, label=lbls[i])
     ax.legend(loc='best', frameon=False)
-
     fig.savefig(PATH_FIG.joinpath("int_dist.pdf"), bbox_inches='tight')
+
+
+def all_int_dist():
+    fig, ax = plt.subplots()
+    data = pickle.load(open(PATH_DATA.joinpath("all_int.pickle"), 'rb'))
+    X = data['X']
+
+    lbls = ['All', 'Theory', 'Measured', 'Continent', 'Culture']
+    cols = Paired_12.hex_colors
+    for i, l in enumerate(lbls):
+        m, lo, hi = data[l]
+        ax.plot(X, m, '-', c=cols[i*2+1], label=lbls[i])
+        ax.fill_between(X, lo, hi, color=cols[i*2], alpha=0.5)
+
+    ax.legend(loc='best', frameon=False)
+    fig.savefig(PATH_FIG.joinpath("all_int_dist.pdf"), bbox_inches='tight')
 
 
 def octave_equiv(df, octave=1200, n_rep=10):
@@ -233,17 +232,27 @@ def octave_by_source(df, res):
     src_insig   = df0.loc[df0.index[res.loc[(res.MWU>=0.05)].index], 'RefID'].value_counts()
 
     src_cult = {k:c for k, c in zip(df.RefID, df.Reference)}
+    tots = []
     
+    res_lbl = ' & '.join(['Total', 'Testable', 'Support', 'Against', 'Non-sig'])
+    print(f"Name & Culture &  {res_lbl} & Text support & Culture support & Overall")
     for i in text.index:
         k = i + 1
         try:
             name = f"{int(k):4d}  {src_cult[k][:40]:40s}"
-            inst_results = "  ".join([f"{d.get(k,0):4d}" for d in [src_cnt_tot, src_cnt_use, src_support, src_against, src_insig]])
-            t = text.loc[i]
+            inst_results_list = [d.get(k,0) for d in [src_cnt_tot, src_cnt_use, src_support, src_against, src_insig]]
+            inst_results = " & ".join([f"{d:4d}" for d in inst_results_list])
+            t1, t2 = text.loc[i]
             culture = identify_culture(df.loc[df.RefID==k, 'Culture'].values)
-            print(f"{name}  {culture[:15]:15s}  {inst_results}  {str(t):6s}")
-        except:
+#           print(src_against.get(k,0), src_support.get(k,0), t1, t2)
+            evidence = (src_against.get(k,0) < src_support.get(k,0)) | ('Yes' in t1) | ('Yes' in t2)
+            tots.append(inst_results_list +  [('Yes' in t1), ('Yes' in t2), evidence])
+            print(f"{name} & {culture[:15]:15s} & {inst_results} & {str(t1):6s} & {str(t2):10s} & {evidence:3b}")
+        except Exception as e:
+#           print(e)
             pass
+    tots = np.sum(tots, axis=0)
+    print(" "*65 + "  ".join([f"{int(t):4d}" for t in tots]))
 
 
 def load_interval_data(path_list):
@@ -262,32 +271,33 @@ def load_interval_data(path_list):
 def interval_sig():
     fig, ax = plt.subplots(3,1)
     ints = np.arange(200, 2605, 5)
+    col = sns.color_palette()
 
     m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/0_w1100_w220_I{i:04d}.npy" for i in ints])
-    ax[0].plot(ints, m1, '-', label='Support', color='b')
+    ax[0].plot(ints, m1, '-', label='Support', color=col[0])
     ax[0].fill_between(ints, lo1, hi1, color='grey')
-    ax[0].plot(ints, m2, ':', label='Against', color='g')
+    ax[0].plot(ints, m2, ':', label='Against', color=col[1])
     ax[0].fill_between(ints, lo2, hi2, color='grey')
 
     for j in range(1, 3):
         m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/{j}_w1100_w220_I{i:04d}.npy" for i in ints])
-        ax[1].plot(ints, m1, '-', label='Support', color='b')
+        ax[1].plot(ints, m1, '-', label='Support', color=col[0])
         ax[1].fill_between(ints, lo1, hi1, color='grey')
-        ax[1].plot(ints, m2, ':', label='Against', color='g')
+        ax[1].plot(ints, m2, ':', label='Against', color=col[1])
         ax[1].fill_between(ints, lo2, hi2, color='grey')
 
     cont = ['South East Asia', 'Africa', 'Oceania', 'South Asia', 'Western',
             'South America', 'East Asia', 'Middle East']
     for c in cont[:5]:
         m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/{c}_w1100_w220_I{i:04d}.npy" for i in ints])
-        ax[2].plot(ints, m1, '-', label='Support', color='b')
+        ax[2].plot(ints, m1, '-', label='Support', color=col[0])
         ax[2].fill_between(ints, lo1, hi1, color='grey')
-        ax[2].plot(ints, m2, ':', label='Against', color='g')
+        ax[2].plot(ints, m2, ':', label='Against', color=col[1])
         ax[2].fill_between(ints, lo2, hi2, color='grey')
 
     for a in ax:
         a.set_xlabel("Interval size (cents)")
-        a.set_ylabel("Fraction of significant results")
+        a.set_ylabel("Fraction of\nsignificant results")
         a.set_ylim(0, 0.4)
         a.set_xticks(range(0, 2700, 200))
         a.xaxis.set_tick_params(which='minor', bottom=True)
@@ -295,5 +305,42 @@ def interval_sig():
         set_ticks(a, 200, 100, '%d', 0.1, 0.05, '%3.1f')
 
     fig.savefig(PATH_FIG.joinpath("interval_sig.pdf"), bbox_inches='tight')
+
+
+def window_size():
+    fig, ax = plt.subplots(7,1)
+    ints = np.arange(200, 2605, 5)
+    col = sns.color_palette()
+
+    w1_list = [50, 75, 100, 125, 150, 175, 200]
+    w2_list = [5, 10, 15, 20, 30, 40]
+    for i, w1 in enumerate(w1_list):
+        for w2 in w2_list:
+            try:
+                print(w1, w2)
+                m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/0_w1{w1}_w2{w2}_I{i:04d}.npy" for i in ints])
+                ax[i].plot(ints, m1, '-', label='Support', color=col[0])
+                ax[i].fill_between(ints, lo1, hi1, color='grey')
+                ax[i].plot(ints, m2, ':', label='Against', color=col[1])
+                ax[i].fill_between(ints, lo2, hi2, color='grey')
+            except:
+                print(f"{w1}_{w2} not done yet")
+
+    fig.savefig(PATH_FIG.joinpath("window_effect.pdf"), bbox_inches='tight')
+
+
+def inst_notes(df):
+    fig, ax = plt.subplots(3,1)
+    OC.get_int_prob_via_sampling(df, ysamp='scale', xsamp='', ax=ax[0])
+    for i in range(3):
+        OC.get_int_prob_via_sampling(df, ysamp='scale', xsamp='Continent', s=6, ax=ax[1]) 
+        OC.get_int_prob_via_sampling(df, ysamp='scale', xsamp='Culture', s=1, ax=ax[2]) 
+    
+    for a in ax:
+        a.set_ylabel('Density')
+        a.set_xlabel('Interval compared to lowest note')
+
+    fig.savefig(PATH_FIG.joinpath("inst_notes.pdf"), bbox_inches='tight')
+
 
 
