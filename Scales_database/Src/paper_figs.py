@@ -2,6 +2,7 @@ from itertools import product
 from pathlib import Path
 import pickle
 
+from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from multiprocessing import Pool
@@ -58,6 +59,45 @@ def scale_degree(df, norm=False, nmax=9):
     fig.savefig(PATH_FIG.joinpath("scale_degree.pdf"), bbox_inches='tight')
 
 
+
+def multiple_dist():
+    fig, ax = plt.subplots(2,3, figsize=(8,4))
+    fig.subplots_adjust(wspace=0, hspace=0)
+    lblA = ['All', 'Theory', 'Measured']
+    lblB = ['Continent', 'Culture']
+    path_stem = ['adjacent_int', 'scale', 'all_int']
+    xlbls = ['Adjacent Interval / cents', 'Scale note / cents', 'Interval / cents']
+    xlim = [570, 1370, 1370]
+    cols = Paired_12.hex_colors
+
+    for j, stem in enumerate(path_stem):
+        data = pickle.load(open(PATH_DATA.joinpath(f"{stem}.pickle"), 'rb'))
+        X = data['X']
+        for i, lbl in enumerate([lblA, lblB]):
+            for k, l in enumerate(lbl):
+                m, lo, hi = data[l]
+                ax[i,j].plot(X, m, '-', c=cols[(i*len(lblA)+k)*2+1], label=l)
+                ax[i,j].fill_between(X, lo, hi, color=cols[(i*len(lblA)+k)*2], alpha=0.5)
+
+            if i == 1:
+                ax[i,j].set_xlabel(xlbls[j])
+            if j == 0:
+                set_ticks(ax[i,j], 200, 50, '%d', 1.02, 1.01, '%4.2f')
+            else:
+                set_ticks(ax[i,j], 400, 100, '%d', 1.002, 1.001, '%5.3f')
+            ax[i,j].set_xlim(0, xlim[j])
+            ax[i,0].set_ylabel("Density")
+
+    for a in ax[0,:].ravel():
+        a.set_xticks([])
+    for a in ax[:,:].ravel():
+        a.set_yticks([])
+    ax[0,0].legend(loc='upper right', frameon=False)
+    ax[1,0].legend(loc='upper right', frameon=False)
+
+    fig.savefig(PATH_FIG.joinpath("multi_dist.pdf"), bbox_inches='tight')
+
+
 def scale_dist():
     fig, ax = plt.subplots()
     data = pickle.load(open(PATH_DATA.joinpath("scale.pickle"), 'rb'))
@@ -111,7 +151,7 @@ def all_int_dist():
 
 def octave_equiv(df, octave=1200, n_rep=10):
     res = OC.octave_chance_individual(df, octave=octave, n_rep=n_rep)
-    fig, ax = plt.subplots(2,2)
+    fig, ax = plt.subplots(2)
     ax = ax.reshape(ax.size)
     sns.scatterplot(x='f_real', y='f_shuf', data=res, hue='sig', ax=ax[0])
     mx = max(res.f_real.max(), res.f_shuf.max())
@@ -129,54 +169,54 @@ def octave_equiv(df, octave=1200, n_rep=10):
     ax[0].legend(loc='best', frameon=False)
     ax[1].legend(loc='best', frameon=False)
 
-    w_arr = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
-    n_greater = []
-    n_less = []
-    n_nonsig = []
-    for w in w_arr:
-        for i in range(5):
-            res = OC.octave_chance_individual(df, octave=octave, n_rep=n_rep, w2=w)
-            n_greater.append(len(res.loc[(res.MWU<0.05)&(res.f_real>res.f_shuf)]))
-            n_less.append(len(res.loc[(res.MWU<0.05)&(res.f_real<res.f_shuf)]))
-            n_nonsig.append(len(res.loc[(res.MWU>=0.05)]))
-    n_greater = np.array(n_greater).reshape(len(w_arr), 5).mean(axis=1)
-    n_less = np.array(n_less).reshape(len(w_arr), 5).mean(axis=1)
-    n_nonsig = np.array(n_nonsig).reshape(len(w_arr), 5).mean(axis=1)
-    total = np.sum([n_greater, n_less, n_nonsig], axis=0)
+#   w_arr = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
+#   n_greater = []
+#   n_less = []
+#   n_nonsig = []
+#   for w in w_arr:
+#       for i in range(5):
+#           res = OC.octave_chance_individual(df, octave=octave, n_rep=n_rep, w2=w)
+#           n_greater.append(len(res.loc[(res.MWU<0.05)&(res.f_real>res.f_shuf)]))
+#           n_less.append(len(res.loc[(res.MWU<0.05)&(res.f_real<res.f_shuf)]))
+#           n_nonsig.append(len(res.loc[(res.MWU>=0.05)]))
+#   n_greater = np.array(n_greater).reshape(len(w_arr), 5).mean(axis=1)
+#   n_less = np.array(n_less).reshape(len(w_arr), 5).mean(axis=1)
+#   n_nonsig = np.array(n_nonsig).reshape(len(w_arr), 5).mean(axis=1)
+#   total = np.sum([n_greater, n_less, n_nonsig], axis=0)
 
-    ax[2].plot(w_arr, n_greater / total, label='support')
-    ax[2].plot(w_arr, n_less / total, label='against')
-    ax[2].plot(w_arr, n_nonsig / total, label='non_sig')
+#   ax[2].plot(w_arr, n_greater / total, label='support')
+#   ax[2].plot(w_arr, n_less / total, label='against')
+#   ax[2].plot(w_arr, n_nonsig / total, label='non_sig')
 
-    ax[2].set_xlabel("window_1")
-    ax[2].set_ylabel("Normalised frequency")
-    ax[2].legend(loc='best', frameon=False)
+#   ax[2].set_xlabel("window_1")
+#   ax[2].set_ylabel("Normalised frequency")
+#   ax[2].legend(loc='best', frameon=False)
 
-    w_arr = [50, 75, 100, 125, 150, 175, 200]
-    n_greater = []
-    n_less = []
-    n_nonsig = []
-    for w in w_arr:
-        print(w)
-        for i in range(5):
-            res = OC.octave_chance_individual(df, octave=octave, n_rep=n_rep, w1=w)
-            n_greater.append(len(res.loc[(res.MWU<0.05)&(res.mean_real<res.mean_shuf)]))
-            n_less.append(len(res.loc[(res.MWU<0.05)&(res.mean_real>res.mean_shuf)]))
-            n_nonsig.append(len(res.loc[(res.MWU>=0.05)]))
-    n_greater = np.array(n_greater).reshape(len(w_arr), 5).mean(axis=1)
-    n_less = np.array(n_less).reshape(len(w_arr), 5).mean(axis=1)
-    n_nonsig = np.array(n_nonsig).reshape(len(w_arr), 5).mean(axis=1)
-    total = np.sum([n_greater, n_less, n_nonsig], axis=0)
+#   w_arr = [50, 75, 100, 125, 150, 175, 200]
+#   n_greater = []
+#   n_less = []
+#   n_nonsig = []
+#   for w in w_arr:
+#       print(w)
+#       for i in range(5):
+#           res = OC.octave_chance_individual(df, octave=octave, n_rep=n_rep, w1=w)
+#           n_greater.append(len(res.loc[(res.MWU<0.05)&(res.mean_real<res.mean_shuf)]))
+#           n_less.append(len(res.loc[(res.MWU<0.05)&(res.mean_real>res.mean_shuf)]))
+#           n_nonsig.append(len(res.loc[(res.MWU>=0.05)]))
+#   n_greater = np.array(n_greater).reshape(len(w_arr), 5).mean(axis=1)
+#   n_less = np.array(n_less).reshape(len(w_arr), 5).mean(axis=1)
+#   n_nonsig = np.array(n_nonsig).reshape(len(w_arr), 5).mean(axis=1)
+#   total = np.sum([n_greater, n_less, n_nonsig], axis=0)
 
-    ax[3].plot(w_arr, n_greater / total, label='support')
-    ax[3].plot(w_arr, n_less / total, label='against')
-    ax[3].plot(w_arr, n_nonsig / total, label='non_sig')
+#   ax[3].plot(w_arr, n_greater / total, label='support')
+#   ax[3].plot(w_arr, n_less / total, label='against')
+#   ax[3].plot(w_arr, n_nonsig / total, label='non_sig')
 
-    ax[3].set_xlabel("window_2")
-    ax[3].set_ylabel("Normalised frequency")
-    ax[3].legend(loc='best', frameon=False)
+#   ax[3].set_xlabel("window_2")
+#   ax[3].set_ylabel("Normalised frequency")
+#   ax[3].legend(loc='best', frameon=False)
 
-    fig.savefig(PATH_FIG.joinpath("octave_demo.pdf"), bbox_inches='tight')
+#   fig.savefig(PATH_FIG.joinpath("octave_demo.pdf"), bbox_inches='tight')
 
 
 
@@ -268,8 +308,13 @@ def load_interval_data(path_list):
     return out
 
 
-def interval_sig():
-    fig, ax = plt.subplots(3,1)
+def interval_sig(res):
+    fig = plt.figure(figsize=(10,4))
+    gs = GridSpec(3,3, width_ratios=[1, 0.3, 2])
+    ax = [fig.add_subplot(gs[i,2]) for i in range(3)] + \
+         [fig.add_subplot(gs[:,0])]
+#   fig, ax = plt.subplots(3,1)
+    fig.subplots_adjust(hspace=0, wspace=0)
     ints = np.arange(200, 2605, 5)
     col = sns.color_palette()
 
@@ -295,14 +340,26 @@ def interval_sig():
         ax[2].plot(ints, m2, ':', label='Against', color=col[1])
         ax[2].fill_between(ints, lo2, hi2, color='grey')
 
-    for a in ax:
-        a.set_xlabel("Interval size (cents)")
-        a.set_ylabel("Fraction of\nsignificant results")
-        a.set_ylim(0, 0.4)
-        a.set_xticks(range(0, 2700, 200))
-        a.xaxis.set_tick_params(which='minor', bottom=True)
+    ax[1].set_ylabel("Fraction of significant results")
+    ax[2].set_xticks(range(0, 2700, 200))
+    ax[2].xaxis.set_tick_params(which='minor', bottom=True)
+    ax[2].set_xlabel("Interval size (cents)")
 
-        set_ticks(a, 200, 100, '%d', 0.1, 0.05, '%3.1f')
+    txt = ['P1', 'P1-Null', 'P1-Sample']
+    for i, a in enumerate(ax[:3]):
+        a.set_xlim(0, 2620)
+        a.set_ylim(0, 0.47)
+        set_ticks(a, 400, 100, '%d', 0.2, 0.1, '%3.1f')
+        a.annotate(txt[i], (0.05, 0.85), xycoords='axes fraction')
+    for a in ax[:2]:
+        a.set_xticks([])
+
+    sns.scatterplot(x='mean_real', y='mean_shuf', data=res.sort_values(by='sig'), hue='sig', ax=ax[3])
+    mx = max(res.mean_real.max(), res.mean_shuf.max())
+    ax[3].plot([0, mx], [0, mx], '-k')
+    ax[3].set_xlabel("Deviation of all real intervals\nfrom the octave")
+    ax[3].set_ylabel("Deviation of all shuffled intervals\nfrom the octave")
+    ax[3].legend(loc='best', frameon=False)
 
     fig.savefig(PATH_FIG.joinpath("interval_sig.pdf"), bbox_inches='tight')
 
@@ -329,18 +386,26 @@ def window_size():
     fig.savefig(PATH_FIG.joinpath("window_effect.pdf"), bbox_inches='tight')
 
 
-def inst_notes(df):
-    fig, ax = plt.subplots(3,1)
-    OC.get_int_prob_via_sampling(df, ysamp='scale', xsamp='', ax=ax[0])
+def inst_notes(df, ysamp='scale'):
+    fig, ax = plt.subplots(3,1, figsize=(4,6))
+    fig.subplots_adjust(hspace=0)
+    OC.get_int_prob_via_sampling(df, ysamp=ysamp, xsamp='', ax=ax[0])
     for i in range(3):
-        OC.get_int_prob_via_sampling(df, ysamp='scale', xsamp='Continent', s=6, ax=ax[1]) 
-        OC.get_int_prob_via_sampling(df, ysamp='scale', xsamp='Culture', s=1, ax=ax[2]) 
+        OC.get_int_prob_via_sampling(df, ysamp=ysamp, xsamp='Continent', s=6, ax=ax[1]) 
+        OC.get_int_prob_via_sampling(df, ysamp=ysamp, xsamp='Culture', s=1, ax=ax[2]) 
     
-    for a in ax:
-        a.set_ylabel('Density')
-        a.set_xlabel('Interval compared to lowest note')
+    txt = ["All", "Cont-Samp", "Cult-Samp"]
+    for i, a in enumerate(ax):
+        a.set_xlim(0, 3000)
+        set_ticks(a, 600, 200, '%d', 0.001, 0.0005, '%5.3f')
+        a.annotate(txt[i], (0.75, 0.85), xycoords='axes fraction')
 
-    fig.savefig(PATH_FIG.joinpath("inst_notes.pdf"), bbox_inches='tight')
+    for a in ax[:2]:
+        a.set_xticks([])
+    ax[2].set_ylabel('Density')
+    ax[2].set_xlabel('Interval from the lowest note / cents')
+
+    fig.savefig(PATH_FIG.joinpath(f"inst_notes_{ysamp}.pdf"), bbox_inches='tight')
 
 
 

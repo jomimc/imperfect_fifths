@@ -92,7 +92,7 @@ def octave_chance(df, n_rep=10, plot=False, octave=1200, w=50):
 
 def label_sig(p):
     if p >= 0.05:
-        return "x"
+        return "NS"
     elif p >= 0.005:
         return '*'
     elif p >= 0.0005:
@@ -212,7 +212,7 @@ def get_int_prob_via_sampling(df, ysamp='AllInts', xsamp='Continent', s=6, ax=''
 #   Yl = np.log(np.array(Y))
 #   print(norm.fit(Yl))
 
-    bins = np.arange(0, 5000, 20)
+    bins = np.arange(15, 5000, 30)
     X = bins[:-1] + np.diff(bins[:2])/2
 
 #   shape, loc, scale = lognorm.fit(Y)
