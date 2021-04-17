@@ -10,7 +10,7 @@ PATH_BASE = [p for p in [Path.cwd()] + list(Path.cwd().parents) if p.name == 'im
 DATA_DIR = PATH_BASE.joinpath("Scales_database", "Data")
 
 ### Load the data from csv files
-def load_data():
+def load_data_old():
     # Data from two books which cover mostly scales
     # which have fixed theory or scales
     df_1 = pd.read_csv(os.path.join(DATA_DIR,'scales_A.csv'))
@@ -34,64 +34,67 @@ def load_data():
     return df_1, df_2, df_3, df_4, df_5
 
 
+def load_raw_data():
+    return [pd.read_excel('../scales_database.xlsx', f"scales_{a}") for a in 'ABCDEF']
+
+
 ### Create new DataFrame with intervals in cents for all tunings
 
-def reformat_data(old_dfs, oct_cut=50):
+def convert_raw_data_to_scales(old_dfs, oct_cut=50, use_mode=False):
     new_dfs = []
 
     for i, df in enumerate(old_dfs):
-        if i==0:
-            df_dict = utils.extract_scales_and_ints_from_scales(df)
-            df_dict['pair_ints'] = [';'.join([str(int(round(x))) for x in y]) for y in df_dict['pair_ints']]
-        elif i==3:
-            cols = ['Culture', 'Tuning', 'Continent', 'Country', 'Name', 'pair_ints','Reference', 'RefID', 'Theory']
-            df_dict = {c:df[c] for c in cols}
-            df_dict['scale'] = [[0] + list(np.cumsum([int(x) for x in ints.split(';')])) for ints in df_dict['pair_ints']]
-            df_dict['all_ints'] = [[s[i] - s[j] for j in range(len(s)) for i in range(j+1,len(s))] for s in df_dict['scale']]
+        if i == 0:
+            new_dfs.append(utils.match_scales_to_tunings(df))
         else:
-            df_dict = utils.extract_scales_and_ints_from_unique(df, oct_cut=oct_cut)
-            df_dict['pair_ints'] = [';'.join([str(int(round(x))) for x in y]) for y in df_dict['pair_ints']]
-
-        ### all_ints only counts intervals that fall within a single octave
-        df_dict['all_ints'] = [';'.join([str(int(round(x))) for x in y]) for y in df_dict['all_ints']]
-        df_dict['scale'] = [';'.join([str(int(round(x))) for x in y]) for y in df_dict['scale']]
-        new_dfs.append(pd.DataFrame(data=df_dict))
+            new_dfs.append(utils.extract_scales_from_measurements(df, oct_cut=oct_cut, use_mode=use_mode))
 
     return pd.concat(new_dfs, ignore_index=True)
 
-def process_data(oct_cut=50):
-    df_list = load_data()
-    df = reformat_data(df_list, oct_cut=oct_cut)
-    df['n_notes'] = df.pair_ints.apply(lambda x: len(x.split(';')))
 
-    ### Clean up duplicates
+def same_ints(i1, i2):
+    if len(i1) != len(i2):
+        return False
+    return np.all(i1 == i2)
+    
+
+### Remove any duplicates within the same Culture
+#       some may have been added due to reports in secondary sources
+#       OR some scales are labelled differently in reports due
+#       to starting on different funadmental frequencies
+#       OR some scales may simply be duplicates due to chance
+def remove_duplicates(df):
     to_bin = set()
     cultures = df.Culture.unique()
     for row in df.itertuples():
         if row[0] in to_bin:
             continue
-        idx = df.loc[(df.Culture==row.Culture)&(df.pair_ints==row.pair_ints)].index
-        if len(idx)>1:
-            for i in idx[1:]:
+        idx = (df.Culture==row.Culture) & (df.adj_ints.apply(lambda x: same_ints(x, row.adj_ints)))
+        if sum(idx)>1:
+            for i in np.where(idx)[0][1:]:
                 to_bin.add(i)
-    df = df.drop(index=to_bin).reset_index(drop=True)
+    return df.drop(index=to_bin).reset_index(drop=True)
+
+
+
+def process_data(oct_cut=50, use_mode=False):
+    df_list = load_raw_data()
+    df = convert_raw_data_to_scales(df_list, oct_cut=oct_cut, use_mode=use_mode)
+    df = df.rename(columns={'Intervals':'adj_ints'})
+    df = remove_duplicates(df)
 
     ### Only include scales with 4 <= N <= 9
     df = df.loc[(df.n_notes>=4)&(df.n_notes<=9)].reset_index(drop=True)
 
     ### Some basic metrics for scales
-    df['min_int'] = df.pair_ints.apply(lambda x: min(utils.str_to_ints(x)))
-    df['max_int'] = df.pair_ints.apply(lambda x: max(utils.str_to_ints(x)))
-    df['octave'] = df.scale.apply(lambda x: max(utils.str_to_ints(x)))
+    df['min_int'] = df.adj_ints.apply(min)
+    df['max_int'] = df.adj_ints.apply(max)
+    df['octave'] = df.scale.apply(max)
+    df['octave_dev'] = np.abs(df['octave'] - 1200)
     df['irange'] = df['max_int'] - df['min_int']
 
-    ### all_ints2 counts intervals that are smaller than an octave,
-    ### but can be made within the first two octaves
-    ### e.g. the interval between the 2nd note and the 8th (1st) note in a 7-note scale
-    df = utils.get_all_ints(df)
-
-    ### Clustering the scales by similarity between adjacent interval sets
-    df = utils.label_scales_by_cluster(df)
+#   ### Clustering the scales by similarity between adjacent interval sets
+#   df = utils.label_scales_by_cluster(df)
     return df
     
 

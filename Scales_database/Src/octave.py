@@ -6,6 +6,7 @@ from multiprocessing import Pool
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from scipy.signal import argrelmax
 from scipy.stats import mannwhitneyu, lognorm, norm
 
 import process_csv
@@ -31,21 +32,10 @@ def get_md2(ints):
 #   md2 = np.array([np.sum(np.roll(poss, i, axis=1)[:,:2], axis=1) for i in range(7)]).min(axis=0)
 
 
-
-
 def instrument_tunings():
-    # Data from the ... book with measured instrument intervals
-    df_2 = pd.read_csv(os.path.join(DATA_DIR,'scales_B.csv'))
-    # Data from papers with measured instrument intervals
-    df_3 = pd.read_csv(os.path.join(DATA_DIR,'scales_C.csv'))
-    df_3 = utils.reformat_original_csv_data(df_3)
-    # Data from Ellis (1885)
-    df_5 = pd.read_csv(os.path.join(DATA_DIR,'scales_E.csv'))
-    df_5 = utils.reformat_original_csv_data(df_5)
-
-    df = pd.concat([df_2, df_3, df_5]).reset_index(drop=True)
-    df['scale'] = df.Intervals.apply(lambda x: np.cumsum(utils.str_to_ints(x)))
+    df = pd.concat([pd.read_excel('../scales_database.xlsx', f"scales_{a}") for a in 'BCDEF'], ignore_index=True)
     df['Intervals'] = df.Intervals.apply(lambda x: utils.str_to_ints(x))
+    df['scale'] = df.Intervals.apply(np.cumsum)
     df['max_scale'] = df.scale.apply(max)
     df['min_int'] = df.Intervals.apply(min)
     df['max_int'] = df.Intervals.apply(max)
@@ -161,25 +151,25 @@ def get_stats(df, i, k, w1=100, w2=20, n_rep=50, nrep2=100):
 
 
 def unexpected_intervals(df):
-    df = df.loc[:, ['Intervals', 'scale']]
     ints = np.arange(200, 2605, 5)
+
+    for c in df['Continent'].unique():
+        alt_df = df.loc[df["Continent"]!=c]
+        with Pool(N_PROC) as pool:
+            res = pool.starmap(get_stats, product([alt_df], ints, [c], [100], [20]), 7)
+    
+    df = df.loc[:, ['Intervals', 'scale']]
     w1_list = [50, 75, 100, 125, 150, 175, 200]
-    w2_list = [5, 10, 15, 20, 30, 40]
+    w2_list = [5, 10, 15, 20, 30, 40] 
     for w1 in w1_list:
         for w2 in w2_list:
             with Pool(N_PROC) as pool:
-                res = pool.starmap(get_stats, product([df], ints, [0], [w1], [w2]), 9)
+                res = pool.starmap(get_stats, product([df], ints, [0], [w1], [w2]), 7)
 
-    for c in df.Continent.unique():
-        alt_df = df.loc[df.Continent!=c]
-        with Pool(N_PROC) as pool:
-            res = pool.starmap(get_stats, product([alt_df], ints, [c], [w1], [w2]), 9)
-        
-
-#   alt_df = create_new_scales(df, n_rep=3)
-#   with Pool(N_PROC) as pool:
-#       for i in range(10):
-#           res = pool.starmap(get_stats, product([alt_df[i]], ints, [i+1]), 9)
+    alt_df = create_new_scales(df, n_rep=3)
+    with Pool(N_PROC) as pool:
+        for i in range(3):
+            res = pool.starmap(get_stats, product([alt_df[i]], ints, [i+1]), 9)
 
 
 def get_norm_posterior(Y, s, m):
@@ -213,7 +203,8 @@ def get_int_prob_via_sampling(df, ysamp='AllInts', xsamp='Continent', s=6, ax=''
 #   print(norm.fit(Yl))
 
     bins = np.arange(15, 5000, 30)
-    X = bins[:-1] + np.diff(bins[:2])/2
+    dx = np.diff(bins[:2])
+    X = bins[:-1] + dx / 2.
 
 #   shape, loc, scale = lognorm.fit(Y)
     shape, loc, scale = [0.93, -45.9, 605.4]
@@ -223,9 +214,18 @@ def get_int_prob_via_sampling(df, ysamp='AllInts', xsamp='Continent', s=6, ax=''
 
     if isinstance(ax, str):
         fig, ax = plt.subplots()
-    ax.plot(X, np.histogram(Y, bins=bins, density=True)[0], '-', c=sns.color_palette()[0])
-    ax.plot(X, lognorm.pdf(X, *params), ':k')
-    ax.fill_between(X, *[np.quantile(boot, q, axis=0) for q in [0.01, 0.99]], color='pink')
+    count = np.histogram(Y, bins=bins)[0]
+    hist = np.histogram(Y, bins=bins, density=True)[0]
+    p1 = lognorm.pdf(X, *params)
+    p2 = lognorm.pdf(bins, *params)
+    p3 = np.array([0.5*(lo+hi) * dx for lo, hi in zip(p2[:-1], p2[1:])])
+    ax.plot(X, hist, '-', c=sns.color_palette()[0])
+    ax.plot(X, p1, ':k')
+    ax.fill_between(X, *[np.quantile(boot, q, axis=0) for q in [0.025, 0.975]], color='pink')
+
+#   for imax in argrelmax(hist)[0]:
+#       p = p3[imax]**count[imax]
+#       print(X[imax], p3[imax], count[imax], sum(count))
 
     
 

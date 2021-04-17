@@ -62,12 +62,13 @@ def boot_hist_list(df, xsamp, ysamp, bins, s=0, n_rep=1000):
     return Y.mean(axis=0), np.quantile(Y, 0.025, axis=0), np.quantile(Y, 0.975, axis=0)
 
 
-def boot_list(df, ysamp='pair_ints'):
+def boot_list(df, ysamp='adj_ints'):
     if isinstance(df.loc[0, ysamp], str):
         df[ysamp] = df[ysamp].apply(utils.str_to_ints)
 
-    bins = {'pair_ints':np.arange(-10, 520, 20),
+    bins = {'adj_ints':np.arange(-10, 520, 20),
             'scale': np.arange(15, 1270, 30),
+            'all_ints1': np.arange(15, 1270, 30),
             'all_ints2': np.arange(15, 1270, 30)}[ysamp]
 
     X = bins[1:] - np.diff(bins[:2]) * 0.5
@@ -75,15 +76,24 @@ def boot_list(df, ysamp='pair_ints'):
            'All': boot_hist_list(df, '', ysamp, bins),
            'Theory': boot_hist_list(df.loc[df.Theory=='Y'], '', ysamp, bins),
            'Measured': boot_hist_list(df.loc[df.Theory=='N'], '', ysamp, bins)}
-    
+
     xsamp_list = ['Continent', 'Culture']
     for xsamp, s in zip(xsamp_list, [10, 5]):
         out.update({xsamp: boot_hist_list(df, xsamp, ysamp, bins, s=s)})
 
-    stem = {'pair_ints':'adjacent_int',
-            'scale':'scale',
-            'all_ints2':'all_int'}[ysamp]
-    pickle.dump(out, open(PATH_DATA.joinpath(f"{stem}.pickle"), 'wb'))
+    inst_list = ['Idiophone', 'Aerophone', 'Chordophone']
+    for inst in inst_list:
+        out.update({inst: boot_hist_list(df.loc[df.Inst_type==inst], '', ysamp, bins)})
+    
+    pickle.dump(out, open(PATH_DATA.joinpath(f"{ysamp}.pickle"), 'wb'))
     return out
+
+
+def boot_all(df):
+    _ = scale_degree(df)
+    for ysamp in ['adj_ints', 'scale', 'all_ints1', 'all_ints2']:
+        _ = boot_list(df, ysamp)
+
+
 
 

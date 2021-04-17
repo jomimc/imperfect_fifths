@@ -1,4 +1,5 @@
 from collections import defaultdict
+import json
 import re
 import sys
 import time
@@ -119,6 +120,7 @@ def label_scales_by_cluster(df, n=16):
 ### E.g. The major scale in 12-TET is given by 010110101011
 ### The intervals are then retrieved by comparing the mask with the correct tuning system
 def reformat_scales_as_mask(df):
+    df['Intervals'] = df['Intervals'].astype(str)
     st = '000000000000001'
     fn = lambda x: '1' + ''.join([st[-int(i):] for i in x])
     idx = df.loc[df.Tuning.apply(lambda x: x not in ['Unique', 'Turkish', '53-tet'])].index
@@ -175,62 +177,156 @@ def update_scale_data(data_dict, scale, name, country, culture, tuning, cont, re
     return data_dict
 
 
-def extract_scales_and_ints_from_scales(df):
-    data_dict = defaultdict(list)
-    
+def scale_matching_fn(row):
+    # Only some tuning systems use 'mask'
+    try:
+        idx = np.where(np.array([int(x) for x in row.mask]))[0]
+    except TypeError:
+        pass
+
+    for tun in row.Tuning.split(';'):
+        if tun == '12-tet':
+            yield EQ12_INTS[idx]
+        elif tun == '53-tet':
+            yield EQ53_INTS[idx]
+        elif tun == 'Just':
+            yield JI_INTS[idx]
+        elif tun == 'Pythagorean':
+            yield PYT_INTS[idx]
+        elif tun == 'Arabic':
+            yield EQ24_INTS[idx]
+        elif tun == 'Dastgah-ha':
+            yield DASTGAH[idx]
+        elif tun == 'Vietnamese':
+            yield VIET[idx]
+        elif tun == 'Chinese':
+            yield CHINA[idx]
+        elif tun == 'Turkish':
+            yield np.cumsum([0.0] + [TURKISH[a] for a in row.Intervals])
+        elif tun == 'Khmer':
+            for KHM in [KHMER_1, KHMER_2]:
+                base = KHM[[i-1 for i in idx[1:]]]
+                for i in range(len(base)):
+                    yield np.cumsum([0.] + np.roll(KHM,i))
+
+
+def process_scale(scale):
+    scale = scale.astype(int)
+    adj_ints = np.diff(scale).astype(int)
+    N = len(adj_ints)
+    all_ints1 = np.array([i for j in range(len(scale)-1) for i in np.cumsum(adj_ints[j:])])
+    all_ints2 = np.array([i for j in range(len(scale)) for i in np.cumsum(np.roll(adj_ints, j))])
+    return adj_ints, N, scale, all_ints1, all_ints2
+
+
+def match_scales_to_tunings(df):
+    df = reformat_scales_as_mask(df.copy())
+    cols = list(df.columns[:-1])
+    cols[2:2] = ['n_notes', 'scale', 'all_ints1', 'all_ints2']
+    new_df = pd.DataFrame(columns=cols)
     for row in df.itertuples():
+        for scale in scale_matching_fn(row):
+            adj_ints, N, scale, all_ints1, all_ints2 = process_scale(scale)
+            vals = list(row)[1:-1]
+            vals[1] = adj_ints
+            vals[2:2] = [N, scale, all_ints1, all_ints2]
+            new_df.loc[len(new_df)] = vals
+
+    return new_df
+
+
+def extract_scale_using_tonic(ints, tonic, oct_cut):
+    # If in str or list format, there are explicit instructions
+    # for each interval
+    # Otherwise, there is simply a starting note, and it should
+    # not go beyond a single octave
+    if isinstance(tonic, str):
+        tonic = np.array(str_to_ints(tonic))
+        tmin, tmax = min(tonic), max(tonic)
+    elif isinstance(tonic, (list, np.ndarray)):
+        tmin, tmax = min(tonic), max(tonic)
+    elif isinstance(tonic, (int, float)):
+        i_tonic = int(tonic) - 1
+        tonic = np.zeros(len(ints)+1)
+        tonic[i_tonic] = 1
+        tonic[-1] = 2
+        tmin, tmax = 1, 2
+
+    scale = []
+    for i, t1, t2 in zip(ints, tonic[:-1], tonic[1:]):
+        if t1 == tmin:
+            if len(scale):
+                yield np.array(scale)
+            scale = [0, i]
+
+        elif len(scale):
+            scale.append(i + scale[-1])
+
+    if scale[-1] > (1200 - OCT_CUT):
+        yield np.array(scale)
+
+
+def extract_specific_modes(ints, tonic, modes):
+    if isinstance(tonic, str):
+        tonic = np.array(str_to_ints(tonic), int)
+    for m in modes.split(','):
+        m = str_to_ints(m)
+        extra = 0
+        scale = []
+        for i, t in zip(ints, tonic[:-1]):
+            if t == m[0]:
+                if len(scale):
+                    if scale[-1] > (1200 - OCT_CUT):
+                        yield np.array(scale)
+                scale = [0, i]
+            elif t in m:
+                scale.append(scale[-1] + i)
+            else:
+                scale[-1] = scale[-1] + i
+                
+    if scale[-1] > (1200 - OCT_CUT):
+        yield np.array(scale)
+
+
+def eval_tonic(tonic):
+    if isinstance(tonic, str):
+        return tonic != 'N/A'
+    elif isinstance(tonic, (int, float)):
+        return not np.isnan(tonic)
+
+
+def extract_scale(row, oct_cut=OCT_CUT, use_mode=False):
+    ints = np.array(row.Intervals)
+
+    # This column exists only for this instruction;
+    # If 'Y', then add the final interval needed for the scale
+    # to add up to an octave;
+    # See paper and excel file for more details
+    if row.Octave_modified == 'Y':
+        final_int = 1200 - sum(ints)
+        yield np.array([0.] + list(np.cumsum(list(ints) + [final_int])))
+        return
+
+
+    # Point of confusion here... clear it up
+    if not use_mode:
         try:
-            idx = np.where(np.array([int(x) for x in row.mask]))[0]
-        except:
+            for scale in extract_specific_modes(ints, row.Tonic, row.Modes):
+                yield scale
+            return
+        except AttributeError:
             pass
 
-        for tun in row.Tuning.split(';'):
+    # If the entry includes information on tonality, and if
+    # not using modes, follow the instructions given
+    if not use_mode:
+        if eval_tonic(row.Tonic):
+            for scale in extract_scale_using_tonic(ints, row.Tonic, oct_cut):
+                if abs(1200 - scale[-1]) <= oct_cut:
+                    yield scale
+            return
 
-            if tun == '12-tet':
-                scale = EQ12_INTS[idx]
-            elif tun == '53-tet':
-                scale = EQ53_INTS[idx]
-            elif tun == 'Just':
-                scale = JI_INTS[idx]
-            elif tun == 'Pythagorean':
-                scale = PYT_INTS[idx]
-            elif tun == 'Arabic':
-                scale = EQ24_INTS[idx]
-            elif tun == 'Dastgah-ha':
-                scale = DASTGAH[idx]
-            elif tun == 'Vietnamese':
-                scale = VIET[idx]
-            elif tun == 'Chinese':
-                scale = CHINA[idx]
-            elif tun == 'Turkish':
-                scale = np.cumsum([0.0] + [TURKISH[a] for a in row.Intervals])
-            elif tun == 'Khmer':
-                for KHM in [KHMER_1, KHMER_2]:
-                    base = KHM[[i-1 for i in idx[1:]]]
-                    for i in range(len(base)):
-                        scale = np.cumsum([0.] + np.roll(KHM,i))
-                        data_dict = update_scale_data(data_dict, scale, row.Name, row.Culture, tun,
-                                          row.Continent, row.Reference, row.RefID, row.Theory)
-                continue
-            elif tun == 'Unique':
-                scale = np.cumsum([0.] + [float(x) for x in row.Intervals.split(';')])
-            else:
-#               print(row.Name, tun, tun=='12-tet')
-                continue
-
-            data_dict = update_scale_data(data_dict, scale, row.Name, row.Country, row.Culture, tun,
-                              row.Continent, row.Reference, row.RefID, row.Theory)
-    return data_dict
-
-
-def extract_scales_and_ints_from_unique(df, oct_cut=OCT_CUT):
-    data_dict = defaultdict(list)
-
-    for row in df.itertuples():
-        ints = [int(x) for x in row.Intervals.split(';')]
-        if sum(ints) < (1200 - oct_cut):
-            continue
-
+    if sum(ints) >= (1200 - oct_cut):
         start_from = 0
         for i in range(len(ints)):
             if i < start_from:
@@ -247,15 +343,30 @@ def extract_scales_and_ints_from_unique(df, oct_cut=OCT_CUT):
             if abs(oct_val - 1200) > OCT_CUT:
                 continue
             
-            scale = [0.] + list(sum_ints[:idx_oct+1])
-            data_dict = update_scale_data(data_dict, scale, row.Name, row.Country, row.Culture,
-                              row.Tuning, row.Continent, row.Reference, row.RefID, row.Theory)
+            # If modes are not being used (i.e., if each interval is only
+            # allowed to be counted in a scale once) then start looking
+            # for new scales from this index 
+            if not use_mode:
+                start_from = idx_oct + i + 1
 
-            # When searching for new scales from this entry, start from
-            # this index
-            start_from = idx_oct + i + 1
+            yield np.array([0.] + list(sum_ints[:idx_oct+1]))
 
-    return data_dict
+
+def extract_scales_from_measurements(df, oct_cut=OCT_CUT, use_mode=False):
+    if isinstance(df.loc[0, 'Intervals'], str):
+        df.Intervals = df.Intervals.apply(str_to_ints)
+    cols = list(df.columns)
+    cols[2:2] = ['n_notes', 'scale', 'all_ints1', 'all_ints2']
+    new_df = pd.DataFrame(columns=cols)
+    for row in df.itertuples():
+        for scale in extract_scale(row, oct_cut, use_mode):
+            adj_ints, N, scale, all_ints1, all_ints2 = process_scale(scale)
+            vals = list(row)[1:]
+            vals[1] = adj_ints
+            vals[2:2] = [N, scale, all_ints1, all_ints2]
+            new_df.loc[len(new_df)] = vals
+
+    return new_df
 
 
 def distribution_statistics(X, xhi=0, N=1000):
