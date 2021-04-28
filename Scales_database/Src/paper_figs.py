@@ -299,7 +299,7 @@ def octave_by_source(df, res):
     tots = []
     
     res_lbl = ' & '.join(['Total', 'Testable', 'Support', 'Against', 'Non-sig'])
-    print(f"Name & Culture &  {res_lbl} & Text support & Culture support & Overall")
+    print(f"Ref & Culture &  {res_lbl} & Text support & Culture support & Overall \\\\")
     for i in text.index:
         k = i + 1
         try:
@@ -311,7 +311,7 @@ def octave_by_source(df, res):
 #           print(src_against.get(k,0), src_support.get(k,0), t1, t2)
             evidence = (src_against.get(k,0) < src_support.get(k,0)) | ('Yes' in t1) | ('Yes' in t2)
             tots.append(inst_results_list +  [('Yes' in t1), ('Yes' in t2), evidence])
-            print(f"{name} & {culture[:15]:15s} & {inst_results} & {str(t1):6s} & {str(t2):10s} & {evidence:3b}")
+            print(f"{name} & {culture[:15]:15s} & {inst_results} & {str(t1):6s} & {str(t2):10s} & {evidence:3b} \\\\")
         except Exception as e:
 #           print(e)
             pass
@@ -540,7 +540,7 @@ def clustering(df):
 def real_poss_dist(s7, ax):
     sdist = cdist(s7, s7)
     np.fill_diagonal(sdist, sdist.max())
-    min_dist = np.load("../possible7_md1.npy")
+    min_dist = np.load("../possible_7_20_60_320_md1.npy")
     sns.distplot(sdist.min(axis=0), kde=False, norm_hist=True, label='Real-Real', ax=ax, color='b')
     sns.distplot(min_dist, kde=False, norm_hist=True, label='Real-Grid', ax=ax, color='pink')
     yhi = ax.get_ylim()[1]
@@ -548,11 +548,48 @@ def real_poss_dist(s7, ax):
     ax.plot([100]*2, [0, yhi*0.8], ':k', alpha=0.5)
 
 
-def non_scales_diff(df, dx=30):
+### Input: ascending list of notes in scale, minus the tonic and octave (0 and 1200 cents)
+def get_mean_equid(scale):
+    d = 0.
+    n = len(scale) + 1
+    for i, s in enumerate(scale):
+        d += abs(s - (i + 1) * 1200 / n)
+    return d / (n - 1)
+
+
+def dist_equihept(scales):
+    equi = np.arange(1, 7) * 1200 / 7.
+    return cdist(scales, equi.reshape(1,6)).ravel()
+
+
+def equidistance_diff(s7, ax):
+    bins = np.arange(0, 610, 10)
+    X = bins[:-1] + np.diff(bins[:2])
+    hist = np.histogram(dist_equihept(s7), bins=bins, density=True)[0]
+    ax.plot(X, hist, label='Real')
+
+    path_list = ["possible_7_20_60_320_close50", "possible_7_20_60_320_far100", "possible_7_20_60_320"]
+    lbls = ['Poss-Close', 'Poss-Far', 'Poss-All']
+    for i, path in enumerate(path_list):
+        path_hist = PATH_DATA.joinpath(f"{path}_hist.npy")
+        if path_hist.exists() and 1:
+            hist = np.load(path_hist)
+        else:
+            if not i:
+                data = np.cumsum(np.load(f"../{path}.npy"), axis=1)[:,:-1]
+            else:
+                data = np.load(f"../{path}.npy")
+            hist = np.histogram(dist_equihept(data), bins=bins, density=True)[0]
+            np.save(path_hist, hist)
+
+        ax.plot(X, hist, label=lbls[i])
+
+
+def non_scales_diff(df, dx=20):
     fig = plt.figure(figsize=(12,5))
     gs = GridSpec(3,6, height_ratios=[1, 0.2, 1])
     ax = [fig.add_subplot(gs[2,j]) for j in range(6)] + \
-         [fig.add_subplot(gs[0,:3]), fig.add_subplot(gs[0,3:])]
+         [fig.add_subplot(gs[0,i*2:(i+1)*2]) for i in [0,2,1]]
 
 #   fig, ax = plt.subplots(1,6, figsize=(16,3))
     df7 = df.loc[df.n_notes==7].reset_index(drop=True)
@@ -563,9 +600,14 @@ def non_scales_diff(df, dx=30):
     ax[6].set_xlim(-20, 330)
 
 
+    # Distance between equidistant scales, and  real / grid scales
+    equidistance_diff(s7, ax[7])
+    ax[6].set_xlim(-20, 330)
+
+
     # Distributions for real scales, similar scales, and different scales
-    far = np.load('../possible7_far100.npy')
-    close = np.load('../possible7_close50.npy')
+    far = np.load('../possible_7_20_60_320_far100.npy')
+    close = np.load('../possible_7_20_60_320_close50.npy')
 
     lbls = ['Real', 'Grid-similar', 'Grid-different']
     xlbls = [[f"{a} {b}" for b in ['All', 'Min', 'Max']] for a in ["adj", "2nd", "3rd"]]
@@ -574,9 +616,11 @@ def non_scales_diff(df, dx=30):
         # Distributions of adjacent intervals,
         ints = np.diff(d, axis=1)
         xlo, xhi = np.min(ints), np.max(ints)
-        bins = np.arange(dx * ((xlo // dx) - 1), dx * (2 + xhi // dx), dx)
+        xlo = dx * ((xlo // dx) - 1) - int(dx/2)
+        xhi = dx * (3 + xhi // dx)
+        bins = np.arange(xlo, xhi, dx)
         X = bins[:-1] + np.diff(bins[:2])
-        ax[7].plot(X, np.histogram(ints, bins=bins, density=True)[0], label=lbls[i])
+        ax[8].plot(X, np.histogram(ints, bins=bins, density=True)[0], label=lbls[i])
 
         # Distributions of each scale note,
         for j, s in enumerate(d.T):
@@ -593,18 +637,23 @@ def non_scales_diff(df, dx=30):
     ax[0].set_ylabel("Density")
     ax[6].set_ylabel("Density")
     ax[7].set_ylabel("Density")
+    ax[8].set_ylabel("Density")
 
-    ax[6].set_xlabel("Distance to nearest scale")
-    ax[7].set_xlabel("Adjacent Interval / cents")
+    ax[6].set_xlabel("Distance to nearest scale / cents")
+    ax[7].set_xlabel("Mean Note Distance from\nEquiheptatonic Scale / cents")
+    ax[8].set_xlabel("Adjacent Interval / cents")
 
     ax[6].legend(loc='upper right', frameon=False)
     ax[7].legend(loc='upper right', frameon=False)
+    ax[8].legend(loc='upper right', frameon=False)
+
+    ax[7].set_xlim(0, 600)
 
     for a in ax[1:6]:
         a.spines['left'].set_visible(False)
 
-    xmaj = [200, 200, 250, 350, 200, 200, 100]
-    for x, a in zip(xmaj, ax[:6] + [ax[7]]):
+    xmaj = [200, 200, 250, 350, 200, 200, 200, 100]
+    for x, a in zip(xmaj, ax[:6] + ax[7:]):
         set_xticks(a, x, x/2, '%d')
 
     ax[2].set_xticklabels(['', 250, 500, 750, ''])

@@ -24,14 +24,34 @@ def sum_to_n(n, size, limit=None, nMin=1):
         return
     if limit is None:
         limit = n 
+    # The minimim size to start from is
+    # at least as big as 'nMin'
+    # and if there is a lot of space left to fill it is
+    # as least as big as (n + size - 1)
     start = max((n + size - 1) // size, nMin)
-    stop = min(limit, n - size + 1) + 1 
+
+    # The maximum size is given by 'limit'
+    # or else if there is not enough space left, it is
+    # less than or equal to (n - (size - 1) * nMin)
+    stop = min(limit, n - (size - 1) * nMin) + 1 
+
     for i in range(start, stop):
         for tail in sum_to_n(n - i, size - 1, i, nMin=nMin):
             yield [i] + tail
 
 
-def get_all_possible_scales_general(i, nI=240, iLimit=80, nMin=4):
+
+### This function enumerates all possible sets of integers of a
+#   fixed set size (i) so that they sum to a fixed total (nI).
+#   The function does not care about the order in which intervals
+#   are presented, so you get each set once;
+#   i.e., once you get [1, 1, 1, 2], you cannot get [1, 1, 2, 1]
+# Inputs:
+#       i       ::  number of intervals to pick
+#       nI      ::  number of divisions in the octave (grid size given by 1200 / nI)
+#       iLimit  ::  size of largest interval (size in cents given by iLimit * 1200 / nI)
+#       nMin    ::  size of smallest interval (size in cents given by nMin * 1200 / nI)
+def get_all_interval_sets(i, nI=240, iLimit=80, nMin=4):
     ints = []
     timeS = time.time()
     print(i)
@@ -48,11 +68,31 @@ def possible_scales(d, lo, hi, N):
     return np.array(list(set(permutations(X))))
 
 
+### This function expands the interval sets obtained previously
+#   to create a set of unique scales
 def expand_set(scales):
     all_scales = set()
     for s in scales:
         all_scales = all_scales.union(set(permutations(s)))
     return np.array(list(all_scales))
+
+
+
+def create_sets_of_scales():
+    imin = 60
+    imax = 320
+    di = 20
+
+    i = 7
+    nI = int(1200 / di)
+    iLimit = int(imax / di)
+    nMin = int(imin / di)
+
+    ints = get_all_interval_sets(i, nI, iLimit, nMin)
+    print(len(ints))
+    all_ints = expand_set(ints)
+    print(len(all_ints))
+    np.save(f'../possible_{i}_{di}_{imin}_{imax}.npy', all_ints)
 
 
 def d_by_c(df7, dist):
@@ -249,6 +289,10 @@ def plot_cluster6(df):
     ax[0].set_yticks(X)
     ax[0].set_yticklabels(cont)
 
+
+if __name__ == "__main__":
+    
+    create_sets_of_scales()
 
 
     
