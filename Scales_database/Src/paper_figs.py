@@ -332,20 +332,56 @@ def load_interval_data(path_list):
     return out
 
 
+def load_sampled_interval_data(ints, xsamp, n):
+    data = np.array([[np.load(f"../IntStats/{xsamp}samp{j}_w1100_w220_I{i:04d}.npy") for i in ints] for j in range(n)])
+#   data = data.mean(axis=0)
+    data = np.concatenate([d for d in data], axis=2)
+    total = data.sum(axis=1)
+    Y1 = data[:,0,:] / total
+    Y2 = data[:,1,:] / total
+    out = []
+    for y in [Y1, Y2]:
+        out.append(np.mean(y, axis=1))
+        out.append(np.quantile(y, 0.025, axis=1))
+        out.append(np.quantile(y, 0.975, axis=1))
+    return out
+
+
+def octave_sig(ax=''):
+    if isinstance(ax, str):
+        fig, ax = plt.subplots()
+
+    sigma = np.arange(0, 55, 5)
+    data = np.array([np.load(f"../IntStats/sigma{s}_w1100_w220_I1200.npy") for s in sigma])
+    lbls = ['Greater freq\nthan chance', 'Less freq\nthan chance']
+    for i in range(2):
+        frac = data[:,i] / data.sum(axis=1)
+        m = np.mean(frac, axis=1)
+        lo = np.quantile(frac, 0.025, axis=1)
+        hi = np.quantile(frac, 0.975, axis=1)
+        ax.plot(sigma, m, label=lbls[i])
+        ax.fill_between(sigma, hi, lo, color='grey', alpha=0.5)
+
+    ax.set_xlabel("Tuning deviation (cents)")
+    ax.set_ylabel("Fraction of\nsignificant results")
+    ax.legend(loc='best', frameon=False)
+
+
 def interval_sig(res):
-    fig = plt.figure(figsize=(10,4))
-    gs = GridSpec(3,3, width_ratios=[1, 0.3, 2])
-    ax = [fig.add_subplot(gs[i,2]) for i in range(3)] + \
-         [fig.add_subplot(gs[:,0])]
+    fig = plt.figure(figsize=(10,5))
+    gs = GridSpec(12,3, width_ratios=[1, 0.4, 2])
+    ax = [fig.add_subplot(gs[i*3:(i+1)*3,2]) for i in range(4)] + \
+         [fig.add_subplot(gs[:5,0]), fig.add_subplot(gs[8:,0])]
 #   fig, ax = plt.subplots(3,1)
     fig.subplots_adjust(hspace=0, wspace=0)
     ints = np.arange(200, 2605, 5)
     col = sns.color_palette()
 
+    lbls = ['Greater freq than chance', 'Less freq than chance']
     m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/0_w1100_w220_I{i:04d}.npy" for i in ints])
-    ax[0].plot(ints, m1, '-', label='Support', color=col[0])
+    ax[0].plot(ints, m1, '-', label=lbls[0], color=col[0])
     ax[0].fill_between(ints, lo1, hi1, color='grey')
-    ax[0].plot(ints, m2, ':', label='Against', color=col[1])
+    ax[0].plot(ints, m2, ':', label=lbls[1], color=col[1])
     ax[0].fill_between(ints, lo2, hi2, color='grey')
 
     for j in range(1, 3):
@@ -355,35 +391,49 @@ def interval_sig(res):
         ax[1].plot(ints, m2, ':', label='Against', color=col[1])
         ax[1].fill_between(ints, lo2, hi2, color='grey')
 
-    cont = ['South East Asia', 'Africa', 'Oceania', 'South Asia', 'Western',
-            'Latin America', 'East Asia', 'Middle East']
-    for c in cont[:5]:
-        m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/{c}_w1100_w220_I{i:04d}.npy" for i in ints])
-        ax[2].plot(ints, m1, '-', label='Support', color=col[0])
-        ax[2].fill_between(ints, lo1, hi1, color='grey')
-        ax[2].plot(ints, m2, ':', label='Against', color=col[1])
-        ax[2].fill_between(ints, lo2, hi2, color='grey')
+#   cont = ['South East Asia', 'Africa', 'Oceania', 'South Asia', 'Western',
+#           'Latin America', 'East Asia', 'Middle East']
+#   for c in cont[:5]:
+#       m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/{c}_w1100_w220_I{i:04d}.npy" for i in ints])
+#   for j in range(3):
+    m1, lo1, hi1, m2, lo2, hi2 = load_sampled_interval_data(ints, 'cont', 3)
+    ax[2].plot(ints, m1, '-', label='Support', color=col[0])
+    ax[2].fill_between(ints, lo1, hi1, color='grey')
+    ax[2].plot(ints, m2, ':', label='Against', color=col[1])
+    ax[2].fill_between(ints, lo2, hi2, color='grey')
+
+
+    m1, lo1, hi1, m2, lo2, hi2 = load_sampled_interval_data(ints, 'cult', 3)
+    ax[3].plot(ints, m1, '-', label='Support', color=col[0])
+    ax[3].fill_between(ints, lo1, hi1, color='grey')
+    ax[3].plot(ints, m2, ':', label='Against', color=col[1])
+    ax[3].fill_between(ints, lo2, hi2, color='grey')
+
 
     ax[1].set_ylabel("Fraction of significant results")
-    ax[2].set_xticks(range(0, 2700, 200))
-    ax[2].xaxis.set_tick_params(which='minor', bottom=True)
-    ax[2].set_xlabel("Interval size (cents)")
+    ax[3].set_xticks(range(0, 2700, 200))
+    ax[3].xaxis.set_tick_params(which='minor', bottom=True)
+    ax[3].set_xlabel("Interval size (cents)")
 
-    txt = ['P1', 'P1-Null', 'P1-Sample']
-    for i, a in enumerate(ax[:3]):
+    txt = ['All', 'Null?', 'Cont-Samp', 'Cult-Samp']
+    for i, a in enumerate(ax[:4]):
         a.set_xlim(0, 2620)
         a.set_ylim(0, 0.47)
         set_ticks(a, 400, 100, '%d', 0.2, 0.1, '%3.1f')
-        a.annotate(txt[i], (0.05, 0.85), xycoords='axes fraction')
-    for a in ax[:2]:
+        a.annotate(txt[i], (0.04, 0.82), xycoords='axes fraction')
+    for a in ax[:3]:
         a.set_xticks([])
 
-    sns.scatterplot(x='mean_real', y='mean_shuf', data=res.sort_values(by='sig'), hue='sig', ax=ax[3])
+    ax[0].legend(loc='upper left', bbox_to_anchor=(0.00, 1.35), frameon=False, ncol=2)
+
+    sns.scatterplot(x='mean_real', y='mean_shuf', data=res.sort_values(by='sig'), hue='sig', ax=ax[4])
     mx = max(res.mean_real.max(), res.mean_shuf.max())
-    ax[3].plot([0, mx], [0, mx], '-k')
-    ax[3].set_xlabel("Deviation of all real intervals\nfrom the octave")
-    ax[3].set_ylabel("Deviation of all shuffled intervals\nfrom the octave")
-    ax[3].legend(loc='best', frameon=False)
+    ax[4].plot([0, mx], [0, mx], '-k')
+    ax[4].set_xlabel("Deviation of real intervals\nfrom the octave")
+    ax[4].set_ylabel("Deviation of shuffled intervals\nfrom the octave")
+    ax[4].legend(loc='best', frameon=False)
+
+    octave_sig(ax[5])
 
     fig.savefig(PATH_FIG.joinpath("interval_sig.pdf"), bbox_inches='tight')
 
@@ -416,7 +466,7 @@ def inst_notes(df, ysamp='scale'):
     fig.subplots_adjust(hspace=0, wspace=0.3)
     OC.get_int_prob_via_sampling(df, ysamp=ysamp, xsamp='', ax=ax[0,0])
 
-    labels = ['Data', 'Lognormal fit', '95% CI']
+    labels = ['Data', 'Lognormal fit', '99% CI']
     handles = [Line2D([], [], linestyle=ls, color=m, label=l) for ls, m, l in zip('-:', 'bk', labels[:2])] + \
               [Patch(facecolor='pink', label=labels[-1])]
     ax[0,0].legend(handles=handles, bbox_to_anchor=(1.70, 1.50), frameon=False, ncol=3)

@@ -47,7 +47,7 @@ def octave_chance(df, n_rep=10, plot=False, octave=1200, w=50):
     df = df.loc[df.scale.apply(lambda x: x[-2] >= octave-w)]
     print(len(df))
 
-    ints = df.Intervals.apply(utils.str_to_ints).values
+    ints = df.Intervals.values
 #   all_ints = np.array([x for y in ints for x in np.cumsum(y)])
     all_ints = np.array([x for y in ints for i in range(len(y)) for x in np.cumsum(y[i:])])
     oct_real = all_ints[(all_ints>=octave-w)&(all_ints<=octave+w)]
@@ -91,7 +91,7 @@ def label_sig(p):
         return '***'
 
 
-def octave_chance_individual(df, n_rep=10, plot=False, octave=1200, w1=100, w2=20):
+def octave_chance_individual(df, n_rep=50, plot=False, octave=1200, w1=100, w2=20):
     df = df.loc[df.scale.apply(lambda x: x[-2] >= octave)]
     ints = df.Intervals.values
 
@@ -126,12 +126,12 @@ def octave_chance_individual(df, n_rep=10, plot=False, octave=1200, w1=100, w2=2
 
 
 def create_new_scales(df, n_rep=10):
-    ints = [x for y in df.Intervals.apply(utils.str_to_ints) for x in y]
+    ints = [x for y in df.Intervals for x in y]
     n_notes = df.scale.apply(len).values
     df_list = []
 
     for i in range(n_rep):
-        new_ints = [utils.ints_to_str(np.random.choice(ints, replace=True, size=n)) for n in n_notes]
+        new_ints = [np.random.choice(ints, replace=True, size=n) for n in n_notes]
         new_df = df.copy()
         new_df.Intervals = new_ints
         df_list.append(new_df)
@@ -139,15 +139,49 @@ def create_new_scales(df, n_rep=10):
     return df_list
 
 
+def ideal_scale(ints, sigma):
+    N = len(ints)
+    imax = np.argmin(np.abs(np.cumsum(ints)-1200))
+    ints = ints[:imax]
+    ints = ints * 1200 / np.sum(ints)
+    new_ints = np.array([ints[i%len(ints)] for i in range(N)])
+    return new_ints + np.random.normal(0, sigma, size=N)
+
+
+def create_ideal_scales(df):
+    ints = [x for y in df.Intervals for x in y if x < 800]
+    n_notes = df.scale.apply(len).values
+    sigma = np.arange(0, 55, 5)
+    df_list = []
+    for s in sigma:
+        new_ints = [ideal_scale(np.random.choice(ints, replace=True, size=n), s) for n in n_notes]
+        new_df = df.copy()
+        new_df.Intervals = new_ints
+        df_list.append(new_df)
+
+    return sigma, df_list
+                
+
+
 def get_stats(df, i, k, w1=100, w2=20, n_rep=50, nrep2=100):
     out = np.zeros((3,nrep2), float)
+    path = f"../IntStats/{k}_w1{w1}_w2{w2}_I{i:04d}.npy"
+    print(path)
     for j in range(nrep2):
         res = octave_chance_individual(df, octave=i, n_rep=n_rep, w1=w1, w2=w2)
         out[0,j] = len(res.loc[(res.MWU<0.05)&(res.mean_real<res.mean_shuf)])
         out[1,j] = len(res.loc[(res.MWU<0.05)&(res.mean_real>res.mean_shuf)])
         out[2,j] = len(res.loc[(res.MWU>=0.05)])
-    np.save(f"../IntStats/{k}_w1{w1}_w2{w2}_I{i:04d}.npy", out)
+    np.save(path, out)
     return out.mean(axis=1)
+
+
+def get_inst_subsample(df, xsamp, N):
+    idx = []
+    for x in df[xsamp].unique():
+        x_idx = df.loc[df[xsamp]==x].index
+        idx.extend(list(np.random.choice(x_idx, replace=True, size=min(N, len(x_idx)))))
+    return df.loc[idx]
 
 
 def unexpected_intervals(df):
@@ -157,6 +191,17 @@ def unexpected_intervals(df):
         alt_df = df.loc[df["Continent"]!=c]
         with Pool(N_PROC) as pool:
             res = pool.starmap(get_stats, product([alt_df], ints, [c], [100], [20]), 7)
+    
+    for i in range(3):
+        alt_df = get_inst_subsample(df, 'Continent', 10)
+        with Pool(N_PROC) as pool:
+            res = pool.starmap(get_stats, product([alt_df], ints, [f"contsamp{i}"], [100], [20]), 5)
+    
+    for i in range(3):
+        alt_df = get_inst_subsample(df, 'Culture', 5)
+        with Pool(N_PROC) as pool:
+            res = pool.starmap(get_stats, product([alt_df], ints, [f"cultsamp{i}"], [100], [20]), 5)
+    
     
     df = df.loc[:, ['Intervals', 'scale']]
     w1_list = [50, 75, 100, 125, 150, 175, 200]
@@ -170,6 +215,12 @@ def unexpected_intervals(df):
     with Pool(N_PROC) as pool:
         for i in range(3):
             res = pool.starmap(get_stats, product([alt_df[i]], ints, [i+1]), 9)
+
+    sigma, ideal_df = create_ideal_scales(df)
+    with Pool(N_PROC) as pool:
+        for i, s in enumerate(sigma):
+            res = pool.starmap(get_stats, product([ideal_df[i]], ints, [f"sigma{s}"]), 9)
+
 
 
 def get_norm_posterior(Y, s, m):
@@ -221,7 +272,7 @@ def get_int_prob_via_sampling(df, ysamp='AllInts', xsamp='Continent', s=6, ax=''
     p3 = np.array([0.5*(lo+hi) * dx for lo, hi in zip(p2[:-1], p2[1:])])
     ax.plot(X, hist, '-', c=sns.color_palette()[0])
     ax.plot(X, p1, ':k')
-    ax.fill_between(X, *[np.quantile(boot, q, axis=0) for q in [0.025, 0.975]], color='pink')
+    ax.fill_between(X, *[np.quantile(boot, q, axis=0) for q in [0.01, 0.99]], color='pink')
 
 #   for imax in argrelmax(hist)[0]:
 #       p = p3[imax]**count[imax]
