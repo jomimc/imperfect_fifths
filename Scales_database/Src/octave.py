@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 from multiprocessing import Pool
 import numpy as np
+from palettable.colorbrewer.qualitative import Pastel1_9
 import pandas as pd
 import seaborn as sns
 from scipy.signal import argrelmax
@@ -270,9 +271,9 @@ def get_int_prob_via_sampling(df, ysamp='AllInts', xsamp='Continent', s=6, ax=''
     p1 = lognorm.pdf(X, *params)
     p2 = lognorm.pdf(bins, *params)
     p3 = np.array([0.5*(lo+hi) * dx for lo, hi in zip(p2[:-1], p2[1:])])
-    ax.plot(X, hist, '-', c=sns.color_palette()[0])
+    ax.plot(X, hist, '-', c=sns.color_palette()[0], lw=0.9)
     ax.plot(X, p1, ':k')
-    ax.fill_between(X, *[np.quantile(boot, q, axis=0) for q in [0.01, 0.99]], color='pink')
+    ax.fill_between(X, *[np.quantile(boot, q, axis=0) for q in [0.01, 0.99]], color=Pastel1_9.hex_colors[4])
 
 #   for imax in argrelmax(hist)[0]:
 #       p = p3[imax]**count[imax]

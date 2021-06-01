@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from multiprocessing import Pool
 import numpy as np
-from palettable.colorbrewer.qualitative import Paired_12, Set2_8, Dark2_8, Pastel2_8
+from palettable.colorbrewer.qualitative import Paired_12, Set2_8, Dark2_8, Pastel2_8, Pastel1_9
 import pandas as pd
 from scipy.cluster.hierarchy import linkage, fcluster, dendrogram, set_link_color_palette
 from scipy.spatial.distance import pdist, cdist, jensenshannon
@@ -71,12 +71,12 @@ def scale_degree():
 
 
 def multiple_dist():
-    fig, ax = plt.subplots(3,3, figsize=(10,6))
+    fig, ax = plt.subplots(3,2, figsize=(10,6))
     fig.subplots_adjust(wspace=0, hspace=0)
     lblA = ['All', 'Theory', 'Measured']
     lblB = ['Continent', 'Culture']
     lblC = ['Idiophone', 'Aerophone', 'Chordophone']
-    path_stem = ['adj_ints', 'scale', 'all_ints2']
+    path_stem = ['adj_ints', 'scale']#, 'all_ints2']
     xlbls = ['Adjacent Interval / cents', 'Scale note / cents', 'Interval / cents']
     xlim = [570, 1370, 1370]
     cols = Paired_12.hex_colors
@@ -468,7 +468,7 @@ def inst_notes(df, ysamp='scale'):
 
     labels = ['Data', 'Lognormal fit', '99% CI']
     handles = [Line2D([], [], linestyle=ls, color=m, label=l) for ls, m, l in zip('-:', 'bk', labels[:2])] + \
-              [Patch(facecolor='pink', label=labels[-1])]
+              [Patch(facecolor=Pastel1_9.hex_colors[4], label=labels[-1])]
     ax[0,0].legend(handles=handles, bbox_to_anchor=(1.70, 1.50), frameon=False, ncol=3)
     
     for i in range(3):
@@ -715,8 +715,33 @@ def non_scales_diff(df, dx=20):
 
     fig.savefig(PATH_FIG.joinpath(f"nonscale.pdf"), bbox_inches='tight')
 
-    
 
+def scale_diagram():
+    fig, ax = plt.subplots(1,2, figsize=(5,6))
+    fig.subplots_adjust(wspace=0.0)
+
+    ratio_str = ["1:1", "9:8", "5:4", "4:3", "3:2", "5:3", "15:8", "2:1"]
+    ratio = np.array([1, 9/8, 5/4, 4/3, 3/2, 5/3, 15/8, 2])
+    ints = np.log2(ratio) * 1200
+#   ints = np.cumsum(np.array([0, 200, 200, 100, 200, 200, 200, 100], float))
+    freq = 261.626 * 2**(ints/1200)
+
+    for i in range(ints.size):
+        ax[0].plot([0,1.5], [freq[i]]*2, '-k')
+        ax[1].plot([0,1.5], [ints[i]]*2, '-k')
+        ax[0].text(0.05, freq[i]+3, f"{int(round(freq[i]))} Hz", fontsize=10)
+        ax[1].text(0.05, ints[i]+15, f"{int(round(ints[i]))} cents", fontsize=10)
+        ax[1].text(2.50, ints[i]+15, f"{ratio_str[i]}", fontsize=10)
+
+
+    for a in ax:
+        a.set_xlim(0, 3)
+        a.set_xticks([])
+        a.set_yticks([])
+        for side in ['top', 'bottom', 'right', 'left']:
+            a.spines[side].set_visible(False)
+
+    fig.savefig(PATH_FIG.joinpath(f"scale_example.svg"), bbox_inches='tight')
 
     
 
