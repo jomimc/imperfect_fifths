@@ -135,6 +135,7 @@ def create_new_scales(df, n_rep=10):
         new_ints = [np.random.choice(ints, replace=True, size=n) for n in n_notes]
         new_df = df.copy()
         new_df.Intervals = new_ints
+        new_df['scale'] = new_df.Intervals.apply(np.cumsum)
         df_list.append(new_df)
 
     return df_list

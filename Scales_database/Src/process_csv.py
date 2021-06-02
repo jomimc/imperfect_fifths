@@ -103,4 +103,6 @@ if __name__ == '__main__':
     df = process_data()
     df.to_pickle("../Data_processed/real_scales.pickle")
 
+    
+
 

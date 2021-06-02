@@ -3,6 +3,7 @@ from itertools import product
 from pathlib import Path
 import pickle
 
+import geopandas
 from matplotlib.gridspec import GridSpec
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
@@ -15,6 +16,7 @@ import pandas as pd
 from scipy.cluster.hierarchy import linkage, fcluster, dendrogram, set_link_color_palette
 from scipy.spatial.distance import pdist, cdist, jensenshannon
 import seaborn as sns
+from shapely.geometry.point import Point
 
 import octave as OC
 import utils
@@ -386,10 +388,10 @@ def interval_sig(res):
 
     for j in range(1, 3):
         m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/{j}_w1100_w220_I{i:04d}.npy" for i in ints])
-        ax[1].plot(ints, m1, '-', label='Support', color=col[0])
-        ax[1].fill_between(ints, lo1, hi1, color='grey')
-        ax[1].plot(ints, m2, ':', label='Against', color=col[1])
-        ax[1].fill_between(ints, lo2, hi2, color='grey')
+        ax[3].plot(ints, m1, '-', label='Support', color=col[0])
+        ax[3].fill_between(ints, lo1, hi1, color='grey')
+        ax[3].plot(ints, m2, ':', label='Against', color=col[1])
+        ax[3].fill_between(ints, lo2, hi2, color='grey')
 
 #   cont = ['South East Asia', 'Africa', 'Oceania', 'South Asia', 'Western',
 #           'Latin America', 'East Asia', 'Middle East']
@@ -397,17 +399,17 @@ def interval_sig(res):
 #       m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/{c}_w1100_w220_I{i:04d}.npy" for i in ints])
 #   for j in range(3):
     m1, lo1, hi1, m2, lo2, hi2 = load_sampled_interval_data(ints, 'cont', 3)
+    ax[1].plot(ints, m1, '-', label='Support', color=col[0])
+    ax[1].fill_between(ints, lo1, hi1, color='grey')
+    ax[1].plot(ints, m2, ':', label='Against', color=col[1])
+    ax[1].fill_between(ints, lo2, hi2, color='grey')
+
+
+    m1, lo1, hi1, m2, lo2, hi2 = load_sampled_interval_data(ints, 'cult', 3)
     ax[2].plot(ints, m1, '-', label='Support', color=col[0])
     ax[2].fill_between(ints, lo1, hi1, color='grey')
     ax[2].plot(ints, m2, ':', label='Against', color=col[1])
     ax[2].fill_between(ints, lo2, hi2, color='grey')
-
-
-    m1, lo1, hi1, m2, lo2, hi2 = load_sampled_interval_data(ints, 'cult', 3)
-    ax[3].plot(ints, m1, '-', label='Support', color=col[0])
-    ax[3].fill_between(ints, lo1, hi1, color='grey')
-    ax[3].plot(ints, m2, ':', label='Against', color=col[1])
-    ax[3].fill_between(ints, lo2, hi2, color='grey')
 
 
     ax[1].set_ylabel("Fraction of significant results")
@@ -415,7 +417,7 @@ def interval_sig(res):
     ax[3].xaxis.set_tick_params(which='minor', bottom=True)
     ax[3].set_xlabel("Interval size (cents)")
 
-    txt = ['All', 'Null?', 'Cont-Samp', 'Cult-Samp']
+    txt = ['All', 'Cont-Samp', 'Cult-Samp', 'Null']
     for i, a in enumerate(ax[:4]):
         a.set_xlim(0, 2620)
         a.set_ylim(0, 0.47)
@@ -426,7 +428,7 @@ def interval_sig(res):
 
     ax[0].legend(loc='upper left', bbox_to_anchor=(0.00, 1.35), frameon=False, ncol=2)
 
-    sns.scatterplot(x='mean_real', y='mean_shuf', data=res.sort_values(by='sig'), hue='sig', ax=ax[4])
+    sns.scatterplot(x='mean_real', y='mean_shuf', data=res.sort_values(by='sig'), hue='sig', ax=ax[4], alpha=0.5)
     mx = max(res.mean_real.max(), res.mean_shuf.max())
     ax[4].plot([0, mx], [0, mx], '-k')
     ax[4].set_xlabel("Deviation of real intervals\nfrom the octave")
@@ -434,6 +436,10 @@ def interval_sig(res):
     ax[4].legend(loc='best', frameon=False)
 
     octave_sig(ax[5])
+
+    ax[4].annotate('A', (-0.1, 1.05), xycoords='axes fraction', fontsize=16)
+    ax[0].annotate('B', (-0.1, 1.10), xycoords='axes fraction', fontsize=16)
+    ax[5].annotate('C', (-0.1, 1.05), xycoords='axes fraction', fontsize=16)
 
     fig.savefig(PATH_FIG.joinpath("interval_sig.pdf"), bbox_inches='tight')
 
@@ -462,9 +468,18 @@ def window_size():
 
 def inst_notes(df, ysamp='scale'):
     df = df.loc[df.Reduced_scale=='N']
-    fig, ax = plt.subplots(3,2, figsize=(9,3))
-    fig.subplots_adjust(hspace=0, wspace=0.3)
+    alt_df = OC.create_new_scales(df)[0]
+
+#   fig, ax = plt.subplots(4,2, figsize=(10,4))
+    fig = plt.figure(figsize=(10,5))
+    gs = GridSpec(5,3, width_ratios=[1, 0.3, 1], height_ratios=[1,1,1,0.8,1])
+    ax = [fig.add_subplot(gs[i,j]) for i in range(3) for j in [0,2]] + \
+         [fig.add_subplot(gs[4,j]) for j in [0,2]]
+    ax = np.array(ax).reshape(4,2)
+    fig.subplots_adjust(hspace=0, wspace=0)
+
     OC.get_int_prob_via_sampling(df, ysamp=ysamp, xsamp='', ax=ax[0,0])
+    OC.get_int_prob_via_sampling(alt_df, ysamp=ysamp, xsamp='', s=6, ax=ax[3,0]) 
 
     labels = ['Data', 'Lognormal fit', '99% CI']
     handles = [Line2D([], [], linestyle=ls, color=m, label=l) for ls, m, l in zip('-:', 'bk', labels[:2])] + \
@@ -474,11 +489,16 @@ def inst_notes(df, ysamp='scale'):
     for i in range(3):
         OC.get_int_prob_via_sampling(df, ysamp=ysamp, xsamp='Continent', s=6, ax=ax[1,0]) 
         OC.get_int_prob_via_sampling(df, ysamp=ysamp, xsamp='Culture', s=1, ax=ax[2,0]) 
+        OC.get_int_prob_via_sampling(alt_df, ysamp=ysamp, xsamp='Culture', s=1, ax=ax[3,1]) 
+
 
     lbls2 = ['Idiophone', 'Aerophone', 'Chordophone']
     for i, l in enumerate(lbls2):
         OC.get_int_prob_via_sampling(df.loc[df.Inst_type==l], ysamp=ysamp, xsamp='', ax=ax[i,1])
         ax[i,1].annotate(l, (0.70, 0.70), xycoords='axes fraction')
+
+    ax[0,0].annotate('A', (-0.1, 1.05), xycoords='axes fraction', fontsize=16)
+    ax[3,0].annotate('B', (-0.1, 1.05), xycoords='axes fraction', fontsize=16)
         
     txt = ["All", "Cont-Samp", "Cult-Samp"]
     for a in ax.ravel():
@@ -490,13 +510,18 @@ def inst_notes(df, ysamp='scale'):
         a.tick_params(axis='both', which='minor', direction='in', length=4, width=1)
         a.set_yticks([0, 0.001])
 
-    for i, a in enumerate(ax[:,0]):
+    for i, a in enumerate(ax[:3,0]):
         a.annotate(txt[i], (0.70, 0.70), xycoords='axes fraction')
+
+    ax[3,0].annotate(txt[0], (0.70, 0.70), xycoords='axes fraction')
+    ax[3,1].annotate(txt[2], (0.70, 0.70), xycoords='axes fraction')
 
     for a in ax[:2,:].ravel():
         a.set_xticks([])
     ax[2,0].set_xlabel('Interval from the lowest note / cents')
     ax[2,1].set_xlabel('Interval from the lowest note / cents')
+    ax[3,0].set_xlabel('Interval from the lowest note / cents')
+    ax[3,1].set_xlabel('Interval from the lowest note / cents')
 
     fig.savefig(PATH_FIG.joinpath(f"inst_notes_{ysamp}.pdf"), bbox_inches='tight')
 
@@ -742,6 +767,68 @@ def scale_diagram():
             a.spines[side].set_visible(False)
 
     fig.savefig(PATH_FIG.joinpath(f"scale_example.svg"), bbox_inches='tight')
+
+
+def world_map(df):
+    df = df.loc[(df.n_notes>3)&(df.n_notes<10)].reset_index(drop=True)
+#   df.loc[df.Country=='Laos', 'Country'] = "Lao PDR"
+    df.loc[df.Country=='Singapore', 'Country'] = "Malaysia"
+    df.loc[df.Country=='Korea', 'Country'] = "South Korea"
+
+    counts = df.loc[(df.Theory=='N')&(df.Country.str.len()>0), 'Country'].value_counts()
+    countries = counts.keys()
+    co = counts.values
+
+    world = geopandas.read_file(geopandas.datasets.get_path('naturalearth_lowres'))
+    world['cent_col'] = world.centroid.values
+
+    coord = [world.loc[world.name==c, 'cent_col'].values[0] for c in countries]
+    gdf = geopandas.GeoDataFrame(pd.DataFrame(data={'Country':countries, 'count':co, 'coord':coord}), geometry='coord')
+    
+
+    Cont = ['Western', 'Middle East', 'South Asia', 'East Asia', 'South East Asia', 'Africa', 'Oceania', 'Latin America']
+    theory = [len(df.loc[(df.Theory=='Y')&(df.Continent==c)]) for c in Cont]
+    inst   = [len(df.loc[(df.Theory=='N')&(df.Continent==c)]) for c in Cont]
+
+    cont_coord = [Point(*x) for x in [[17, 48], [32, 33], [79, 24], [110, 32], [107, 12], [18, 8], [150, -20], [-70, -10]]]
+
+    cont_df = geopandas.GeoDataFrame(pd.DataFrame(data={'Cont':Cont, 'count':theory, 'coord':cont_coord}), geometry='coord')
+
+    fig = plt.figure(figsize=(10,5))
+    gs = GridSpec(2,3, width_ratios=[1.0, 7.0, 1.0], height_ratios=[1,0.6])
+    gs.update(wspace=0.1 ,hspace=0.10)
+    ax = [fig.add_subplot(gs[0,:]), fig.add_subplot(gs[1,1])]
+    col = Paired_12.mpl_colors
+    ft1 = 12
+
+    world.plot(ax=ax[0], color=(0.6, 0.6, 0.6), edgecolor=(1.0,1.0,1.0), lw=0.2)
+    world.loc[world.name.apply(lambda x: x in countries)].plot(ax=ax[0], color=(0.3, 0.3, 0.3), edgecolor=(1.0,1.0,1.0), lw=0.2)
+    gdf.plot(color='r', ax=ax[0], markersize=gdf['count'].values*0.5, alpha=1)
+    cont_df.plot(color='g', ax=ax[0], markersize=cont_df['count'].values)
+    ax[0].set_xticks([])
+    ax[0].set_yticks([])
+    ax[0].set_xlim(-185, 185)
+    ax[0].set_ylim(-60, 88)
+
+    width = 0.4
+    X = np.arange(len(Cont))
+    ax[1].bar(X - width/2, theory, width, label='Theory', color=np.array(col[2])*0.9)
+    ax[1].bar(X + width/2, inst, width, label='Measured', color=np.array([col[4]])*0.9)
+    xtra = {1: 0.1, 2:0.05, 3:-0.05}
+    for i in range(len(theory)):
+        ax[1].annotate(str(theory[i]), (X[i] - 0.4 + xtra[len(str(theory[i]))], theory[i]+5), fontsize=ft1)
+        ax[1].annotate(str(inst[i]), (X[i] + xtra[len(str(inst[i]))], inst[i]+5), fontsize=ft1)
+
+    ax[1].set_xticks(X)
+    [tick.label.set_fontsize(ft1) for tick in ax[1].xaxis.get_major_ticks()]
+    [tick.label.set_fontsize(ft1) for tick in ax[1].yaxis.get_major_ticks()]
+    ax[1].set_xticklabels(Cont, rotation=28, fontsize=ft1)
+    ax[1].legend(loc='upper right', frameon=False, fontsize=ft1)
+    ax[1].set_ylabel('Number of scales', fontsize=ft1+2)
+    ax[1].set_ylim(0, 220)
+
+    fig.savefig(PATH_FIG.joinpath(f"world_map.pdf"), bbox_inches='tight')
+    
 
     
 
