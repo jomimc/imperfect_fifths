@@ -92,11 +92,22 @@ def create_sets_of_scales():
     print(len(ints))
     all_ints = expand_set(ints)
     print(len(all_ints))
-    np.save(f'../possible_{i}_{di}_{imin}_{imax}.npy', all_ints)
+    np.save(f'../PossibleScales/possible_{i}_{di}_{imin}_{imax}.npy', all_ints)
+
+
+def extract_distances(df, n, di, imin, imax, close=50, far=100):
+    poss = np.load(f'../PossibleScales/possible_{n}_{di}_{imin}_{imax}.npy')
+    poss = np.cumsum(poss, axis=1)[:,:n-1]
+    scale = np.array([x for x in df.loc[df.n_notes==n, 'scale']])[:,1:n]
+    dist = cdist(scale, poss)
+    dmin = dist.min(axis=0)
+    np.save(f"../PossibleScales/possible_{n}_{di}_{imin}_{imax}_md1.npy", dmin)
+    np.save(f"../PossibleScales/possible_{n}_{di}_{imin}_{imax}_close{close}.npy", poss[dmin<=close])
+    np.save(f"../PossibleScales/possible_{n}_{di}_{imin}_{imax}_far{far}.npy", poss[dmin>=far])
 
 
 def d_by_c(df7, dist):
-    cont = df7.Continent
+    cont = df7.Region
     cuniq = np.unique(cont)
     ckey = {c:i for i, c in enumerate(cuniq)}
     cidx = np.array([ckey[c] for c in cont])
@@ -109,7 +120,7 @@ def d_by_c(df7, dist):
 
 
 def continent_overlap(df):
-    cont = df.Continent
+    cont = df.Region
     cuniq = np.unique(cont)
 
     cuniq = ['Western', 'East Asia', 'South Asia', 'Middle East', 'Oceania', 'Latin America',
@@ -123,8 +134,8 @@ def continent_overlap(df):
         for j in range(len(cuniq)):
             if i == j:
                 continue
-            u1 = set(df.loc[(df.Continent==cuniq[i]), 'disc'])
-            u2 = set(df.loc[(df.Continent==cuniq[j]), 'disc'])
+            u1 = set(df.loc[(df.Region==cuniq[i]), 'disc'])
+            u2 = set(df.loc[(df.Region==cuniq[j]), 'disc'])
             l1 = len(u1)
             l2 = len(u1.intersection(u2))
 
@@ -180,7 +191,7 @@ def group_similarity(df7, eps=100, min_s=3):
     groups = defaultdict(int)
     for k, v in Counter(l).items():
         if k != -1:
-            cont = df7.loc[l==k, 'Continent'].values
+            cont = df7.loc[l==k, 'Region'].values
             for i in range(len(cont)-1):
                 for j in range(i+1, len(cont)):
                     k2 = ', '.join(sorted(set([cont[i], cont[j]])))
@@ -191,15 +202,15 @@ def group_similarity(df7, eps=100, min_s=3):
 def mean_distance_between_groups(df7):
     s7 = np.array([[float(x) for x in y] for y in df7.scale])[:,1:-1]
     sdist = cdist(s7, s7)
-    cont = df7.Continent.unique()
+    cont = df7.Region.unique()
     dist = np.zeros((len(cont), len(cont)), float)
     np.fill_diagonal(dist, np.nan)
     for i in range(len(cont)):
-        idx1 = df7.Continent==cont[i]
+        idx1 = df7.Region==cont[i]
         for j in range(len(cont)):
             if i == j:
                 continue
-            idx2 = df7.Continent==cont[j]
+            idx2 = df7.Region==cont[j]
             d = sdist[idx1][:,idx2].mean() / sdist[idx1].mean()
             dist[i,j] = d
     return dist, cont
@@ -207,12 +218,12 @@ def mean_distance_between_groups(df7):
 
 def cond_prob_group(df, nc):
     cont = ['Western', 'Middle East', 'South Asia', 'East Asia', 'South East Asia', 'Africa']
-    ncont = np.array([Counter(df.Continent)[c] for c in cont])
+    ncont = np.array([Counter(df.Region)[c] for c in cont])
     cont_idx = {c:i for i, c in enumerate(cont)}
     dist = np.zeros((len(cont), len(cont)), float)
     
     for c, v in Counter(nc).items():
-        count = Counter(df.loc[nc==c, 'Continent'])
+        count = Counter(df.loc[nc==c, 'Region'])
         for c1 in cont:
             i = cont_idx[c1]
             for c2 in cont:
@@ -258,14 +269,14 @@ def simulate_prob(df7, idx):
         
 
 def joint_prob(df):
-    cont, ncont = np.array([[k,v] for k, v in df.Continent.value_counts().items()]).T
+    cont, ncont = np.array([[k,v] for k, v in df.Region.value_counts().items()]).T
     ncont = ncont.astype(float)
     prob = ncont / np.sum(ncont)
     return prob, np.outer(prob, prob)
 
 
 def prob_given_cluster(df, nc):
-    cont, ncont = np.array([[k,v] for k, v in df.Continent.value_counts().items()]).T
+    cont, ncont = np.array([[k,v] for k, v in df.Region.value_counts().items()]).T
     ncont = ncont.astype(int)
     prob = ncont / np.sum(ncont)
     pi, pj = np.meshgrid(prob, prob)
@@ -283,7 +294,7 @@ def plot_cluster6(df):
     fig, ax = plt.subplots(1,6)
     X = np.arange(len(cont))
     for i, c in enumerate(df.nc6.unique()):
-        count = df.loc[df.nc6==c, 'Continent'].value_counts()
+        count = df.loc[df.nc6==c, 'Region'].value_counts()
         Y = [count.get(c2,0) for c2 in cont]
         ax[i].barh(X, Y, color=cols)
     ax[0].set_yticks(X)

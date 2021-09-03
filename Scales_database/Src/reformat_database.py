@@ -13,7 +13,7 @@ def load_database():
 
 
 def reformat_database(df):
-    cols = ['Name', 'Culture', 'Country', 'Continent', "Theory", "Reference", "RefID"]
+    cols = ['Name', 'Culture', 'Country', 'Region', "Theory", "Reference", "RefID"]
     df_new = df.loc[:, cols]
     for i in df.index:
         ints = {j:x for j, x in enumerate(utils.str_to_ints(df.loc[i, 'pair_ints']))}
@@ -25,7 +25,7 @@ def reformat_database(df):
     return df_new
 
 def save_database(df):
-    df = df.sort_values(by=["Theory", "Continent", "Culture", "Name"])
+    df = df.sort_values(by=["Theory", "Region", "Culture", "Name"])
     df.to_csv("database_format4sharing.csv", index=False)
 
 

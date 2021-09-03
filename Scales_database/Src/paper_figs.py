@@ -15,6 +15,7 @@ from palettable.colorbrewer.qualitative import Paired_12, Set2_8, Dark2_8, Paste
 import pandas as pd
 from scipy.cluster.hierarchy import linkage, fcluster, dendrogram, set_link_color_palette
 from scipy.spatial.distance import pdist, cdist, jensenshannon
+from scipy.stats import entropy
 import seaborn as sns
 from shapely.geometry.point import Point
 
@@ -53,16 +54,17 @@ def minor_ticks( ax ):
 
 
 def scale_degree():
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(6,4))
     data = pickle.load(open(PATH_DATA.joinpath("scale_degree.pickle"), 'rb'))
     X = data['X']
     width = 0.15
-    lbls = ['All', 'Theory', 'Measured', 'Continent', 'Culture']
+    lbls1 = ['All', 'Theory', 'Measured', 'Continent', 'Culture']
+    lbls2 = ['All', 'Theory', 'Measured', 'Region', 'Culture']
     cols = sns.color_palette()
-    for i, l in enumerate(lbls):
-        m, lo, hi = data[l]
+    for i, (l1, l2) in enumerate(zip(lbls1, lbls2)):
+        m, lo, hi = data[l1]
         err = np.array([m - lo, hi - m])
-        ax.bar(X + (i-2)*width, m, width, yerr=err, color=cols[i], label=l, ec='k')
+        ax.bar(X + (i-2)*width, m, width, yerr=err, color=cols[i], label=l2, ec='k')
 
     ax.legend(loc='best', frameon=False)
     ax.set_xlabel("Scale degree")
@@ -73,7 +75,7 @@ def scale_degree():
 
 
 def multiple_dist():
-    fig, ax = plt.subplots(3,2, figsize=(10,6))
+    fig, ax = plt.subplots(3,2, figsize=(12,5))
     fig.subplots_adjust(wspace=0, hspace=0)
     lblA = ['All', 'Theory', 'Measured']
     lblB = ['Continent', 'Culture']
@@ -89,15 +91,17 @@ def multiple_dist():
         for i, lbl in enumerate([lblA, lblB, lblC]):
             for k, l in enumerate(lbl):
                 m, lo, hi = data[l]
+                if l == 'Continent':
+                    l = 'Region'
                 ax[i,j].plot(X, m, '-', c=cols[((i*len(lblA)+k)*2+1)%12], label=l)
                 ax[i,j].fill_between(X, lo, hi, color=cols[((i*len(lblA)+k)*2)%12], alpha=0.5)
 
             if i == 2:
                 ax[i,j].set_xlabel(xlbls[j])
             if j == 0:
-                set_ticks(ax[i,j], 200, 50, '%d', 1.02, 1.01, '%4.2f')
+                set_ticks(ax[i,j], 100, 50, '%d', 1.02, 1.01, '%4.2f')
             else:
-                set_ticks(ax[i,j], 400, 100, '%d', 1.002, 1.001, '%5.3f')
+                set_ticks(ax[i,j], 200, 100, '%d', 1.002, 1.001, '%5.3f')
             ax[i,j].set_xlim(0, xlim[j])
             ax[i,0].set_ylabel("Density")
 
@@ -129,7 +133,7 @@ def scale_dist():
     data = pickle.load(open(PATH_DATA.joinpath("scale.pickle"), 'rb'))
     X = data['X']
 
-    lbls = ['All', 'Theory', 'Measured', 'Continent', 'Culture']
+    lbls = ['All', 'Theory', 'Measured', 'Region', 'Culture']
     cols = Paired_12.hex_colors
     for i, l in enumerate(lbls):
         m, lo, hi = data[l]
@@ -148,7 +152,7 @@ def adjacent_int_dist():
     data = pickle.load(open(PATH_DATA.joinpath("adjacent_int.pickle"), 'rb'))
     X = data['X']
 
-    lbls = ['All', 'Theory', 'Measured', 'Continent', 'Culture']
+    lbls = ['All', 'Theory', 'Measured', 'Region', 'Culture']
     cols = Paired_12.hex_colors
     for i, l in enumerate(lbls):
         m, lo, hi = data[l]
@@ -164,7 +168,7 @@ def all_int_dist():
     data = pickle.load(open(PATH_DATA.joinpath("all_int.pickle"), 'rb'))
     X = data['X']
 
-    lbls = ['All', 'Theory', 'Measured', 'Continent', 'Culture']
+    lbls = ['All', 'Theory', 'Measured', 'Region', 'Culture']
     cols = Paired_12.hex_colors
     for i, l in enumerate(lbls):
         m, lo, hi = data[l]
@@ -187,8 +191,8 @@ def octave_equiv(df, octave=1200, n_rep=10):
     mx = max(res.mean_real.max(), res.mean_shuf.max())
     ax[1].plot([0, mx], [0, mx], '-k')
 
-    ax[0].set_xlabel("Fraction of all real intervals within w2 of octave")
-    ax[1].set_xlabel("Deviation of all real intervals within (w1 of octave) from the octave")
+    ax[0].set_xlabel("Fraction of all original intervals within w2 of octave")
+    ax[1].set_xlabel("Deviation of all original intervals within (w1 of octave) from the octave")
     ax[0].set_ylabel("Fraction of all shuffled intervals within w2 of octave")
     ax[1].set_ylabel("Deviation of all shuffled intervals within (w1 of octave) from the octave")
 
@@ -356,12 +360,13 @@ def octave_sig(ax=''):
     sigma = np.arange(0, 55, 5)
     data = np.array([np.load(f"../IntStats/sigma{s}_w1100_w220_I1200.npy") for s in sigma])
     lbls = ['Greater freq\nthan chance', 'Less freq\nthan chance']
+    col = np.array(Set2_8.mpl_colors)[[1,0]]
     for i in range(2):
         frac = data[:,i] / data.sum(axis=1)
         m = np.mean(frac, axis=1)
         lo = np.quantile(frac, 0.025, axis=1)
         hi = np.quantile(frac, 0.975, axis=1)
-        ax.plot(sigma, m, label=lbls[i])
+        ax.plot(sigma, m, label=lbls[i], c=col[i])
         ax.fill_between(sigma, hi, lo, color='grey', alpha=0.5)
 
     ax.set_xlabel("Tuning deviation (cents)")
@@ -377,20 +382,21 @@ def interval_sig(res):
 #   fig, ax = plt.subplots(3,1)
     fig.subplots_adjust(hspace=0, wspace=0)
     ints = np.arange(200, 2605, 5)
-    col = sns.color_palette()
+    col2 = sns.color_palette()
+    col = np.array(Set2_8.mpl_colors)[[1,0]]
 
     lbls = ['Greater freq than chance', 'Less freq than chance']
     m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/0_w1100_w220_I{i:04d}.npy" for i in ints])
     ax[0].plot(ints, m1, '-', label=lbls[0], color=col[0])
     ax[0].fill_between(ints, lo1, hi1, color='grey')
-    ax[0].plot(ints, m2, ':', label=lbls[1], color=col[1])
+    ax[0].plot(ints, m2, '-', label=lbls[1], color=col[1])
     ax[0].fill_between(ints, lo2, hi2, color='grey')
 
     for j in range(1, 3):
         m1, lo1, hi1, m2, lo2, hi2 = load_interval_data([f"../IntStats/{j}_w1100_w220_I{i:04d}.npy" for i in ints])
         ax[3].plot(ints, m1, '-', label='Support', color=col[0])
         ax[3].fill_between(ints, lo1, hi1, color='grey')
-        ax[3].plot(ints, m2, ':', label='Against', color=col[1])
+        ax[3].plot(ints, m2, '-', label='Against', color=col[1])
         ax[3].fill_between(ints, lo2, hi2, color='grey')
 
 #   cont = ['South East Asia', 'Africa', 'Oceania', 'South Asia', 'Western',
@@ -401,14 +407,14 @@ def interval_sig(res):
     m1, lo1, hi1, m2, lo2, hi2 = load_sampled_interval_data(ints, 'cont', 3)
     ax[1].plot(ints, m1, '-', label='Support', color=col[0])
     ax[1].fill_between(ints, lo1, hi1, color='grey')
-    ax[1].plot(ints, m2, ':', label='Against', color=col[1])
+    ax[1].plot(ints, m2, '-', label='Against', color=col[1])
     ax[1].fill_between(ints, lo2, hi2, color='grey')
 
 
     m1, lo1, hi1, m2, lo2, hi2 = load_sampled_interval_data(ints, 'cult', 3)
     ax[2].plot(ints, m1, '-', label='Support', color=col[0])
     ax[2].fill_between(ints, lo1, hi1, color='grey')
-    ax[2].plot(ints, m2, ':', label='Against', color=col[1])
+    ax[2].plot(ints, m2, '-', label='Against', color=col[1])
     ax[2].fill_between(ints, lo2, hi2, color='grey')
 
 
@@ -417,29 +423,31 @@ def interval_sig(res):
     ax[3].xaxis.set_tick_params(which='minor', bottom=True)
     ax[3].set_xlabel("Interval size (cents)")
 
-    txt = ['All', 'Cont-Samp', 'Cult-Samp', 'Null']
-    for i, a in enumerate(ax[:4]):
-        a.set_xlim(0, 2620)
-        a.set_ylim(0, 0.47)
-        set_ticks(a, 400, 100, '%d', 0.2, 0.1, '%3.1f')
-        a.annotate(txt[i], (0.04, 0.82), xycoords='axes fraction')
-    for a in ax[:3]:
-        a.set_xticks([])
-
     ax[0].legend(loc='upper left', bbox_to_anchor=(0.00, 1.35), frameon=False, ncol=2)
 
-    sns.scatterplot(x='mean_real', y='mean_shuf', data=res.sort_values(by='sig'), hue='sig', ax=ax[4], alpha=0.5)
+    sns.scatterplot(x='mean_real', y='mean_shuf', data=res.sort_values(by='sig'), hue='sig', ax=ax[4], alpha=0.5, palette=col2[:4])
     mx = max(res.mean_real.max(), res.mean_shuf.max())
     ax[4].plot([0, mx], [0, mx], '-k')
-    ax[4].set_xlabel("Deviation of real intervals\nfrom the octave")
+    ax[4].set_xlabel("Deviation of original intervals\nfrom the octave")
     ax[4].set_ylabel("Deviation of shuffled intervals\nfrom the octave")
-    ax[4].legend(loc='best', frameon=False)
+    ax[4].legend(bbox_to_anchor=(0.7,0.6), frameon=False, handletextpad=0)
 
     octave_sig(ax[5])
 
     ax[4].annotate('A', (-0.1, 1.05), xycoords='axes fraction', fontsize=16)
     ax[0].annotate('B', (-0.1, 1.10), xycoords='axes fraction', fontsize=16)
     ax[5].annotate('C', (-0.1, 1.05), xycoords='axes fraction', fontsize=16)
+
+    txt = ['All', 'Reg-Samp', 'Cult-Samp', 'Null']
+    for i, a in enumerate(ax[:4]):
+        a.set_xlim(0, 2620)
+        a.set_ylim(0, 0.47)
+        set_ticks(a, 400, 100, '%d', 0.2, 0.1, '%3.1f')
+        a.tick_params(axis='both', which='major', direction='in', length=6, width=2)
+        a.tick_params(axis='both', which='minor', direction='in', length=4, width=1)
+        a.annotate(txt[i], (0.04, 0.82), xycoords='axes fraction')
+    for a in ax[:3]:
+        a.set_xticklabels(['']*7)
 
     fig.savefig(PATH_FIG.joinpath("interval_sig.pdf"), bbox_inches='tight')
 
@@ -477,19 +485,20 @@ def inst_notes(df, ysamp='scale'):
          [fig.add_subplot(gs[4,j]) for j in [0,2]]
     ax = np.array(ax).reshape(4,2)
     fig.subplots_adjust(hspace=0, wspace=0)
+    col = np.array(Set2_8.mpl_colors)
 
     OC.get_int_prob_via_sampling(df, ysamp=ysamp, xsamp='', ax=ax[0,0])
     OC.get_int_prob_via_sampling(alt_df, ysamp=ysamp, xsamp='', s=6, ax=ax[3,0]) 
 
     labels = ['Data', 'Lognormal fit', '99% CI']
-    handles = [Line2D([], [], linestyle=ls, color=m, label=l) for ls, m, l in zip('-:', 'bk', labels[:2])] + \
-              [Patch(facecolor=Pastel1_9.hex_colors[4], label=labels[-1])]
+    handles = [Line2D([], [], linestyle=ls, color=m, label=l) for ls, m, l in zip('-:', [col[1], 'k'], labels[:2])] + \
+              [Patch(facecolor=col[0], alpha=0.5, label=labels[-1])]
     ax[0,0].legend(handles=handles, bbox_to_anchor=(1.70, 1.50), frameon=False, ncol=3)
     
     for i in range(3):
-        OC.get_int_prob_via_sampling(df, ysamp=ysamp, xsamp='Continent', s=6, ax=ax[1,0]) 
-        OC.get_int_prob_via_sampling(df, ysamp=ysamp, xsamp='Culture', s=1, ax=ax[2,0]) 
-        OC.get_int_prob_via_sampling(alt_df, ysamp=ysamp, xsamp='Culture', s=1, ax=ax[3,1]) 
+        OC.get_int_prob_via_sampling(df, ysamp=ysamp, xsamp='Region', s=6, ax=ax[1,0], fa=0.5/3) 
+        OC.get_int_prob_via_sampling(df, ysamp=ysamp, xsamp='Culture', s=1, ax=ax[2,0], fa=0.5/3) 
+        OC.get_int_prob_via_sampling(alt_df, ysamp=ysamp, xsamp='Culture', s=1, ax=ax[3,1], fa=0.5/3) 
 
 
     lbls2 = ['Idiophone', 'Aerophone', 'Chordophone']
@@ -500,7 +509,7 @@ def inst_notes(df, ysamp='scale'):
     ax[0,0].annotate('A', (-0.1, 1.05), xycoords='axes fraction', fontsize=16)
     ax[3,0].annotate('B', (-0.1, 1.05), xycoords='axes fraction', fontsize=16)
         
-    txt = ["All", "Cont-Samp", "Cult-Samp"]
+    txt = ["All", "Reg-Samp", "Cult-Samp"]
     for a in ax.ravel():
 #       a.set_ylim(0, 0.002)
         a.set_xlim(0, 3000)
@@ -517,7 +526,7 @@ def inst_notes(df, ysamp='scale'):
     ax[3,1].annotate(txt[2], (0.70, 0.70), xycoords='axes fraction')
 
     for a in ax[:2,:].ravel():
-        a.set_xticks([])
+        a.set_xticklabels(['']*5)
     ax[2,0].set_xlabel('Interval from the lowest note / cents')
     ax[2,1].set_xlabel('Interval from the lowest note / cents')
     ax[3,0].set_xlabel('Interval from the lowest note / cents')
@@ -534,31 +543,55 @@ def clustering(df):
 
 
     df7 = df.loc[df.n_notes==7].reset_index(drop=True)
-    s7 = np.array([[float(x) for x in y] for y in df7.scale])[:,1:-1]
+    s7 = np.array([y for y in df7.scale])[:,1:-1]
     li = linkage(s7, method='ward')
     nc = fcluster(li, li[-6,2], criterion='distance')
     df7['nc6'] = nc
 
     ## Dendrogram
     thresh = li[-5, 2]
-    cols = Paired_12.hex_colors[:6]
+    cols = list(np.array(Paired_12.hex_colors)[[5,1,7,3,11,9]])
     set_link_color_palette(cols)
-    idx_label = [137, 375,
-                 22, 93, 357,
-                 0, 209, 255, 429, 492,
-                 98, 230,
-                 323, 459,
-                 2, 381, 439, 542]
-#   print(df7.loc[idx_label, ['Name', 'nc6']])
+    idx_label = [137, # 1, Mela Salagam
+                 375, # 1, Gamelan Swastigitha Pelog
+                 22, # 2, Locrian
+                 93, # 2, Bhairavi
+                 357, # 2, Khong Mon
+                 540, # 2, So-na
+                 343, # 2, Mbira 3
+                 0, # 3, Major
+                 209, # 6, Maqam Mahur A
+                 255, # 3, In
+                 429, # 6, Matape 2
+                 493, # 6, Marimba 8
+                 267, # 6, Yanyue
+                 354, # 6, Ranat T'hong
+                 472, # 6, Gamelan 25
+                 234, # 4, Dastgad-e Chahargah
+                 316, # 4, Hicaz Makam 1
+                 2, # 6, Harmonic Minor 
+                 420, # 6, Asena 27
+                 439, # 6, Guinea Malinke 3
+                 135, # 3, Mela Shulini
+                 385, # 3, Asena 5
+                 206, # 5, Maqam Athar Kurd
+                 470, # 5, Kwaiker
+                 460] # 5, Ranad thum lek
+    for i in idx_label:
+        try:
+            print(i, df7.loc[i, ['Name', 'nc6']].values)
+        except:
+            print(i, None)
+
     x_lbls = [name if i in idx_label else '' for i, name in enumerate(df7.Name)]
     dendrogram(li, labels=x_lbls, color_threshold=thresh, above_threshold_color='k', leaf_rotation=00, ax=ax[0], orientation='left')
 
 
-    ## Scale and Continent dist
+    ## Scale and Region dist
 
     cont = ['South East Asia', 'Africa', 'Oceania', 'South Asia', 'Western',
             'Latin America', 'East Asia', 'Middle East']
-    cont_tot = Counter(df7['Continent'])
+    cont_tot = Counter(df7['Region'])
     Y_tot = np.array([cont_tot.get(c2,0) for c2 in cont])
 
     bins = np.arange(15, 1290, 30)
@@ -566,14 +599,24 @@ def clustering(df):
     xbar = np.arange(len(cont))
     width = 0.3
 
+    txt = 'abcdef'
     for i in range(6):
         c = 6 - i
-        sns.distplot([x for y in df7.loc[nc==c, 'scale'] for x in y], bins=bins, ax=ax[i+1], kde=False, norm_hist=True, color=cols[c-1])
-        count = Counter(df7.loc[nc==c, 'Continent'])
+        scale_arr = np.array([x for x in df7.loc[nc==c, 'scale'].values])
+        sns.distplot(scale_arr.ravel(), bins=bins, ax=ax[i+1], kde=False, norm_hist=True, color=cols[c-1])
+        count = Counter(df7.loc[nc==c, 'Region'])
         Y = np.array([count.get(c2,0) for c2 in cont])
         ax[i+7].bar(xbar - width/2, Y, width, color=Dark2_8.hex_colors, ec='k')
+
+        print(c, entropy(Y/Y_tot))
         ax.append(ax[i+7].twinx())
         ax[i+13].bar(xbar + width/2, Y/Y_tot, width, color=Pastel2_8.hex_colors, ec='k')
+        ax[i+1].annotate(txt[i], (0.05, 0.97), xycoords='axes fraction', fontsize=12)
+        ax[i+7].annotate(txt[i], (0.05, 0.97), xycoords='axes fraction', fontsize=12)
+
+        yhi = ax[i+1].get_ylim()[1] * 0.5
+        for j in range(1,7):
+            ax[i+1].plot([scale_arr[:,j].mean()]*2, [0, yhi], ':k')
         
 
     ax[0].set_yticklabels(ax[0].get_yticklabels(), fontsize=10)
@@ -605,22 +648,29 @@ def clustering(df):
         a.set_ylabel("Relative\nFrequency")
 
     ax[6].set_xlabel("Scale note")
-    ax[12].set_xlabel("Continent")
+    ax[12].set_xlabel("Region")
     ax[12].set_xticks(xbar)
     ax[12].set_xticklabels(cont, rotation=90)
+
+
+    ax[0].annotate('A', (0.0, 1.00), xycoords='axes fraction', fontsize=16)
+    ax[1].annotate('B', (-0.2, 1.05), xycoords='axes fraction', fontsize=16)
+    ax[7].annotate('C', (-0.2, 1.05), xycoords='axes fraction', fontsize=16)
 
     fig.savefig(PATH_FIG.joinpath(f"cluster7.pdf"), bbox_inches='tight')
 
 
-def real_poss_dist(s7, ax):
+def real_poss_dist(s7, ax, n=7):
+    col = np.array(Set2_8.hex_colors)[[1,0]]
     sdist = cdist(s7, s7)
     np.fill_diagonal(sdist, sdist.max())
-    min_dist = np.load("../possible_7_20_60_320_md1.npy")
-    sns.distplot(sdist.min(axis=0), kde=False, norm_hist=True, label='Real-Real', ax=ax, color='b')
-    sns.distplot(min_dist, kde=False, norm_hist=True, label='Real-Grid', ax=ax, color='pink')
+    iparams = {5:"20_60_420", 7:"20_60_320"}[n]
+    min_dist = np.load(f"../PossibleScales/possible_{n}_{iparams}_md1.npy")
+    sns.distplot(sdist.min(axis=0), kde=False, norm_hist=True, label='Real-Real', ax=ax, color=col[0])
+    sns.distplot(min_dist, kde=False, norm_hist=True, label='Real-Grid', ax=ax, color=col[1])
     yhi = ax.get_ylim()[1]
-    ax.plot([50]*2, [0, yhi*0.8], ':k', alpha=0.5)
-    ax.plot([100]*2, [0, yhi*0.8], ':k', alpha=0.5)
+    ax.plot([50]*2, [0, yhi*0.8], '--k', alpha=0.5)
+    ax.plot([100]*2, [0, yhi*0.8], '--k', alpha=0.5)
 
 
 ### Input: ascending list of notes in scale, minus the tonic and octave (0 and 1200 cents)
@@ -632,59 +682,72 @@ def get_mean_equid(scale):
     return d / (n - 1)
 
 
-def dist_equihept(scales):
-    equi = np.arange(1, 7) * 1200 / 7.
-    return cdist(scales, equi.reshape(1,6)).ravel()
+def dist_equi(scales, n):
+    equi = np.arange(1, n) * 1200. / n
+    return cdist(scales, equi.reshape(1,n-1), metric='cityblock').ravel() / (n-1)
 
 
-def equidistance_diff(s7, ax):
-    bins = np.arange(0, 610, 10)
+def equidistance_diff(s7, ax, n=7):
+    bins = np.arange(-5, 240, 10)
     X = bins[:-1] + np.diff(bins[:2])
-    hist = np.histogram(dist_equihept(s7), bins=bins, density=True)[0]
+    d7 = dist_equi(s7, n)
+    print('\n', np.quantile(d7, [0.75, 0.8, 0.85, 0.9, 0.95]))
+    hist = np.histogram(d7, bins=bins, density=True)[0]
     ax.plot(X, hist, label='Real')
 
-    path_list = ["possible_7_20_60_320_close50", "possible_7_20_60_320_far100", "possible_7_20_60_320"]
-    lbls = ['Poss-Close', 'Poss-Far', 'Poss-All']
+    iparams = {5:"20_60_420", 7:"20_60_320"}[n]
+    path_list = [f"possible_{n}_{iparams}{a}" for a in ["_close50", "_far100", ""]]
+    lbls = ['Grid-Close', 'Grid-Far', 'Grid-All']
     for i, path in enumerate(path_list):
+#       print(i, path)
         path_hist = PATH_DATA.joinpath(f"{path}_hist.npy")
         if path_hist.exists() and 1:
             hist = np.load(path_hist)
         else:
-            if not i:
-                data = np.cumsum(np.load(f"../{path}.npy"), axis=1)[:,:-1]
+            if i <= 1:
+                data = np.load(f"../PossibleScales/{path}.npy")
             else:
-                data = np.load(f"../{path}.npy")
-            hist = np.histogram(dist_equihept(data), bins=bins, density=True)[0]
+                data = np.cumsum(np.load(f"../PossibleScales/{path}.npy"), axis=1)[:,:-1]
+            d = dist_equi(data, n)
+            if i == 2:
+                print(np.quantile(d, [0.05, 0.1, 0.15, 0.2, 0.25]))
+            hist = np.histogram(d, bins=bins, density=True)[0]
             np.save(path_hist, hist)
 
         ax.plot(X, hist, label=lbls[i])
 
 
-def non_scales_diff(df, dx=20):
+def non_scales_diff(df, dx=20, n=7):
     fig = plt.figure(figsize=(12,5))
-    gs = GridSpec(3,6, height_ratios=[1, 0.2, 1])
-    ax = [fig.add_subplot(gs[2,j]) for j in range(6)] + \
-         [fig.add_subplot(gs[0,i*2:(i+1)*2]) for i in [0,2,1]]
+    if n == 7:
+        gs = GridSpec(3,6, height_ratios=[1, 0.2, 1])
+        ax = [fig.add_subplot(gs[2,j]) for j in range(6)] + \
+             [fig.add_subplot(gs[0,i*2:(i+1)*2]) for i in [0,2,1]]
+    elif n == 5:
+        gs = GridSpec(3,12, height_ratios=[1, 0.2, 1])
+        ax = [fig.add_subplot(gs[2,j*3:(j+1)*3]) for j in range(4)] + [[],[]] + \
+             [fig.add_subplot(gs[0,i*4:(i+1)*4]) for i in [0,2,1]]
 
 #   fig, ax = plt.subplots(1,6, figsize=(16,3))
-    df7 = df.loc[df.n_notes==7].reset_index(drop=True)
+    df7 = df.loc[df.n_notes==n].reset_index(drop=True)
     s7 = np.array([[float(x) for x in y] for y in df7.scale])[:,1:-1]
 
     # Distance between real and grid scales
-    real_poss_dist(s7, ax[6])
+    real_poss_dist(s7, ax[6], n=n)
     ax[6].set_xlim(-20, 330)
 
 
     # Distance between equidistant scales, and  real / grid scales
-    equidistance_diff(s7, ax[7])
+    equidistance_diff(s7, ax[7], n=n)
     ax[6].set_xlim(-20, 330)
 
 
     # Distributions for real scales, similar scales, and different scales
-    far = np.load('../possible_7_20_60_320_far100.npy')
-    close = np.load('../possible_7_20_60_320_close50.npy')
+    iparams = {5:"20_60_420", 7:"20_60_320"}[n]
+    far = np.load(f'../PossibleScales/possible_{n}_{iparams}_far100.npy')
+    close = np.load(f'../PossibleScales/possible_{n}_{iparams}_close50.npy')
 
-    lbls = ['Real', 'Grid-similar', 'Grid-different']
+    lbls = ['Real', 'Grid-Close', 'Grid-Far']
     xlbls = [[f"{a} {b}" for b in ['All', 'Min', 'Max']] for a in ["adj", "2nd", "3rd"]]
     for i, (d, l) in enumerate(zip([s7, close, far], lbls)):
 
@@ -704,7 +767,7 @@ def non_scales_diff(df, dx=20):
             X = bins[:-1] + np.diff(bins[:2])
             hist = np.histogram(s, bins=bins, density=True)[0]
             ax[j].plot(X, hist, label=lbls[i])
-            ax[j].plot([(j+1)*1200/7]*2, [0, hist.max()], ':k', alpha=0.5)
+            ax[j].plot([(j+1)*1200/n]*2, [0, hist.max()], ':k', alpha=0.5)
 
             ax[j].set_xlabel(f"Note {j+2} / cents")
             ax[j].set_ylim(0, ax[j].get_ylim()[1])
@@ -722,23 +785,31 @@ def non_scales_diff(df, dx=20):
     ax[7].legend(loc='upper right', frameon=False)
     ax[8].legend(loc='upper right', frameon=False)
 
-    ax[7].set_xlim(0, 600)
+    ax[7].set_xlim(0, 220)
 
-    for a in ax[1:6]:
+    for a in ax[1:n-1]:
         a.spines['left'].set_visible(False)
 
-    xmaj = [200, 200, 250, 350, 200, 200, 200, 100]
-    for x, a in zip(xmaj, ax[:6] + ax[7:]):
+    xmaj = [200, 200, 250, 350, 200, 200, 50, 100]
+    for x, a in zip(xmaj, ax[:n-1] + ax[7:]):
         set_xticks(a, x, x/2, '%d')
 
     ax[2].set_xticklabels(['', 250, 500, 750, ''])
 
     for a in ax[:]:
-        a.spines['top'].set_visible(False)
-        a.spines['right'].set_visible(False)
-        a.set_yticks([])
+        try:
+            a.spines['top'].set_visible(False)
+            a.spines['right'].set_visible(False)
+            a.set_yticks([])
+        except:
+            pass
 
-    fig.savefig(PATH_FIG.joinpath(f"nonscale.pdf"), bbox_inches='tight')
+    ax[6].annotate('A', (-0.075, 1.00), xycoords='axes fraction', fontsize=16)
+    ax[8].annotate('B', (-0.072, 1.00), xycoords='axes fraction', fontsize=16)
+    ax[7].annotate('C', (-0.08, 1.00), xycoords='axes fraction', fontsize=16)
+    ax[0].annotate('D', (-0.15, 1.00), xycoords='axes fraction', fontsize=16)
+
+    fig.savefig(PATH_FIG.joinpath(f"nonscale_{n}.pdf"), bbox_inches='tight')
 
 
 def scale_diagram():
@@ -787,8 +858,8 @@ def world_map(df):
     
 
     Cont = ['Western', 'Middle East', 'South Asia', 'East Asia', 'South East Asia', 'Africa', 'Oceania', 'Latin America']
-    theory = [len(df.loc[(df.Theory=='Y')&(df.Continent==c)]) for c in Cont]
-    inst   = [len(df.loc[(df.Theory=='N')&(df.Continent==c)]) for c in Cont]
+    theory = [len(df.loc[(df.Theory=='Y')&(df.Region==c)]) for c in Cont]
+    inst   = [len(df.loc[(df.Theory=='N')&(df.Region==c)]) for c in Cont]
 
     cont_coord = [Point(*x) for x in [[17, 48], [32, 33], [79, 24], [110, 32], [107, 12], [18, 8], [150, -20], [-70, -10]]]
 
@@ -798,13 +869,14 @@ def world_map(df):
     gs = GridSpec(2,3, width_ratios=[1.0, 7.0, 1.0], height_ratios=[1,0.6])
     gs.update(wspace=0.1 ,hspace=0.10)
     ax = [fig.add_subplot(gs[0,:]), fig.add_subplot(gs[1,1])]
-    col = Paired_12.mpl_colors
+#   col = np.array(Paired_12.mpl_colors)[[5,1]]
+    col = np.array(Set2_8.mpl_colors)[[1,0]]
     ft1 = 12
 
-    world.plot(ax=ax[0], color=(0.6, 0.6, 0.6), edgecolor=(1.0,1.0,1.0), lw=0.2)
-    world.loc[world.name.apply(lambda x: x in countries)].plot(ax=ax[0], color=(0.3, 0.3, 0.3), edgecolor=(1.0,1.0,1.0), lw=0.2)
-    gdf.plot(color='r', ax=ax[0], markersize=gdf['count'].values*0.5, alpha=1)
-    cont_df.plot(color='g', ax=ax[0], markersize=cont_df['count'].values)
+    world.plot(ax=ax[0], color=(0.8, 0.8, 0.8), edgecolor=(1.0,1.0,1.0), lw=0.2)
+    world.loc[world.name.apply(lambda x: x in countries)].plot(ax=ax[0], color=(0.5, 0.5, 0.5), edgecolor=(1.0,1.0,1.0), lw=0.2)
+    gdf.plot(color=col[0], ax=ax[0], markersize=gdf['count'].values*0.5, alpha=1)
+    cont_df.plot(color=col[1], ax=ax[0], markersize=cont_df['count'].values)
     ax[0].set_xticks([])
     ax[0].set_yticks([])
     ax[0].set_xlim(-185, 185)
@@ -812,8 +884,8 @@ def world_map(df):
 
     width = 0.4
     X = np.arange(len(Cont))
-    ax[1].bar(X - width/2, theory, width, label='Theory', color=np.array(col[2])*0.9)
-    ax[1].bar(X + width/2, inst, width, label='Measured', color=np.array([col[4]])*0.9)
+    ax[1].bar(X - width/2, theory, width, label='Theory', color=np.array(col[1])*0.9, alpha=0.8)
+    ax[1].bar(X + width/2, inst, width, label='Measured', color=np.array([col[0]])*0.9, alpha=0.8)
     xtra = {1: 0.1, 2:0.05, 3:-0.05}
     for i in range(len(theory)):
         ax[1].annotate(str(theory[i]), (X[i] - 0.4 + xtra[len(str(theory[i]))], theory[i]+5), fontsize=ft1)

@@ -644,7 +644,7 @@ def extract_scales_and_ints_from_scales(df):
                         pair_ints.append([scale[j+1] - scale[j] for j in range(len(scale)-1)])
                         cultures.append(row.Culture)
                         tunings.append(tun)
-                        conts.append(row.Continent)
+                        conts.append(row.Region)
                         ref.append(row.Reference)
                         theory.append(row.Theory)
                 continue
@@ -660,7 +660,7 @@ def extract_scales_and_ints_from_scales(df):
             pair_ints.append([scale[j+1] - scale[j] for j in range(len(scale)-1)])
             cultures.append(row.Culture)
             tunings.append(tun)
-            conts.append(row.Continent)
+            conts.append(row.Region)
             ref.append(row.Reference)
             theory.append(row.Theory)
 
@@ -840,7 +840,7 @@ def reformat_surjodiningrat(df):
 
 
 def reformat_original_csv_data(df):
-    new_df = pd.DataFrame(columns=['Name', 'Intervals', 'Culture', 'Continent', 'Tuning', 'Reference', 'Theory'])
+    new_df = pd.DataFrame(columns=['Name', 'Intervals', 'Culture', 'Region', 'Tuning', 'Reference', 'Theory'])
     for i, col in enumerate(df.columns):
         tuning  = df.loc[0, col]
         culture = df.loc[1, col]
@@ -893,7 +893,7 @@ def extract_scales_and_ints_from_unique(df):
             pair_ints.append([scale[j+1] - scale[j] for j in range(len(scale)-1)])
             cultures.append(row.Culture)
             tunings.append(row.Tuning)
-            conts.append(row.Continent)
+            conts.append(row.Region)
             ref.append(row.Reference)
             theory.append('N')
 

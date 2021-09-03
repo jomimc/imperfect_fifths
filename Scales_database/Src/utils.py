@@ -143,7 +143,7 @@ def reformat_surjodiningrat(df):
 
 
 def reformat_original_csv_data(df):
-    new_df = pd.DataFrame(columns=['Name', 'Intervals', 'Culture', 'Continent', 'Country', 'Tuning', 'Reference', 'RefID', 'Theory'])
+    new_df = pd.DataFrame(columns=['Name', 'Intervals', 'Culture', 'Region', 'Country', 'Tuning', 'Reference', 'RefID', 'Theory'])
     for i, col in enumerate(df.columns):
         tuning  = df.loc[0, col]
         culture = df.loc[1, col]
@@ -170,7 +170,7 @@ def update_scale_data(data_dict, scale, name, country, culture, tuning, cont, re
     data_dict['Tuning'].append(tuning)
     data_dict['Country'].append(country)
     data_dict['Culture'].append(culture)
-    data_dict['Continent'].append(cont)
+    data_dict['Region'].append(cont)
     data_dict['Reference'].append(ref)
     data_dict['RefID'].append(refID)
     data_dict['Theory'].append(theory)
@@ -279,9 +279,9 @@ def extract_specific_modes(ints, tonic, modes):
                     if scale[-1] > (1200 - OCT_CUT):
                         yield np.array(scale)
                 scale = [0, i]
-            elif t in m:
+            elif len(scale) and t in m:
                 scale.append(scale[-1] + i)
-            else:
+            elif len(scale):
                 scale[-1] = scale[-1] + i
                 
     if scale[-1] > (1200 - OCT_CUT):

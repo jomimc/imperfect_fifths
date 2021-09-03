@@ -35,7 +35,7 @@ def scale_degree(df, n_rep=1000):
            'Theory': boot_hist(df.loc[df.Theory=='Y'], '', 'n_notes', bins),
            'Measured': boot_hist(df.loc[df.Theory=='N'], '', 'n_notes', bins)}
 
-    xsamp_list = ['Continent', 'Culture']
+    xsamp_list = ['Region', 'Culture']
     for xsamp, s in zip(xsamp_list, [10, 5]):
         out.update({xsamp: boot_hist(df, xsamp, 'n_notes', bins, s=s)})
 
@@ -77,7 +77,7 @@ def boot_list(df, ysamp='adj_ints'):
            'Theory': boot_hist_list(df.loc[df.Theory=='Y'], '', ysamp, bins),
            'Measured': boot_hist_list(df.loc[df.Theory=='N'], '', ysamp, bins)}
 
-    xsamp_list = ['Continent', 'Culture']
+    xsamp_list = ['Region', 'Culture']
     for xsamp, s in zip(xsamp_list, [10, 5]):
         out.update({xsamp: boot_hist_list(df, xsamp, ysamp, bins, s=s)})
 

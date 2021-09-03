@@ -4,7 +4,7 @@ import os
 import matplotlib.pyplot as plt
 from multiprocessing import Pool
 import numpy as np
-from palettable.colorbrewer.qualitative import Pastel1_9
+from palettable.colorbrewer.qualitative import Paired_12, Set2_8, Dark2_8, Pastel2_8, Pastel1_9
 import pandas as pd
 import seaborn as sns
 from scipy.signal import argrelmax
@@ -189,13 +189,13 @@ def get_inst_subsample(df, xsamp, N):
 def unexpected_intervals(df):
     ints = np.arange(200, 2605, 5)
 
-    for c in df['Continent'].unique():
-        alt_df = df.loc[df["Continent"]!=c]
+    for c in df['Region'].unique():
+        alt_df = df.loc[df["Region"]!=c]
         with Pool(N_PROC) as pool:
             res = pool.starmap(get_stats, product([alt_df], ints, [c], [100], [20]), 7)
     
     for i in range(3):
-        alt_df = get_inst_subsample(df, 'Continent', 10)
+        alt_df = get_inst_subsample(df, 'Region', 10)
         with Pool(N_PROC) as pool:
             res = pool.starmap(get_stats, product([alt_df], ints, [f"contsamp{i}"], [100], [20]), 5)
     
@@ -239,7 +239,7 @@ def get_norm_posterior(Y, s, m):
 
 
 def evaluate_best_fit_lognorm(df):
-    Y = [x for c in df.Continent.unique() for y in np.random.choice(df.loc[df.Continent==c, "AllInts"], size=6) for x in y]
+    Y = [x for c in df.Region.unique() for y in np.random.choice(df.loc[df.Region==c, "AllInts"], size=6) for x in y]
     Yl = np.log(np.array(Y))
     s_arr = np.linspace(0, 2, 1001)[1:]
     m_arr = np.linspace(np.log(25), np.log(6000), 1001)
@@ -247,7 +247,7 @@ def evaluate_best_fit_lognorm(df):
     return get_norm_posterior(Yl, si, mi)
 
 
-def get_int_prob_via_sampling(df, ysamp='AllInts', xsamp='Continent', s=6, ax=''):
+def get_int_prob_via_sampling(df, ysamp='AllInts', xsamp='Region', s=6, ax='', fa=0.5):
     if len(xsamp):
         Y = [x for c in df[xsamp].unique() for y in np.random.choice(df.loc[df[xsamp]==c, ysamp], size=s) for x in y]
     else:
@@ -255,6 +255,7 @@ def get_int_prob_via_sampling(df, ysamp='AllInts', xsamp='Continent', s=6, ax=''
 #   Yl = np.log(np.array(Y))
 #   print(norm.fit(Yl))
 
+    col = np.array(Set2_8.mpl_colors)
     bins = np.arange(15, 5000, 30)
     dx = np.diff(bins[:2])
     X = bins[:-1] + dx / 2.
@@ -272,9 +273,9 @@ def get_int_prob_via_sampling(df, ysamp='AllInts', xsamp='Continent', s=6, ax=''
     p1 = lognorm.pdf(X, *params)
     p2 = lognorm.pdf(bins, *params)
     p3 = np.array([0.5*(lo+hi) * dx for lo, hi in zip(p2[:-1], p2[1:])])
-    ax.plot(X, hist, '-', c=sns.color_palette()[0], lw=0.9)
+    ax.plot(X, hist, '-', c=col[1], lw=0.9)
     ax.plot(X, p1, ':k')
-    ax.fill_between(X, *[np.quantile(boot, q, axis=0) for q in [0.01, 0.99]], color=Pastel1_9.hex_colors[4])
+    ax.fill_between(X, *[np.quantile(boot, q, axis=0) for q in [0.01, 0.99]], color=col[0], alpha=fa)
 
 #   for imax in argrelmax(hist)[0]:
 #       p = p3[imax]**count[imax]
